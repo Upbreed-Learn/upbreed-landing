@@ -24,16 +24,15 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import LockIcon from './jsx-icons/lock';
-import AuthBanner from './auth-banner';
 
 const LINKS = [
   {
     name: 'About Us',
-    href: '#',
+    href: '/about',
   },
   {
     name: 'Career',
-    href: '#',
+    href: '/career',
   },
   {
     name: 'Classes',
@@ -41,7 +40,7 @@ const LINKS = [
   },
   {
     name: 'Pricing',
-    href: '#',
+    href: '/pricing',
   },
   {
     name: 'Press',
@@ -49,11 +48,11 @@ const LINKS = [
   },
   {
     name: 'News',
-    href: '#',
+    href: '/news',
   },
   {
     name: 'Privacy Policy',
-    href: '#',
+    href: '/privacy',
   },
   {
     name: 'Terms',

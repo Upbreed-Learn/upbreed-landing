@@ -29,9 +29,12 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from './ui/hover-card';
 import AuthBanner from './auth-banner';
 import { useIntersectionObserver } from '@/lib/hooks/useIntersectionObserver';
 import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
 const Navbar = () => {
   const { ref, isVisible } = useIntersectionObserver();
+  const pathname = usePathname();
+
   return (
     <>
       <nav ref={ref} className="flex justify-center bg-[#001C0C]">
@@ -39,31 +42,50 @@ const Navbar = () => {
           <Link href="/">
             <Image src={logo} alt="upbreed logo" />
           </Link>
-          <ClassesHover>
-            <p className="text-sm/[100%] font-semibold">Classes</p>
-            <ChevronDown />
-          </ClassesHover>
-          <div className="flex items-center gap-3">
-            <CircleQuestionMark />
-            <div className="relative">
-              <Input
-                placeholder="Search"
-                type="search"
-                className="w-[16.775rem] rounded-[2.75rem] bg-white pl-11 text-xs/[100%] font-medium text-black placeholder:text-[#C8C8C8]"
-              />
-              <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-[#001A72]" />
-            </div>
-          </div>
-          <div className="flex items-center gap-9">
-            <NavLink href="/1-on-1">1 - on - 1</NavLink>
-            <NavLink href="/courses">My Courses</NavLink>
-          </div>
-          <div className="flex items-center gap-7">
-            <MenuDropdown>
-              <Menu />
-            </MenuDropdown>
-            <AvatarCustom src={''} alt="Avatar" fallback="JO" />
-          </div>
+          {!pathname.includes('news') && !pathname.includes('press') ? (
+            <>
+              <div className="flex items-center gap-6">
+                <ClassesHover>
+                  <p className="text-sm/[100%] font-semibold">Classes</p>
+                  <ChevronDown />
+                </ClassesHover>
+                <NavLink
+                  href={'/pricing'}
+                  className={cn(
+                    'before:hidden hover:text-[#D0EA50]',
+                    pathname === '/pricing' && 'text-[#D0EA50]',
+                  )}
+                >
+                  Pricing
+                </NavLink>
+              </div>
+              <div className="flex items-center gap-3">
+                <CircleQuestionMark />
+                <div className="relative">
+                  <Input
+                    placeholder="Search"
+                    type="search"
+                    className="w-[16.775rem] rounded-[2.75rem] bg-white pl-11 text-xs/[100%] font-medium text-black placeholder:text-[#C8C8C8]"
+                  />
+                  <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-[#001A72]" />
+                </div>
+              </div>
+              <div className="flex items-center gap-9">
+                <NavLink href="/1-on-1">1 - on - 1</NavLink>
+                <NavLink href="/courses">My Courses</NavLink>
+              </div>
+              <div className="flex items-center gap-7">
+                <MenuDropdown>
+                  <Menu />
+                </MenuDropdown>
+                <AvatarCustom src={''} alt="Avatar" fallback="JO" />
+              </div>
+            </>
+          ) : (
+            <p className="text-sm/[100%] font-semibold">
+              {pathname.includes('news') ? 'News' : 'Press Coverage '}
+            </p>
+          )}
         </div>
       </nav>
       <AuthBanner

@@ -6,6 +6,7 @@ import './globals.css';
 import Navbar from '@/components/navbar';
 import QueryProvider from '@/lib/query-provider';
 import { cn } from '@/lib/utils';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 const myFont = localFont({
   src: [
@@ -51,9 +52,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn('bg-[#00230F]', myFont.className)}>
         <QueryProvider>
-          <Navbar />
-          <main className="">{children}</main>
-          <Footer />
+          <NuqsAdapter>
+            <Navbar />
+            <main className="">{children}</main>
+            <Footer />
+          </NuqsAdapter>
         </QueryProvider>
       </body>
     </html>
