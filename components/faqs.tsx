@@ -35,7 +35,10 @@ const QUESTIONS = [
 
 const Faqs = () => {
   return (
-    <section className="flex justify-center bg-[#F2F2F2] pt-16 pb-44.25">
+    <section
+      id="faqs"
+      className="flex justify-center bg-[#F2F2F2] pt-16 pb-44.25"
+    >
       <div className="flex w-full max-w-7xl flex-col gap-29.5 px-44.75">
         <h2 className="text-center text-[2rem]/[100%] font-bold">
           Frequently Asked Questions

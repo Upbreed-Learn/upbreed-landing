@@ -2,17 +2,17 @@ import H1 from '@/components/header-text';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Upbreed Learn | Security & Privacy',
+  title: 'Upbreed Learn | Terms and Condition',
   description:
     'Upbreed Learn is an online learning platform that aims to revolutionize education across Africa and beyond.',
 };
 
-const Privacy = () => {
+const Terms = () => {
   return (
     <>
       <section className="flex justify-center">
         <div className="w-full max-w-7xl px-18">
-          <H1 className="py-16">Security & Privacy</H1>
+          <H1 className="py-16">Terms and Condition</H1>
         </div>
       </section>
       <section className="flex justify-center bg-[#F2F2F2]">
@@ -66,4 +66,4 @@ const Privacy = () => {
   );
 };
 
-export default Privacy;
+export default Terms;

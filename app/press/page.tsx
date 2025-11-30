@@ -1,20 +1,18 @@
 import { Metadata } from 'next';
-import Hero from './hero';
-import Roles from './roles';
+import PressList from './press-list';
 
 export const metadata: Metadata = {
-  title: 'Upbreed Learn | Career',
+  title: 'Upbreed Learn | Press Coverage',
   description:
     'Upbreed Learn is an online learning platform that aims to revolutionize education across Africa and beyond.',
 };
 
-const Career = () => {
+const Press = () => {
   return (
     <>
-      <Hero />
-      <Roles />
+      <PressList />
     </>
   );
 };
 
-export default Career;
+export default Press;

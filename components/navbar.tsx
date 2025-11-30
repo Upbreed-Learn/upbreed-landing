@@ -30,6 +30,7 @@ import AuthBanner from './auth-banner';
 import { useIntersectionObserver } from '@/lib/hooks/useIntersectionObserver';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
+import { Button } from './ui/button';
 
 const Navbar = () => {
   const { ref, isVisible } = useIntersectionObserver();
@@ -70,7 +71,20 @@ const Navbar = () => {
                   <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-[#001A72]" />
                 </div>
               </div>
-              <div className="flex items-center gap-9">
+              <div className="flex items-center gap-8">
+                <Button
+                  // onClick={handleLogin}
+                  className="cursor-pointer bg-transparent text-white hover:bg-transparent"
+                >
+                  Login
+                </Button>
+                <Button
+                //  onClick={handleSignUp}
+                >
+                  Sign Up
+                </Button>
+              </div>
+              {/* <div className="flex items-center gap-9">
                 <NavLink href="/1-on-1">1 - on - 1</NavLink>
                 <NavLink href="/courses">My Courses</NavLink>
               </div>
@@ -79,7 +93,7 @@ const Navbar = () => {
                   <Menu />
                 </MenuDropdown>
                 <AvatarCustom src={''} alt="Avatar" fallback="JO" />
-              </div>
+              </div> */}
             </>
           ) : (
             <p className="text-sm/[100%] font-semibold">
