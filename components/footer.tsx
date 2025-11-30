@@ -24,6 +24,8 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import LockIcon from './jsx-icons/lock';
+import ContactUs from '@/app/(contact-us)';
+import Gifts from '@/app/(gifts)';
 
 const LINKS = [
   {
@@ -44,7 +46,7 @@ const LINKS = [
   },
   {
     name: 'Press',
-    href: '#',
+    href: '/press',
   },
   {
     name: 'News',
@@ -56,11 +58,11 @@ const LINKS = [
   },
   {
     name: 'Terms',
-    href: '#',
+    href: '/terms',
   },
   {
     name: 'FAQ',
-    href: '#',
+    href: '/#faqs',
   },
   {
     name: 'Contact Us',
@@ -112,7 +114,12 @@ const Footer = () => {
                     href={link.href}
                     className={cn(
                       'before:hidden hover:text-[#D0EA50]',
-                      link.href === pathname && 'text-[#D0EA50]',
+                      pathname.length > 2 &&
+                        pathname.includes(link.href) &&
+                        'text-[#D0EA50]',
+                      pathname.length < 2 &&
+                        pathname === link.href &&
+                        'hover:text-[#D0EA50]',
                     )}
                   >
                     {link.name}
@@ -123,15 +130,26 @@ const Footer = () => {
             <ul>
               {LINKS.slice(6).map(link => (
                 <li key={link.name}>
-                  <NavLink
-                    href={link.href}
-                    className={cn(
-                      'before:hidden',
-                      link.href === pathname && 'text-[#D0EA50]',
-                    )}
-                  >
-                    {link.name}
-                  </NavLink>
+                  {link.name.toLowerCase().includes('contact') ? (
+                    <ContactUs>{link.name}</ContactUs>
+                  ) : link.name.toLowerCase().includes('gifts') ? (
+                    <Gifts>{link.name}</Gifts>
+                  ) : (
+                    <NavLink
+                      href={link.href}
+                      className={cn(
+                        'before:hidden hover:text-[#D0EA50]',
+                        pathname.length > 2 &&
+                          pathname.includes(link.href) &&
+                          'text-[#D0EA50]',
+                        pathname.length < 2 &&
+                          pathname === link.href &&
+                          'hover:text-[#D0EA50]',
+                      )}
+                    >
+                      {link.name}
+                    </NavLink>
+                  )}
                 </li>
               ))}
             </ul>
@@ -139,19 +157,39 @@ const Footer = () => {
         </div>
         <div className="flex flex-col gap-12 self-end">
           <div className="flex items-center gap-7">
-            <Link href={'/'}>
+            <Link
+              target="_blank"
+              href="https://www.linkedin.com/company/upbreedlearn/about/?viewAsMember=true"
+              className="transition-opacity hover:opacity-50"
+            >
               <LinkedIn />
             </Link>
-            <Link href={'/'}>
+            <Link
+              target="_blank"
+              href="https://www.instagram.com/upbreedlearn"
+              className="transition-opacity hover:opacity-50"
+            >
               <Instagram />
             </Link>
-            <Link href={'/'}>
+            <Link
+              target="_blank"
+              href="https://x.com/upbreedlearn"
+              className="transition-opacity hover:opacity-50"
+            >
               <Twitter />
             </Link>
-            <Link href={'/'}>
+            <Link
+              target="_blank"
+              href="https://www.facebook.com/upbreedlearn"
+              className="transition-opacity hover:opacity-50"
+            >
               <Facebook />
             </Link>
-            <Link href={'/'}>
+            <Link
+              target="_blank"
+              href="https://youtube.com/@upbreedlearn?si=QYEE2kDdYaiB0cHU"
+              className="transition-opacity hover:opacity-50"
+            >
               <Youtube />
             </Link>
           </div>

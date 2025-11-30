@@ -1,4 +1,11 @@
 import H1 from '@/components/header-text';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Upbreed Learn | Who we are',
+  description:
+    'Upbreed Learn is an online learning platform that aims to revolutionize education across Africa and beyond.',
+};
 
 const AboutUs = () => {
   return (

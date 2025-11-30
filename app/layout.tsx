@@ -7,6 +7,8 @@ import Navbar from '@/components/navbar';
 import QueryProvider from '@/lib/query-provider';
 import { cn } from '@/lib/utils';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import ContactUs from './(contact-us)';
+import Gifts from './(gifts)';
 
 const myFont = localFont({
   src: [
@@ -56,6 +58,8 @@ export default function RootLayout({
             <Navbar />
             <main className="">{children}</main>
             <Footer />
+            <ContactUs />
+            <Gifts />
           </NuqsAdapter>
         </QueryProvider>
       </body>

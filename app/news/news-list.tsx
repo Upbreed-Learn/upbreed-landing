@@ -7,6 +7,7 @@ import { useQueryState } from 'nuqs';
 import { useEffect, useRef, useState } from 'react';
 import tubo from '@/public/img/tubo.jpg';
 import Link from 'next/link';
+import { Pagination } from '@/components/ui/custom/pagination';
 
 const CATEGORIES = [
   {
@@ -67,6 +68,7 @@ const NewsList = () => {
   const [category, setCategory] = useQueryState('category', {
     defaultValue: 'all',
   });
+  const [page, setPage] = useState(1);
 
   const handleSetCategory = (category: string) => {
     setCategory(category.toLowerCase());
@@ -127,12 +129,19 @@ const NewsList = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-x-9 gap-y-7">
-          {Array(12)
-            .fill(0)
-            .map((_, index) => (
-              <NewsCard key={index} />
-            ))}
+        <div className="flex flex-col gap-20">
+          <div className="grid grid-cols-3 gap-x-9 gap-y-7">
+            {Array(12)
+              .fill(0)
+              .map((_, index) => (
+                <NewsCard key={index} />
+              ))}
+          </div>
+          <Pagination
+            currentPage={page}
+            totalPages={12}
+            onPageChange={setPage}
+          />
         </div>
       </div>
     </section>
@@ -141,7 +150,7 @@ const NewsList = () => {
 
 export default NewsList;
 
-const NewsCard = () => {
+export const NewsCard = () => {
   return (
     <div className="relative flex flex-col gap-2.5">
       <div className="h-[10.661875rem] w-full overflow-hidden rounded-lg">
@@ -156,7 +165,7 @@ const NewsCard = () => {
           10TH JUNE, 2024
         </p>
         <Link
-          href={'#'}
+          href={'/news/1'}
           className="line-clamp-2 leading-[100%] font-extrabold text-ellipsis text-[#305B43]"
         >
           <span className="absolute inset-0"></span>
