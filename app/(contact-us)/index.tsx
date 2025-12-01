@@ -33,7 +33,7 @@ const ContactUs = (props: { children?: React.ReactNode }) => {
       <DialogTrigger className="cursor-pointer hover:text-[#D0EA50]">
         {children}
       </DialogTrigger>
-      <DialogContent className="w-full items-center justify-between bg-[url(/img/contact-us.png)] bg-cover bg-center bg-no-repeat sm:max-w-5xl md:flex">
+      <DialogContent className="flex w-full items-center justify-between bg-[url(/img/contact-us.png)] bg-cover bg-center bg-no-repeat max-md:h-120 max-md:flex-col max-md:gap-12 max-md:overflow-auto md:max-w-2xl lg:max-w-4xl xl:max-w-5xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Contact Us</DialogTitle>
           <DialogDescription>
@@ -51,7 +51,7 @@ export default ContactUs;
 
 const ContactIntro = () => {
   return (
-    <div className="flex w-96 basis-full items-center justify-center pr-14 pl-7">
+    <div className="flex w-full basis-full items-center justify-center pr-14 pl-7 md:w-96">
       <div className="flex w-full flex-col justify-between gap-6">
         <div className="flex flex-col gap-2">
           <h2 className="text-3xl font-bold text-[#305B43]">Get In Touch</h2>
@@ -143,13 +143,13 @@ const ContactForm = () => {
         e.preventDefault();
         form.handleSubmit();
       }}
-      className="flex basis-full flex-col gap-6 pr-7"
+      className="flex flex-col gap-6 max-md:w-full md:basis-full md:pr-7"
     >
-      <FieldGroup className="gap-2">
+      <FieldGroup className="gap-2 max-md:w-full">
         <FieldLegend className="text-xl font-semibold text-[#305B43]">
           Send Us a Message
         </FieldLegend>
-        <FieldGroup className="rounded-lg border-2 p-10">
+        <FieldGroup className="rounded-lg md:border-2 md:p-10">
           <form.Field
             name="firstName"
             children={field => {
