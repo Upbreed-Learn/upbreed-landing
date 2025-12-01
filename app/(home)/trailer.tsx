@@ -5,10 +5,18 @@ import { Play } from 'lucide-react';
 const Trailer = () => {
   return (
     <section className="flex justify-center">
-      <div className="w-full max-w-7xl px-18 py-10">
+      <div className="w-full max-w-7xl px-9 py-7 md:px-12 md:py-10 lg:px-18">
         <div className="relative size-max">
-          <Image src={trailer} alt="trailer" width={1062.22} height={528} />
-          <div className="absolute top-1/2 right-22.5 flex -translate-y-1/2 flex-col gap-4">
+          <div className="h-123 w-[calc(100vw-4.5rem)] max-w-[66.38875rem] overflow-hidden rounded-2xl md:h-132 md:w-[calc(100vw-6rem)] lg:md:w-[calc(100vw-9rem)] xl:w-full">
+            <Image
+              src={trailer}
+              alt="trailer"
+              width={0}
+              height={0}
+              className="size-full object-cover"
+            />
+          </div>
+          <div className="absolute flex flex-col gap-4 max-md:bottom-9 max-md:left-9 md:top-1/2 md:right-22.5 md:-translate-y-1/2">
             <div>
               <div className="flex flex-col gap-3">
                 <span className="w-max rounded-[8.89px] border-[1.78px] border-[#D0EA50] px-2 py-1.5 text-[8.89px]/[100%] font-semibold text-white">

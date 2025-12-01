@@ -37,19 +37,19 @@ const Faqs = () => {
   return (
     <section
       id="faqs"
-      className="flex justify-center bg-[#F2F2F2] pt-16 pb-44.25"
+      className="flex justify-center bg-[#F2F2F2] pt-8 pb-24 md:pt-16 md:pb-44.25"
     >
-      <div className="flex w-full max-w-7xl flex-col gap-29.5 px-44.75">
+      <div className="flex w-full max-w-7xl flex-col gap-16 px-9 md:gap-29.5 md:px-12 lg:px-44.75">
         <h2 className="text-center text-[2rem]/[100%] font-bold">
           Frequently Asked Questions
         </h2>
         <Accordion type="single" collapsible>
           {QUESTIONS.map((question, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-base/[100%] font-semibold">
+              <AccordionTrigger className="text-sm font-semibold md:text-base/[100%]">
                 {question.question}
               </AccordionTrigger>
-              <AccordionContent className="text-base/5 font-medium">
+              <AccordionContent className="text-sm font-medium md:text-base/5">
                 {question.answer}
               </AccordionContent>
             </AccordionItem>

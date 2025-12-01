@@ -34,12 +34,12 @@ const Elevate = () => {
   };
 
   return (
-    <section className="flex justify-center px-8 py-7">
-      <div className="flex w-full max-w-7xl flex-col items-center gap-10 pt-11 pb-8">
-        <h2 className="text-center text-4xl/[100%] font-extrabold text-[#D0EA50]">
+    <section className="flex justify-center px-8 md:py-7">
+      <div className="flex w-full max-w-7xl flex-col items-center gap-6 pt-11 pb-8 md:gap-10">
+        <h2 className="text-center text-2xl leading-[100%] font-extrabold text-[#D0EA50] md:text-4xl">
           Elevate Your Skills
         </h2>
-        <ul className="flex w-full max-w-[60.819375rem] flex-wrap items-center justify-center gap-[18px] text-sm/[100%] font-semibold text-white [&_a]:flex [&_a]:size-full [&_a]:items-center [&_a]:gap-2 [&_a]:px-6 [&_a]:py-3 [&>li]:rounded-lg [&>li]:border-[1.78px] [&>li]:border-[#474747] [&>li]:transition-colors [&>li]:hover:bg-slate-100 [&>li]:hover:text-black">
+        <ul className="flex w-full max-w-[60.819375rem] flex-wrap items-center justify-center gap-3 text-xs leading-[100%] font-semibold text-white md:gap-[18px] md:text-sm [&_a]:flex [&_a]:size-full [&_a]:items-center [&_a]:gap-2 [&_a]:px-3.5 [&_a]:py-3 [&_a]:md:px-6 [&>li]:rounded-lg [&>li]:border-[1.78px] [&>li]:border-[#474747] [&>li]:transition-colors [&>li]:hover:bg-slate-100 [&>li]:hover:text-black">
           <li>
             <Link href={'#'}>
               Sports & Athletics
@@ -95,7 +95,7 @@ const Elevate = () => {
             </Link>
           </li>
         </ul>
-        <div className="flex w-full flex-col gap-4">
+        <div className="flex w-full flex-col gap-4 max-md:pt-14">
           <div className="flex items-center gap-2.5 text-sm/[100%] font-bold">
             <p className="text-[#D0EA50]">Trending Courses</p>
             <Link
@@ -108,7 +108,7 @@ const Elevate = () => {
           <div className="relative">
             <div
               ref={scrollRef}
-              className="flex w-full gap-[1.38875rem] overflow-auto"
+              className="scrollbar-hidden flex w-full gap-[1.38875rem] overflow-auto"
             >
               <button
                 onClick={handleScrollLeft}

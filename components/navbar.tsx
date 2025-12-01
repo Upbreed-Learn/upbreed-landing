@@ -39,13 +39,13 @@ const Navbar = () => {
   return (
     <>
       <nav ref={ref} className="flex justify-center bg-[#001C0C]">
-        <div className="flex w-full max-w-7xl items-center justify-between px-18 pt-7 pb-5 text-white">
+        <div className="flex w-full max-w-7xl items-center justify-between px-9 py-7 text-white md:px-12 md:pt-7 md:pb-5 lg:px-18">
           <Link href="/">
             <Image src={logo} alt="upbreed logo" />
           </Link>
           {!pathname.includes('news') && !pathname.includes('press') ? (
             <>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 max-lg:hidden">
                 <ClassesHover>
                   <p className="text-sm/[100%] font-semibold">Classes</p>
                   <ChevronDown />
@@ -53,7 +53,7 @@ const Navbar = () => {
                 <NavLink
                   href={'/pricing'}
                   className={cn(
-                    'before:hidden hover:text-[#D0EA50]',
+                    'hover:text-[#D0EA50]',
                     pathname === '/pricing' && 'text-[#D0EA50]',
                   )}
                 >
@@ -61,17 +61,20 @@ const Navbar = () => {
                 </NavLink>
               </div>
               <div className="flex items-center gap-3">
-                <CircleQuestionMark />
+                <CircleQuestionMark className="max-lg:hidden" />
                 <div className="relative">
                   <Input
                     placeholder="Search"
                     type="search"
-                    className="w-[16.775rem] rounded-[2.75rem] bg-white pl-11 text-xs/[100%] font-medium text-black placeholder:text-[#C8C8C8]"
+                    className="w-[16.775rem] rounded-[2.75rem] bg-white pl-11 text-xs/[100%] font-medium text-black placeholder:text-[#C8C8C8] max-lg:hidden"
                   />
-                  <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-[#001A72]" />
+                  <div className="flex items-center gap-7">
+                    <Search className="text-white lg:absolute lg:top-1/2 lg:left-3 lg:-translate-y-1/2 lg:text-[#001A72]" />
+                    <Menu className="text-[#D0EA50] lg:hidden" />
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-8 max-lg:hidden">
                 <Button
                   // onClick={handleLogin}
                   className="cursor-pointer bg-transparent text-white hover:bg-transparent"
@@ -179,6 +182,80 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
   );
 };
 
+const ALL_COURSES = [
+  {
+    id: 1,
+    name: 'Illustration',
+  },
+  {
+    id: 2,
+    name: 'Craft',
+  },
+  {
+    id: 3,
+    name: 'Marketing & Business',
+  },
+  {
+    id: 4,
+    name: 'Photography & Video',
+  },
+  {
+    id: 5,
+    name: 'Design',
+  },
+  {
+    id: 6,
+    name: '3D & Animation',
+  },
+  {
+    id: 7,
+    name: 'Architecture',
+  },
+  {
+    id: 8,
+    name: 'Writing',
+  },
+  {
+    id: 9,
+    name: 'Fashion',
+  },
+  {
+    id: 10,
+    name: 'Web & App Design',
+  },
+  {
+    id: 11,
+    name: 'Calligraphy & Typography',
+  },
+  {
+    id: 12,
+    name: 'Music & Audio',
+  },
+  {
+    id: 13,
+    name: 'Culinary',
+  },
+];
+
+const COURSE_BUNDLES = [
+  {
+    id: 1,
+    name: 'New Courses',
+  },
+  {
+    id: 2,
+    name: 'Top Rated',
+  },
+  {
+    id: 3,
+    name: 'Popular Courses',
+  },
+  {
+    id: 4,
+    name: 'Gifts',
+  },
+];
+
 const ClassesHover = (props: { children: React.ReactNode }) => {
   const { children } = props;
   return (
@@ -195,147 +272,31 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
             All Courses <ChevronRight />
           </h5>
           <ul className="flex flex-col gap-3">
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('illustration')}
-              >
-                Illustration
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('craft')}
-              >
-                Craft
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer font-bold"
-                // onClick={() => setCourse('marketing')}
-              >
-                Marketing & Business
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('photography')}
-              >
-                Photography & Video
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('design')}
-              >
-                Design
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('3d-animation')}
-              >
-                3D & Animation
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('architecture')}
-              >
-                Architecture
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('writing')}
-              >
-                Writing
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('fashion')}
-              >
-                Fashion
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('web-and-app-design')}
-              >
-                Web & App Design
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('caligraphy')}
-              >
-                Calligraphy & Typography
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('music')}
-              >
-                Music & Audio
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('culinary')}
-              >
-                Culinary
-              </button>
-            </li>
+            {ALL_COURSES.map(course => (
+              <li key={course.id}>
+                <button
+                  className="cursor-pointer"
+                  // onClick={() => setCourse('illustration')}
+                >
+                  {course.name}
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
         <div className="flex flex-col gap-6 text-sm/6 font-semibold text-white">
           <h4 className="text-[#34A853]">Course Bundles</h4>
           <ul className="flex flex-col gap-2">
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('new-courses')}
-              >
-                New Courses
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('top-rated')}
-              >
-                Top rated
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('popular-courses')}
-              >
-                Popular courses
-              </button>
-            </li>
-            <li>
-              <button
-                className="cursor-pointer"
-                // onClick={() => setCourse('gifts')}
-              >
-                Gifts
-              </button>
-            </li>
+            {COURSE_BUNDLES.map(courseBundle => (
+              <li key={courseBundle.id}>
+                <button
+                  className="cursor-pointer"
+                  // onClick={() => setCourse('new-courses')}
+                >
+                  {courseBundle.name}
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
       </HoverCardContent>
