@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 const AboutUs = () => {
   return (
     <div className="flex flex-col items-center">
-      <section className="w-full max-w-7xl px-18">
-        <H1 className="py-16">Who we are</H1>
+      <section className="w-full max-w-7xl px-9 md:px-18">
+        <H1 className="py-8 md:py-16">Who we are</H1>
       </section>
       <div className="flex w-full justify-center bg-[#F2F2F2]">
-        <section className="w-full max-w-7xl px-18 py-20">
-          <p className="text-lg/6 font-medium">
+        <section className="w-full max-w-7xl px-9 py-10 md:px-18 md:py-20">
+          <p className="font-medium md:text-lg/6">
             Upbreed Learn is an online learning platform that aims to
             revolutionize education across Africa and beyond. We provide an
             extensive range of online courses, empowering learners with skills

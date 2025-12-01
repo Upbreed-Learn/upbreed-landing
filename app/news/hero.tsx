@@ -33,8 +33,8 @@ const Hero = () => {
 
   return (
     <section className="relative flex justify-center bg-[url(/img/news-hero.jpg)] bg-cover bg-center bg-no-repeat before:absolute before:size-full before:bg-black before:opacity-90">
-      <div className="z-20 flex w-full max-w-7xl flex-col items-center gap-4 p-18">
-        <h1 className="text-[2rem]/[100%] font-semibold text-[#D0EA50]">
+      <div className="z-20 flex w-full max-w-7xl flex-col items-center gap-4 p-9 md:p-12 lg:p-18">
+        <h1 className="text-center text-[2rem]/[100%] font-semibold text-[#D0EA50]">
           Welcome to Upbreed Learn Blog
         </h1>
         <form
@@ -72,9 +72,9 @@ const Hero = () => {
                         aria-invalid={isInvalid}
                         type="email"
                         placeholder="Email"
-                        className="h-12 w-73 rounded-none rounded-l-lg border-[#9B9B9B] bg-[#47474700] text-white placeholder:text-[#9B9B9B]"
+                        className="h-12 flex-2/3 rounded-none rounded-l-lg border-[#9B9B9B] bg-[#47474700] text-white placeholder:text-[#9B9B9B] xl:w-73"
                       />
-                      <Button className="h-12 w-[9.88875rem] rounded-none rounded-r-lg">
+                      <Button className="h-12 flex-1/3 rounded-none rounded-r-lg xl:w-[9.88875rem]">
                         Subscribe
                       </Button>
                     </FieldSet>
