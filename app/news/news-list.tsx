@@ -94,16 +94,16 @@ const NewsList = () => {
   }, [ref]);
 
   return (
-    <section className="flex justify-center bg-white pt-10 pb-36">
-      <div className="flex w-full max-w-7xl flex-col gap-14 px-18">
+    <section className="flex justify-center bg-white pt-5 pb-36 md:pt-10">
+      <div className="flex w-full max-w-7xl flex-col gap-14 px-9 md:px-12 lg:px-18">
         <div className="relative">
           <div
             ref={ref}
-            className="scrollbar-hidden flex w-full justify-center overflow-auto"
+            className="scrollbar-hidden flex w-full overflow-auto xl:justify-center"
           >
             <div
               className={cn(
-                'flex items-center gap-11 border-b border-[#9B9B9B7A] py-3',
+                'flex gap-11 border-b border-[#9B9B9B7A] py-3 md:items-center',
                 CATEGORIES.length > 12 && 'pl-18',
               )}
             >
@@ -130,7 +130,7 @@ const NewsList = () => {
           </div>
         </div>
         <div className="flex flex-col gap-20">
-          <div className="grid grid-cols-3 gap-x-9 gap-y-7">
+          <div className="grid gap-x-9 gap-y-7 sm:grid-cols-2 md:grid-cols-3">
             {Array(12)
               .fill(0)
               .map((_, index) => (

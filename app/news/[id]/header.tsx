@@ -14,7 +14,7 @@ const NewsHeader = () => {
         />
       </div>
       <p className="text-xs/[100%] font-bold text-[#9C9C9C]">10TH JUNE, 2024</p>
-      <h2 className="text-[2rem]/[100%] font-extrabold text-[#305B43]">
+      <h2 className="text-xl leading-[100%] font-extrabold text-[#305B43] md:text-[2rem]">
         Patoranking Teams With Upbreed Learn to Unlock Everyone’s Humor
         Superpower
       </h2>
