@@ -19,13 +19,13 @@ const PressList = () => {
 
   return (
     <section className="flex justify-center bg-white">
-      <div className="flex w-full max-w-7xl flex-col gap-20 px-18 py-12">
+      <div className="flex w-full max-w-7xl flex-col gap-10 px-9 py-6 md:gap-20 md:p-12 lg:px-18 lg:py-12">
         <Button onClick={handleBack} className="w-max">
           <ArrowLeft />
           Back
         </Button>
-        <div className="flex flex-col gap-20">
-          <div className="grid grid-cols-3 gap-x-8 gap-y-6">
+        <div className="flex flex-col gap-10 md:gap-20">
+          <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array(4)
               .fill(0)
               .map((_, index) => (
