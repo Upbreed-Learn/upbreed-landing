@@ -3,7 +3,7 @@ import H1 from '@/components/header-text';
 const Hero = () => {
   return (
     <section className="flex justify-center">
-      <div className="flex w-full max-w-7xl flex-col gap-12 px-18 py-16">
+      <div className="flex w-full max-w-7xl flex-col gap-6 px-9 py-8 md:gap-12 md:px-18 md:py-16">
         <H1>Career</H1>
         <p className="text-justify text-sm/[30px] font-medium text-white">
           Join us at Upbreed Learn, where we are redefining online education by

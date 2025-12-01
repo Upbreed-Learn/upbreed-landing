@@ -32,7 +32,7 @@ const ROLES = [
 const Roles = () => {
   return (
     <section className="flex justify-center bg-[#F2F2F2]">
-      <div className="grid w-full max-w-7xl grid-cols-2 justify-items-center gap-6 px-18 py-36">
+      <div className="grid w-full max-w-7xl justify-items-center gap-6 px-9 py-18 md:grid-cols-2 md:px-18 md:py-36">
         {ROLES.map(role => (
           <div className="text-center" key={role.id}>
             <p className="text-2xl/[30px] font-extrabold uppercase">
