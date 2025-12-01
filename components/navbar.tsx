@@ -31,6 +31,14 @@ import { useIntersectionObserver } from '@/lib/hooks/useIntersectionObserver';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { Button } from './ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './ui/sheet';
 
 const Navbar = () => {
   const { ref, isVisible } = useIntersectionObserver();
@@ -38,7 +46,10 @@ const Navbar = () => {
 
   return (
     <>
-      <nav ref={ref} className="flex justify-center bg-[#001C0C]">
+      <nav
+        ref={ref}
+        className="relative z-99 flex w-full justify-center bg-[#001C0C]"
+      >
         <div className="flex w-full max-w-7xl items-center justify-between px-9 py-7 text-white md:px-12 md:pt-7 md:pb-5 lg:px-18">
           <Link href="/">
             <Image src={logo} alt="upbreed logo" />
@@ -70,7 +81,9 @@ const Navbar = () => {
                   />
                   <div className="flex items-center gap-7">
                     <Search className="text-white lg:absolute lg:top-1/2 lg:left-3 lg:-translate-y-1/2 lg:text-[#001A72]" />
-                    <Menu className="text-[#D0EA50] lg:hidden" />
+                    <MobileNav>
+                      <Menu className="text-[#D0EA50]" />
+                    </MobileNav>
                   </div>
                 </div>
               </div>
@@ -301,5 +314,74 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
         </div>
       </HoverCardContent>
     </HoverCard>
+  );
+};
+
+const MobileNav = (props: { children: React.ReactNode }) => {
+  const { children } = props;
+  return (
+    <Sheet>
+      <SheetTrigger className="lg:hidden">{children}</SheetTrigger>
+      <SheetContent
+        side="top"
+        // style={{
+        //   filter: 'blur(4px)',
+        //   backdropFilter: 'blur(4px)',
+        //   WebkitBackdropFilter: 'blur(4px)',
+        // }}
+        className="mt-22.75 h-[calc(100vh-5.6875rem)] overflow-auto border-transparent bg-[#305B43] p-0 lg:hidden [&>button]:hidden"
+      >
+        <SheetHeader className="sr-only">
+          <SheetTitle>Mobile Navigator</SheetTitle>
+          <SheetDescription>Navigate through the website.</SheetDescription>
+        </SheetHeader>
+        <div className="relative flex flex-col gap-6">
+          <div className="flex w-full flex-col gap-6 self-end px-11 pt-14 text-end text-sm/6 font-semibold text-white">
+            <h4 className="text-[#34A853]">Course Bundles</h4>
+            <ul className="flex flex-col gap-2 border-b border-[#FFFFFF33] pb-9">
+              {COURSE_BUNDLES.map(courseBundle => (
+                <li key={courseBundle.id}>
+                  <button
+                    className="cursor-pointer"
+                    // onClick={() => setCourse('new-courses')}
+                  >
+                    {courseBundle.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex w-full flex-col gap-3 self-end px-11 text-end text-sm/4 font-semibold text-white">
+            <ul className="flex flex-col gap-3">
+              {ALL_COURSES.map(course => (
+                <li key={course.id}>
+                  <button
+                    className="cursor-pointer"
+                    // onClick={() => setCourse('illustration')}
+                  >
+                    {course.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <h5 className="flex items-center justify-end gap-1 border-b border-[#FFFFFF33] pb-9 text-[#D0EA50]">
+              View All Courses <ChevronRight />
+            </h5>
+          </div>
+          <ul className="flex flex-col gap-3 self-end px-11 pb-36 text-end text-sm/4 font-semibold text-white">
+            <li>Settings</li>
+            <li>Contact Us</li>
+            <li>Gifts</li>
+            <li>Log out</li>
+          </ul>
+          <div className="fixed bottom-0 left-1/2 flex w-screen -translate-x-1/2 flex-col justify-center gap-2 bg-white p-3">
+            <Button className="h-12 w-full">Sign Up</Button>
+            <Button className="h-12 w-full border border-[#34A853] bg-white">
+              Login
+            </Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
