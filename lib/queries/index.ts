@@ -32,4 +32,20 @@ export const QUERIES = {
 
     return await https.get(url);
   },
+  getInstructors: async () => {
+    const url = '/instructor';
+
+    return await https.get(url);
+  },
+  getCourses: async (page: number, limit: number) => {
+    const params = new URLSearchParams();
+
+    if (page) params.append('page', page.toString());
+    if (limit) params.append('limit', limit.toString());
+
+    const queryString = params.toString();
+    const url = queryString ? `/course?${queryString}` : '/course';
+
+    return await https.get(url);
+  },
 };
