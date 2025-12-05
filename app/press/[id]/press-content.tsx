@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { BlogDetailsData } from '@/lib/constants';
 import { useGetBlogById } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
@@ -28,17 +29,16 @@ const PressContent = (props: { id: string }) => {
   }
 
   return (
-    <div className="flex flex-col gap-9">
-      <p
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
-      />
-    </div>
+    <div
+      className="flex flex-col gap-9"
+      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
+    />
   );
 };
 
 export default PressContent;
 
-const ContentLoader = () => {
+export const ContentLoader = () => {
   return (
     <div className="animate-pulse space-y-6">
       <div className="space-y-4">
@@ -83,7 +83,7 @@ const ContentLoader = () => {
   );
 };
 
-const ContentError = (props: { onRetry: () => void }) => {
+export const ContentError = (props: { onRetry: () => void }) => {
   const { onRetry } = props;
 
   return (
@@ -96,12 +96,7 @@ const ContentError = (props: { onRetry: () => void }) => {
           Something went wrong while fetching the article details. Please try
           again.
         </p>
-        <button
-          onClick={onRetry}
-          className="rounded bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800"
-        >
-          Retry
-        </button>
+        <Button onClick={onRetry}>Retry</Button>
       </div>
     </div>
   );

@@ -6,11 +6,15 @@ export const queryKeys = {
       limit?: number,
       isPublished?: boolean,
       type?: string,
+      category?: string,
     ) => [
       ...queryKeys.blogs.all,
       'isPublished',
-      { page, limit, isPublished, type },
+      { page, limit, isPublished, type, category },
     ],
     byId: (id: string) => [...queryKeys.blogs.all, 'byId', id],
+  },
+  categories: {
+    all: ['categories'],
   },
 };
