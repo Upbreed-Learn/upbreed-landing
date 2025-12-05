@@ -17,4 +17,16 @@ export const queryKeys = {
   categories: {
     all: ['categories'],
   },
+  instructors: {
+    all: ['instructors'],
+  },
+  courses: {
+    all: ['courses'],
+    paginated: (page: number, limit: number) => [
+      ...queryKeys.courses.all,
+      'paginated',
+      page,
+      limit,
+    ],
+  },
 };

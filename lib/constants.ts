@@ -51,3 +51,41 @@ export interface BlogDetailsData {
   deletedAt: string | null;
   categories: Category[];
 }
+
+type InstructorProfile = {
+  id: number;
+  linkedInUrl: string;
+  about: string;
+  description: string;
+  profilePictureUrl: string;
+  expertise: string;
+  title: string;
+};
+
+export interface Instructor {
+  id: number;
+  fname: string;
+  lname: string;
+  email: string;
+  isActive: boolean;
+  instructorProfile: InstructorProfile;
+}
+
+type Tag = {
+  id: number;
+  name: string;
+};
+
+export interface CourseData {
+  id: number;
+  thumbnail: string;
+  title: string;
+  description: string;
+  instructor: Omit<Instructor, 'email' | 'isActive' | 'instructorProfile'>;
+  categories: Category[];
+  tags: Tag[];
+  preview: {
+    lessonCount: number;
+    durationInMinutes: number;
+  };
+}

@@ -39,6 +39,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from './ui/sheet';
+import { useQueryClient } from '@tanstack/react-query';
+import { useGetCategories } from '@/lib/queries/hooks';
+import { Category } from '@/lib/constants';
+import { queryKeys } from '@/lib/queries/query-keys';
+import EmptyState from './empty-state';
 
 const Navbar = () => {
   const { ref, isVisible } = useIntersectionObserver();
@@ -198,61 +203,6 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
   );
 };
 
-const ALL_COURSES = [
-  {
-    id: 1,
-    name: 'Illustration',
-  },
-  {
-    id: 2,
-    name: 'Craft',
-  },
-  {
-    id: 3,
-    name: 'Marketing & Business',
-  },
-  {
-    id: 4,
-    name: 'Photography & Video',
-  },
-  {
-    id: 5,
-    name: 'Design',
-  },
-  {
-    id: 6,
-    name: '3D & Animation',
-  },
-  {
-    id: 7,
-    name: 'Architecture',
-  },
-  {
-    id: 8,
-    name: 'Writing',
-  },
-  {
-    id: 9,
-    name: 'Fashion',
-  },
-  {
-    id: 10,
-    name: 'Web & App Design',
-  },
-  {
-    id: 11,
-    name: 'Calligraphy & Typography',
-  },
-  {
-    id: 12,
-    name: 'Music & Audio',
-  },
-  {
-    id: 13,
-    name: 'Culinary',
-  },
-];
-
 const COURSE_BUNDLES = [
   {
     id: 1,
@@ -274,6 +224,21 @@ const COURSE_BUNDLES = [
 
 const ClassesHover = (props: { children: React.ReactNode }) => {
   const { children } = props;
+
+  const queryClient = useQueryClient();
+
+  const { data, isPending, isError } = useGetCategories();
+  const categories: Omit<
+    Category['category'],
+    'createdAt' | 'updatedAt' | 'deletedAt'
+  >[] = data?.data.data;
+
+  const handleRetry = () => {
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.categories.all,
+    });
+  };
+
   return (
     <HoverCard>
       <HoverCardTrigger className="flex cursor-pointer items-center gap-1">
@@ -287,18 +252,31 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
           <h5 className="flex items-center gap-1 text-[#D0EA50]">
             All Courses <ChevronRight />
           </h5>
-          <ul className="flex flex-col gap-3">
-            {ALL_COURSES.map(course => (
-              <li key={course.id}>
-                <button
-                  className="cursor-pointer"
-                  // onClick={() => setCourse('illustration')}
-                >
-                  {course.name}
-                </button>
-              </li>
-            ))}
-          </ul>
+          {isError ? (
+            <CoursesError handleRetry={handleRetry} />
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {isPending ? (
+                <CoursesLoading />
+              ) : categories.length > 0 ? (
+                categories.map(category => (
+                  <li key={category.id}>
+                    <button
+                      className="cursor-pointer"
+                      // onClick={() => setCourse('illustration')}
+                    >
+                      {category.name}
+                    </button>
+                  </li>
+                ))
+              ) : (
+                <EmptyState
+                  title="No Categories Found"
+                  description="When we have categories, it will be listed here."
+                />
+              )}
+            </ul>
+          )}
         </div>
         <div className="flex flex-col gap-6 text-sm/6 font-semibold text-white">
           <h4 className="text-[#34A853]">Course Bundles</h4>
@@ -322,16 +300,26 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
 
 const MobileNav = (props: { children: React.ReactNode }) => {
   const { children } = props;
+
+  const queryClient = useQueryClient();
+
+  const { data, isPending, isError } = useGetCategories();
+  const categories: Omit<
+    Category['category'],
+    'createdAt' | 'updatedAt' | 'deletedAt'
+  >[] = data?.data.data;
+
+  const handleRetry = () => {
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.categories.all,
+    });
+  };
+
   return (
     <Sheet>
       <SheetTrigger className="lg:hidden">{children}</SheetTrigger>
       <SheetContent
         side="top"
-        // style={{
-        //   filter: 'blur(4px)',
-        //   backdropFilter: 'blur(4px)',
-        //   WebkitBackdropFilter: 'blur(4px)',
-        // }}
         className="mt-22.75 h-[calc(100vh-5.6875rem)] overflow-auto border-transparent bg-[#305B43] p-0 lg:hidden [&>button]:hidden"
       >
         <SheetHeader className="sr-only">
@@ -354,23 +342,37 @@ const MobileNav = (props: { children: React.ReactNode }) => {
               ))}
             </ul>
           </div>
-          <div className="flex w-full flex-col gap-3 self-end px-11 text-end text-sm/4 font-semibold text-white">
-            <ul className="flex flex-col gap-3">
-              {ALL_COURSES.map(course => (
-                <li key={course.id}>
-                  <button
-                    className="cursor-pointer"
-                    // onClick={() => setCourse('illustration')}
-                  >
-                    {course.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <div className="flex w-full flex-col gap-6 self-end px-11 pt-14 text-end text-sm/6 font-semibold text-white">
+            {isError ? (
+              <CoursesError handleRetry={handleRetry} />
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {isPending ? (
+                  <CoursesLoading />
+                ) : categories.length > 0 ? (
+                  categories.map(category => (
+                    <li key={category.id}>
+                      <button
+                        className="cursor-pointer"
+                        // onClick={() => setCourse('illustration')}
+                      >
+                        {category.name}
+                      </button>
+                    </li>
+                  ))
+                ) : (
+                  <EmptyState
+                    title="No Categories Found"
+                    description="When we have categories, it will be listed here."
+                  />
+                )}
+              </ul>
+            )}
             <h5 className="flex items-center justify-end gap-1 border-b border-[#FFFFFF33] pb-9 text-[#D0EA50]">
               View All Courses <ChevronRight />
             </h5>
           </div>
+
           <ul className="flex flex-col gap-3 self-end px-11 pb-36 text-end text-sm/4 font-semibold text-white">
             <li>Settings</li>
             <li>Contact Us</li>
@@ -386,5 +388,37 @@ const MobileNav = (props: { children: React.ReactNode }) => {
         </div>
       </SheetContent>
     </Sheet>
+  );
+};
+
+const CoursesLoading = () => {
+  return (
+    <ul className="flex flex-col gap-3">
+      {[...Array(5)].map((_, i) => (
+        <li key={i}>
+          <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+const CoursesError = (props: { handleRetry: () => void }) => {
+  const { handleRetry } = props;
+  return (
+    <div className="flex flex-col items-center gap-6">
+      <div className="rounded-lg border border-red-300 bg-red-50 px-6 py-8 text-center">
+        <h3 className="mb-2 text-lg font-semibold text-red-700">
+          Unable to load courses
+        </h3>
+        <p className="mb-4 text-sm text-red-600">
+          Something went wrong while fetching the courses list. Please try
+          again.
+        </p>
+        <div className="flex justify-center gap-2">
+          <Button onClick={handleRetry}>Retry</Button>
+        </div>
+      </div>
+    </div>
   );
 };
