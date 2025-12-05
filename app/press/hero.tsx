@@ -1,4 +1,5 @@
 import H1 from '@/components/header-text';
+import Link from 'next/link';
 
 const Hero = () => {
   return (

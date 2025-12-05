@@ -112,9 +112,12 @@ const Navbar = () => {
               </div> */}
             </>
           ) : (
-            <p className="text-sm/[100%] font-semibold">
+            <Link
+              href={pathname.includes('news') ? '/news' : '/press'}
+              className="text-sm/[100%] font-semibold"
+            >
               {pathname.includes('news') ? 'News' : 'Press Coverage '}
-            </p>
+            </Link>
           )}
         </div>
       </nav>
