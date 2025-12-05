@@ -1,13 +1,14 @@
-import { Metadata, ResolvingMetadata } from 'next';
+import { Metadata } from 'next';
 import PressHeader from './header';
 import PressContent from './press-content';
 import { getBlogByIdServer } from '@/lib/server/blogs';
 import { BlogDetailsData } from '@/lib/constants';
 
-export async function generateMetadata(
-  { params }: { params: { id: string } },
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
   const { id } = await params;
   const post: BlogDetailsData = await getBlogByIdServer(id);
 

@@ -11,6 +11,7 @@ import { useGetAllPublishedBlogs } from '@/lib/queries/hooks';
 import { BlogsData, BlogsResponse } from '@/lib/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
+import EmptyState from '@/components/empty-state';
 
 const PressList = () => {
   const [page, setPage] = useState(1);
@@ -48,13 +49,20 @@ const PressList = () => {
             <ErrorCard handleRetry={handleRetry} />
           ) : (
             <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-              {isPending
-                ? Array(9)
-                    .fill(0)
-                    .map((_, index) => <LoadingCard key={index} />)
-                : blogsResponse?.data.map(blog => (
-                    <PressCard key={blog.id} blog={blog} />
-                  ))}
+              {isPending ? (
+                Array(9)
+                  .fill(0)
+                  .map((_, index) => <LoadingCard key={index} />)
+              ) : blogsResponse.data.length > 0 ? (
+                blogsResponse?.data.map(blog => (
+                  <PressCard key={blog.id} blog={blog} />
+                ))
+              ) : (
+                <EmptyState
+                  title="No Press Release Found"
+                  description="When we publish a press release, it will be listed here."
+                />
+              )}
             </div>
           )}
           {blogsResponse && (

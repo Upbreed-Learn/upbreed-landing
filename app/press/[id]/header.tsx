@@ -74,7 +74,7 @@ const PressHeader = (props: { id: string }) => {
 
 export default PressHeader;
 
-const HeaderLoader = () => {
+export const HeaderLoader = () => {
   return (
     <section className="flex w-full animate-pulse flex-col gap-6 border-b-[0.88px] border-[#00000033] pb-4">
       <div className="h-79 w-full overflow-hidden rounded-[10px] bg-gray-300" />
@@ -91,7 +91,7 @@ const HeaderLoader = () => {
   );
 };
 
-const HeaderError = (props: { onRetry: () => void }) => {
+export const HeaderError = (props: { onRetry: () => void }) => {
   const { onRetry } = props;
 
   return (
