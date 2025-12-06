@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/student(/.*)?",
+      "destination": "https://student-frontend-psi.vercel.app/$1"
+    }
+  ]
+}
