@@ -3,10 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { CourseData } from '@/lib/constants';
 import { useGetCourses } from '@/lib/queries/hooks';
-import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
-import hero from '@/public/img/home-hero.png';
-import { useQueryClient } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -117,8 +114,8 @@ export const MobileHero = () => {
               <div className="flex items-center gap-1.5">
                 <div className="relative h-[4.563125rem] w-33.5 shrink-0 overflow-hidden rounded">
                   <Image
-                    src={hero}
-                    alt="home-hero"
+                    src={courses[1].thumbnail}
+                    alt={courses[1].title}
                     fill
                     sizes="(max-width: 1200px) 100vw, 1200px"
                     className="size-full object-cover"
@@ -127,10 +124,11 @@ export const MobileHero = () => {
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-col gap-1">
                     <p className="text-start text-[10px]/3 font-bold">
-                      How to Sell Anything to anyone, anywhere and anyhow
+                      {courses[1].title}
                     </p>
                     <p className="text-start text-[8px]/[100%] font-semibold text-[#949494]">
-                      Dupe Melanin
+                      {courses[1].instructor.fname}{' '}
+                      {courses[1].instructor.lname}
                     </p>
                   </div>
                   <span className="relative block h-1 w-full rounded-lg bg-[#D9D9D9]">

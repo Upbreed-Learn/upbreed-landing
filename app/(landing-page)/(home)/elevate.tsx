@@ -74,7 +74,7 @@ const Elevate = () => {
           >
             {categories?.map(category => (
               <li key={category.id}>
-                <Link href={`/student/home?allCourses=${category.name.trim()}`}>
+                <Link href={`/student/home?allCourses=${category.id}`}>
                   {category.name}
                 </Link>
               </li>
