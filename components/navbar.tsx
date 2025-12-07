@@ -397,7 +397,9 @@ const MobileNav = (props: { children: React.ReactNode }) => {
 
           <ul className="flex flex-col gap-3 self-end px-11 pb-48 text-end text-sm/4 font-semibold text-white">
             <li>
-              <Link href="/student/settings">Settings</Link>
+              <Link onClick={() => setOpen(false)} href="/student/settings">
+                Settings
+              </Link>
             </li>
             <li>
               <ContactUs>Contact Us</ContactUs>
