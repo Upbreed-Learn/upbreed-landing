@@ -44,3 +44,13 @@ export const handleShareToFacebook = () => {
 
   window.open(facebookUrl, '_blank', 'noopener,noreferrer');
 };
+
+export function formatMinutes(totalMinutes: number): string {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  const h = hours > 0 ? `${hours}h` : '';
+  const m = minutes > 0 ? `${minutes}m` : '';
+
+  return `${h} ${m}`.trim();
+}

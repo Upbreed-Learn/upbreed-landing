@@ -1,9 +1,9 @@
 import Faqs from '@/components/faqs';
-import Elevate from './(home)/elevate';
-import Feedback from './(home)/feedback';
-import Hero from './(home)/hero';
-import OneOnOne from './(home)/one-on-one';
-import Trailer from './(home)/trailer';
+import Elevate from './(landing-page)/(home)/elevate';
+import Feedback from './(landing-page)/(home)/feedback';
+import Hero from './(landing-page)/(home)/hero';
+import OneOnOne from './(landing-page)/(home)/one-on-one';
+import Trailer from './(landing-page)/(home)/trailer';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

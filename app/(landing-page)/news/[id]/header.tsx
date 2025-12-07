@@ -1,6 +1,9 @@
 'use client';
 
-import { HeaderError, HeaderLoader } from '@/app/press/[id]/header';
+import {
+  HeaderError,
+  HeaderLoader,
+} from '@/app/(landing-page)/press/[id]/header';
 import Facebook from '@/components/jsx-icons/facebook';
 import Twitter from '@/components/jsx-icons/twitter';
 import { BlogDetailsData } from '@/lib/constants';
@@ -42,7 +45,7 @@ const NewsHeader = (props: { id: string }) => {
           src={blog.previewImage}
           alt={blog.title}
           fill
-          sizes="100vw"
+          sizes="(max-width: 1200px) 100vw, 1200px"
           className="size-full object-cover"
         />
       </div>

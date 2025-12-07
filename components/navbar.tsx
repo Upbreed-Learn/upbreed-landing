@@ -44,6 +44,9 @@ import { useGetCategories } from '@/lib/queries/hooks';
 import { Category } from '@/lib/constants';
 import { queryKeys } from '@/lib/queries/query-keys';
 import EmptyState from './empty-state';
+import ContactUs from './contact-us';
+import Gifts from './gifts';
+import { useState } from 'react';
 
 const Navbar = () => {
   const { ref, isVisible } = useIntersectionObserver();
@@ -107,7 +110,7 @@ const Navbar = () => {
               </div>
               {/* <div className="flex items-center gap-9">
                 <NavLink href="/1-on-1">1 - on - 1</NavLink>
-                <NavLink href="/courses">My Courses</NavLink>
+                <NavLink href="/student/courses">My Courses</NavLink>
               </div>
               <div className="flex items-center gap-7">
                 <MenuDropdown>
@@ -145,7 +148,7 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
       <DropdownMenuTrigger className="cursor-pointer p-1">
         {children}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="flex min-w-35.75 flex-col items-end gap-2 border-none bg-[#305B43] px-3.5 py-5 text-white">
+      <DropdownMenuContent className="z-100 flex min-w-35.75 flex-col items-end gap-2 border-none bg-[#305B43] px-3.5 py-5 text-white">
         <DropdownMenuItem asChild>
           <Link
             href="/about"
@@ -176,7 +179,7 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link
-            href="/settings"
+            href="/student/settings"
             className="group flex w-full cursor-pointer items-center justify-end gap-3"
           >
             Settings
@@ -203,7 +206,7 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
   );
 };
 
-const COURSE_BUNDLES = [
+export const COURSE_BUNDLES = [
   {
     id: 1,
     name: 'New Courses',
@@ -224,6 +227,7 @@ const COURSE_BUNDLES = [
 
 const ClassesHover = (props: { children: React.ReactNode }) => {
   const { children } = props;
+  const pathname = usePathname();
 
   const queryClient = useQueryClient();
 
@@ -241,7 +245,13 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
 
   return (
     <HoverCard>
-      <HoverCardTrigger className="flex cursor-pointer items-center gap-1">
+      <HoverCardTrigger
+        className={cn(
+          'flex cursor-pointer items-center gap-1 hover:text-[#D0EA50]',
+          pathname.includes('/student/home') &&
+            'relative before:absolute before:-bottom-6.25 before:h-1 before:w-full before:bg-[#D0EA50]',
+        )}
+      >
         {children}
       </HoverCardTrigger>
       <HoverCardContent
@@ -249,9 +259,12 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
         className="flex w-auto gap-36.5 border-transparent bg-[#305B43] pt-11.5 pr-33.5 pb-20 pl-14"
       >
         <div className="flex flex-col gap-6 text-sm/4 font-semibold text-white">
-          <h5 className="flex items-center gap-1 text-[#D0EA50]">
+          <Link
+            href={'/student/home'}
+            className="flex items-center gap-1 text-[#D0EA50]"
+          >
             All Courses <ChevronRight />
-          </h5>
+          </Link>
           {isError ? (
             <CoursesError handleRetry={handleRetry} />
           ) : (
@@ -261,12 +274,12 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
               ) : categories.length > 0 ? (
                 categories.map(category => (
                   <li key={category.id}>
-                    <button
-                      className="cursor-pointer"
-                      // onClick={() => setCourse('illustration')}
+                    <Link
+                      href={`/student/home?allCourses=${category.name.trim()}`}
+                      className="hover:text-[#D0EA50]"
                     >
                       {category.name}
-                    </button>
+                    </Link>
                   </li>
                 ))
               ) : (
@@ -283,12 +296,12 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
           <ul className="flex flex-col gap-2">
             {COURSE_BUNDLES.map(courseBundle => (
               <li key={courseBundle.id}>
-                <button
-                  className="cursor-pointer"
-                  // onClick={() => setCourse('new-courses')}
+                <Link
+                  href={`/student/home?courseBundles=${courseBundle.name.trim()}`}
+                  className="hover:text-[#D0EA50]"
                 >
                   {courseBundle.name}
-                </button>
+                </Link>
               </li>
             ))}
           </ul>
@@ -299,6 +312,7 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
 };
 
 const MobileNav = (props: { children: React.ReactNode }) => {
+  const [open, setOpen] = useState(false);
   const { children } = props;
 
   const queryClient = useQueryClient();
@@ -316,7 +330,7 @@ const MobileNav = (props: { children: React.ReactNode }) => {
   };
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger className="lg:hidden">{children}</SheetTrigger>
       <SheetContent
         side="top"
@@ -332,12 +346,13 @@ const MobileNav = (props: { children: React.ReactNode }) => {
             <ul className="flex flex-col gap-2 border-b border-[#FFFFFF33] pb-9">
               {COURSE_BUNDLES.map(courseBundle => (
                 <li key={courseBundle.id}>
-                  <button
-                    className="cursor-pointer"
-                    // onClick={() => setCourse('new-courses')}
+                  <Link
+                    href={`/student/home?courseBundles=${courseBundle.name.trim()}`}
+                    onClick={() => setOpen(false)}
+                    className="hover:text-[#D0EA50]"
                   >
                     {courseBundle.name}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -352,12 +367,15 @@ const MobileNav = (props: { children: React.ReactNode }) => {
                 ) : categories.length > 0 ? (
                   categories.map(category => (
                     <li key={category.id}>
-                      <button
-                        className="cursor-pointer"
-                        // onClick={() => setCourse('illustration')}
-                      >
-                        {category.name}
-                      </button>
+                      <li key={category.id}>
+                        <Link
+                          href={`/student/home?allCourses=${category.name.trim()}`}
+                          onClick={() => setOpen(false)}
+                          className="hover:text-[#D0EA50]"
+                        >
+                          {category.name}
+                        </Link>
+                      </li>
                     </li>
                   ))
                 ) : (
@@ -368,15 +386,25 @@ const MobileNav = (props: { children: React.ReactNode }) => {
                 )}
               </ul>
             )}
-            <h5 className="flex items-center justify-end gap-1 border-b border-[#FFFFFF33] pb-9 text-[#D0EA50]">
+            <Link
+              href={'/student/home'}
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-end gap-1 border-b border-[#FFFFFF33] pb-9 text-[#D0EA50]"
+            >
               View All Courses <ChevronRight />
-            </h5>
+            </Link>
           </div>
 
           <ul className="flex flex-col gap-3 self-end px-11 pb-36 text-end text-sm/4 font-semibold text-white">
-            <li>Settings</li>
-            <li>Contact Us</li>
-            <li>Gifts</li>
+            <li>
+              <Link href="/student/settings">Settings</Link>
+            </li>
+            <li>
+              <ContactUs>Contact Us</ContactUs>
+            </li>
+            <li>
+              <Gifts>Gifts</Gifts>
+            </li>
             <li>Log out</li>
           </ul>
           <div className="fixed bottom-0 left-1/2 flex w-screen -translate-x-1/2 flex-col justify-center gap-2 bg-white p-3">
@@ -391,7 +419,7 @@ const MobileNav = (props: { children: React.ReactNode }) => {
   );
 };
 
-const CoursesLoading = () => {
+export const CoursesLoading = () => {
   return (
     <ul className="flex flex-col gap-3">
       {[...Array(5)].map((_, i) => (
@@ -403,7 +431,7 @@ const CoursesLoading = () => {
   );
 };
 
-const CoursesError = (props: { handleRetry: () => void }) => {
+export const CoursesError = (props: { handleRetry: () => void }) => {
   const { handleRetry } = props;
   return (
     <div className="flex flex-col items-center gap-6">

@@ -8,13 +8,7 @@ import { QUERIES } from '@/lib/queries';
 import { CourseData } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-
-const useGetCourses = (page: number, limit: number) => {
-  return useQuery({
-    queryKey: queryKeys.courses.paginated(page, limit),
-    queryFn: () => QUERIES.getCourses(page, limit),
-  });
-};
+import { useGetCourses } from '@/lib/queries/hooks';
 
 const Trailer = () => {
   const { data, isPending, isError } = useGetCourses(1, 1);
@@ -37,7 +31,7 @@ const Trailer = () => {
                 src={courses[0].thumbnail}
                 alt={courses[0].title}
                 fill
-                sizes="100vw"
+                sizes="(max-width: 1200px) 100vw, 1200px"
                 className="size-full object-cover"
               />
             </div>

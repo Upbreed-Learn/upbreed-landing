@@ -24,8 +24,8 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import LockIcon from './jsx-icons/lock';
-import ContactUs from '@/app/(contact-us)';
-import Gifts from '@/app/(gifts)';
+import ContactUs from '@/components/contact-us';
+import Gifts from '@/components/gifts';
 
 const LINKS = [
   {
