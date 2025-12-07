@@ -1,7 +1,6 @@
 'use client';
 
 import { useQueryState } from 'nuqs';
-import preview from '@/public/img/course-preview.jpg';
 import CourseCard, { CourseCardLoading } from '@/components/course-card';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,7 +12,6 @@ import EmptyState from '@/components/empty-state';
 import { CoursesError } from '@/components/navbar';
 import { useState } from 'react';
 import { Pagination } from '@/components/ui/custom/pagination';
-import { da } from 'zod/v4/locales';
 
 const CourseList = () => {
   const [tab, _] = useQueryState('category', {
