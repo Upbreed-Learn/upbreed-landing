@@ -369,7 +369,7 @@ const MobileNav = (props: { children: React.ReactNode }) => {
                     <li key={category.id}>
                       <li key={category.id}>
                         <Link
-                          href={`/student/home?allCourses=${category.name.trim()}`}
+                          href={`/student/home?allCourses=${category.id}`}
                           onClick={() => setOpen(false)}
                           className="hover:text-[#D0EA50]"
                         >
@@ -395,7 +395,7 @@ const MobileNav = (props: { children: React.ReactNode }) => {
             </Link>
           </div>
 
-          <ul className="flex flex-col gap-3 self-end px-11 pb-36 text-end text-sm/4 font-semibold text-white">
+          <ul className="flex flex-col gap-3 self-end px-11 pb-48 text-end text-sm/4 font-semibold text-white">
             <li>
               <Link href="/student/settings">Settings</Link>
             </li>
