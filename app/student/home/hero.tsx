@@ -88,16 +88,9 @@ export default Hero;
 export const MobileHero = () => {
   const progressLevel = 50;
 
-  const queryClient = useQueryClient();
   const { data, isPending, isError } = useGetCourses(1, 1);
 
   const courses: CourseData[] = data?.data.data;
-
-  const handleRetry = () => {
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.courses.paginated(1, 10),
-    });
-  };
 
   return (
     <section className="flex items-end gap-7 bg-white lg:hidden">
@@ -108,41 +101,52 @@ export const MobileHero = () => {
         <p className="text-xs/[10px] font-semibold text-[#9B9B9B]">
           Try read for about 5 - 10mins a day, to track your progress to success
         </p>
-        <div className="flex justify-center bg-[#305B43] px-9 py-6">
-          <div className="flex w-full max-w-84 flex-col gap-2 rounded bg-white p-5">
-            <p className="text-start text-xs/5 text-[#737373]">Latest course</p>
-            <div className="flex items-center gap-1.5">
-              <div className="relative h-[4.563125rem] w-33.5 shrink-0 overflow-hidden rounded">
-                <Image
-                  src={hero}
-                  alt="home-hero"
-                  fill
-                  sizes="(max-width: 1200px) 100vw, 1200px"
-                  className="size-full object-cover"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-col gap-1">
-                  <p className="text-start text-[10px]/3 font-bold">
-                    How to Sell Anything to anyone, anywhere and anyhow
-                  </p>
-                  <p className="text-start text-[8px]/[100%] font-semibold text-[#949494]">
-                    Dupe Melanin
-                  </p>
+        {isPending ? (
+          <MobileLoader />
+        ) : (
+          <div
+            className={cn(
+              'flex justify-center bg-[#305B43] px-9 py-6',
+              (isError || courses?.length < 1) && 'hidden',
+            )}
+          >
+            <div className="flex w-full max-w-84 flex-col gap-2 rounded bg-white p-5">
+              <p className="text-start text-xs/5 text-[#737373]">
+                Latest course
+              </p>
+              <div className="flex items-center gap-1.5">
+                <div className="relative h-[4.563125rem] w-33.5 shrink-0 overflow-hidden rounded">
+                  <Image
+                    src={hero}
+                    alt="home-hero"
+                    fill
+                    sizes="(max-width: 1200px) 100vw, 1200px"
+                    className="size-full object-cover"
+                  />
                 </div>
-                <span className="relative block h-1 w-full rounded-lg bg-[#D9D9D9]">
-                  <span
-                    style={{
-                      width: `${progressLevel}%`,
-                    }}
-                    className="absolute top-0 left-0 h-full rounded-lg bg-[#305B43] transition-[width]"
-                  ></span>
-                  <span className="sr-only">Progress Level</span>
-                </span>
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-start text-[10px]/3 font-bold">
+                      How to Sell Anything to anyone, anywhere and anyhow
+                    </p>
+                    <p className="text-start text-[8px]/[100%] font-semibold text-[#949494]">
+                      Dupe Melanin
+                    </p>
+                  </div>
+                  <span className="relative block h-1 w-full rounded-lg bg-[#D9D9D9]">
+                    <span
+                      style={{
+                        width: `${progressLevel}%`,
+                      }}
+                      className="absolute top-0 left-0 h-full rounded-lg bg-[#305B43] transition-[width]"
+                    ></span>
+                    <span className="sr-only">Progress Level</span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
@@ -170,6 +174,34 @@ const HeroLoader = () => {
 
         {/* Button Skeleton */}
         <div className="h-9 w-24 rounded-lg bg-[#e5e5e5]"></div>
+      </div>
+    </div>
+  );
+};
+
+const MobileLoader = () => {
+  return (
+    <div className="flex justify-center bg-[#305B43] px-9 py-6">
+      <div className="flex w-full max-w-84 animate-pulse flex-col gap-2 rounded bg-white p-5">
+        {/* Latest course label */}
+        <div className="h-3 w-20 rounded bg-[#e5e5e5]"></div>
+
+        <div className="flex items-center gap-1.5">
+          {/* Image placeholder */}
+          <div className="relative h-[4.563125rem] w-33.5 shrink-0 overflow-hidden rounded bg-[#e5e5e5]"></div>
+
+          {/* Right side content */}
+          <div className="flex w-full flex-col gap-2">
+            {/* Title + Author */}
+            <div className="flex flex-col gap-1">
+              <div className="h-3 w-40 rounded bg-[#e5e5e5]"></div>
+              <div className="h-2.5 w-20 rounded bg-[#e5e5e5]"></div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="block h-1 w-full rounded-lg bg-[#e5e5e5]"></div>
+          </div>
+        </div>
       </div>
     </div>
   );
