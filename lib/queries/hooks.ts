@@ -35,3 +35,10 @@ export const useGetCategories = () => {
     queryFn: () => QUERIES.getCategories(),
   });
 };
+
+export const useGetCourses = (page: number, limit: number) => {
+  return useQuery({
+    queryKey: queryKeys.courses.paginated(page, limit),
+    queryFn: () => QUERIES.getCourses(page, limit),
+  });
+};

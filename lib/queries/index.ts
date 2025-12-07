@@ -48,4 +48,21 @@ export const QUERIES = {
 
     return await https.get(url);
   },
+  getCoursesByCategory: async (
+    page: number,
+    limit: number,
+    category: string,
+  ) => {
+    const params = new URLSearchParams();
+
+    if (page) params.append('page', page.toString());
+    if (limit) params.append('limit', limit.toString());
+
+    const queryString = params.toString();
+    const url = queryString
+      ? `/course/category/${category}?${queryString}`
+      : `/course/category/${category}`;
+
+    return await https.get(url);
+  },
 };

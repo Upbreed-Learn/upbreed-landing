@@ -1,6 +1,9 @@
 'use client';
 
-import { ContentError, ContentLoader } from '@/app/press/[id]/press-content';
+import {
+  ContentError,
+  ContentLoader,
+} from '@/app/(landing-page)/press/[id]/press-content';
 import { BlogDetailsData } from '@/lib/constants';
 import { useGetBlogById } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';

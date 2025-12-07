@@ -28,5 +28,10 @@ export const queryKeys = {
       page,
       limit,
     ],
+    category: (page: number, limit: number, category: string) => [
+      ...queryKeys.courses.paginated(page, limit),
+      'category',
+      category,
+    ],
   },
 };

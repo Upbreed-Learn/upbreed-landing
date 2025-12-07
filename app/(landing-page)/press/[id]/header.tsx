@@ -41,7 +41,7 @@ const PressHeader = (props: { id: string }) => {
           src={blog.previewImage}
           alt={blog.title}
           fill
-          sizes="100vw"
+          sizes="(max-width: 1200px) 100vw, 1200px"
           className="size-full object-cover"
         />
       </div>

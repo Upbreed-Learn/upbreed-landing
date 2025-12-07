@@ -74,7 +74,9 @@ const Elevate = () => {
           >
             {categories?.map(category => (
               <li key={category.id}>
-                <Link href={'#'}>{category.name}</Link>
+                <Link href={`/student/home?allCourses=${category.name.trim()}`}>
+                  {category.name}
+                </Link>
               </li>
             ))}
           </ul>
@@ -152,7 +154,7 @@ const InstructorCard = (props: { instructor: Instructor }) => {
         alt={instructor.fname}
         unoptimized
         fill
-        sizes="100vw"
+        sizes="(max-width: 1200px) 100vw, 1200px"
         className="object-cover"
       />
       <div className="absolute bottom-5 left-1/2 flex w-11/12 -translate-x-1/2 flex-col gap-4">
