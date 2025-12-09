@@ -2,9 +2,6 @@
 
 import Image from 'next/image';
 import { Play } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/lib/queries/query-keys';
-import { QUERIES } from '@/lib/queries';
 import { CourseData } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';

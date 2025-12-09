@@ -1,5 +1,6 @@
 'use client';
 
+import ErrorCard from '@/components/error-card';
 import Facebook from '@/components/jsx-icons/facebook';
 import Twitter from '@/components/jsx-icons/twitter';
 import { BlogDetailsData } from '@/lib/constants';
@@ -26,8 +27,8 @@ const PressHeader = (props: { id: string }) => {
 
   if (isError) {
     return (
-      <HeaderError
-        onRetry={() =>
+      <ErrorCard
+        handleRetry={() =>
           queryClient.invalidateQueries({ queryKey: queryKeys.blogs.byId(id) })
         }
       />
@@ -86,30 +87,6 @@ export const HeaderLoader = () => {
           <div className="h-9 w-9 rounded bg-gray-300" />
           <div className="h-9 w-9 rounded bg-gray-300" />
         </div>
-      </div>
-    </section>
-  );
-};
-
-export const HeaderError = (props: { onRetry: () => void }) => {
-  const { onRetry } = props;
-
-  return (
-    <section className="hidden flex-col gap-6 border-b-[0.88px] border-[#00000033] pb-4">
-      <div className="rounded-lg border border-red-300 bg-red-50 px-6 py-8 text-center">
-        <h3 className="mb-2 text-lg font-semibold text-red-700">
-          Unable to load article
-        </h3>
-        <p className="mb-4 text-sm text-red-600">
-          Something went wrong while fetching the article details. Please try
-          again.
-        </p>
-        <button
-          onClick={onRetry}
-          className="rounded bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800"
-        >
-          Retry
-        </button>
       </div>
     </section>
   );

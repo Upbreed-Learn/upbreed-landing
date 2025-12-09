@@ -54,3 +54,19 @@ export function formatMinutes(totalMinutes: number): string {
 
   return `${h} ${m}`.trim();
 }
+
+export function formatDuration(totalMinutes: number): string {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  const hourLabel = hours === 1 ? 'Hour' : 'Hours';
+  const minuteLabel = minutes === 1 ? 'Min' : 'Mins';
+
+  if (hours > 0 && minutes > 0) {
+    return `${hours} ${hourLabel} ${minutes} ${minuteLabel}`;
+  }
+  if (hours > 0) {
+    return `${hours} ${hourLabel}`;
+  }
+  return `${minutes} ${minuteLabel}`;
+}

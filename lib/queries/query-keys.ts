@@ -19,6 +19,7 @@ export const queryKeys = {
   },
   instructors: {
     all: ['instructors'],
+    byId: (id: string) => [...queryKeys.instructors.all, 'byId', id],
   },
   courses: {
     all: ['courses'],
@@ -33,5 +34,6 @@ export const queryKeys = {
       'category',
       category,
     ],
+    byId: (id: string) => [...queryKeys.courses.all, 'byId', id],
   },
 };

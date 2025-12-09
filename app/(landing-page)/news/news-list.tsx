@@ -1,11 +1,9 @@
 'use client';
 
 import { cn, formatPrettyDate } from '@/lib/utils';
-// import { ArrowRightCircleIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useQueryState } from 'nuqs';
 import { useEffect, useRef, useState } from 'react';
-// import tubo from '@/public/img/tubo.jpg';
 import Link from 'next/link';
 import { Pagination } from '@/components/ui/custom/pagination';
 import { useGetAllPublishedBlogs, useGetCategories } from '@/lib/queries/hooks';
@@ -14,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
 import EmptyState from '@/components/empty-state';
+import ErrorCard from '@/components/error-card';
 
 const NewsList = () => {
   const [category, _] = useQueryState('category', {
@@ -43,7 +42,7 @@ const NewsList = () => {
         <Categories />
         <div className="flex flex-col gap-20">
           {isError ? (
-            <NewsCardError onRetry={handleRetry} />
+            <ErrorCard handleRetry={handleRetry} />
           ) : (
             <>
               <div className="grid gap-x-9 gap-y-7 sm:grid-cols-2 md:grid-cols-3">
@@ -127,25 +126,6 @@ export const NewsCardLoading = () => {
   );
 };
 
-export const NewsCardError = (props: { onRetry: () => void }) => {
-  const { onRetry } = props;
-  return (
-    <div className="relative flex flex-col gap-2.5">
-      <div className="rounded-lg border border-red-300 bg-red-50 px-6 py-8 text-center">
-        <h3 className="mb-2 text-lg font-semibold text-red-700">
-          Unable to load news
-        </h3>
-        <p className="mb-4 text-sm text-red-600">
-          Something went wrong while fetching the news list. Please try again.
-        </p>
-        <div className="flex justify-center gap-2">
-          <Button onClick={onRetry}>Retry</Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const Categories = () => {
   const [category, setCategory] = useQueryState('category', {
     defaultValue: 'all',
@@ -171,7 +151,7 @@ const Categories = () => {
   return (
     <div className="relative">
       {isError ? (
-        <CategoryError handleRetry={handleRetry} />
+        <ErrorCard handleRetry={handleRetry} />
       ) : isPending ? (
         <CategoryLoader />
       ) : (
@@ -223,26 +203,6 @@ const CategoryLoader = () => {
 
         {/* Fake Arrow (disabled look) */}
         <div className="h-6 w-6 animate-pulse rounded-full bg-gray-200" />
-      </div>
-    </div>
-  );
-};
-
-const CategoryError = (props: { handleRetry: () => void }) => {
-  const { handleRetry } = props;
-  return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="rounded-lg border border-red-300 bg-red-50 px-6 py-8 text-center">
-        <h3 className="mb-2 text-lg font-semibold text-red-700">
-          Unable to load category
-        </h3>
-        <p className="mb-4 text-sm text-red-600">
-          Something went wrong while fetching the category list. Please try
-          again.
-        </p>
-        <div className="flex justify-center gap-2">
-          <Button onClick={handleRetry}>Retry</Button>
-        </div>
       </div>
     </div>
   );

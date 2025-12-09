@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import ErrorCard from '@/components/error-card';
 import { BlogDetailsData } from '@/lib/constants';
 import { useGetBlogById } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
@@ -20,8 +20,8 @@ const PressContent = (props: { id: string }) => {
 
   if (isError) {
     return (
-      <ContentError
-        onRetry={() =>
+      <ErrorCard
+        handleRetry={() =>
           queryClient.invalidateQueries({ queryKey: queryKeys.blogs.byId(id) })
         }
       />
@@ -78,25 +78,6 @@ export const ContentLoader = () => {
         <div className="h-4 w-4/5 rounded bg-gray-200"></div>
         <div className="h-4 w-full rounded bg-gray-200"></div>
         <div className="h-4 w-3/5 rounded bg-gray-200"></div>
-      </div>
-    </div>
-  );
-};
-
-export const ContentError = (props: { onRetry: () => void }) => {
-  const { onRetry } = props;
-
-  return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="rounded-lg border border-red-300 bg-red-50 px-6 py-8 text-center">
-        <h3 className="mb-2 text-lg font-semibold text-red-700">
-          Unable to load article
-        </h3>
-        <p className="mb-4 text-sm text-red-600">
-          Something went wrong while fetching the article details. Please try
-          again.
-        </p>
-        <Button onClick={onRetry}>Retry</Button>
       </div>
     </div>
   );

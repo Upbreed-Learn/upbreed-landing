@@ -65,4 +65,14 @@ export const QUERIES = {
 
     return await https.get(url);
   },
+  getCourseById: async (id: string) => {
+    const url = `/course/${id}`;
+
+    return await https.get(url);
+  },
+  getInstructorsById: async (id: string) => {
+    const url = `/instructor/${id}`;
+
+    return await https.get(url);
+  },
 };

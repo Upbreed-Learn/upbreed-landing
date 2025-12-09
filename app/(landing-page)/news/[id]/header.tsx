@@ -1,9 +1,7 @@
 'use client';
 
-import {
-  HeaderError,
-  HeaderLoader,
-} from '@/app/(landing-page)/press/[id]/header';
+import { HeaderLoader } from '@/app/(landing-page)/press/[id]/header';
+import ErrorCard from '@/components/error-card';
 import Facebook from '@/components/jsx-icons/facebook';
 import Twitter from '@/components/jsx-icons/twitter';
 import { BlogDetailsData } from '@/lib/constants';
@@ -30,8 +28,8 @@ const NewsHeader = (props: { id: string }) => {
 
   if (isError) {
     return (
-      <HeaderError
-        onRetry={() =>
+      <ErrorCard
+        handleRetry={() =>
           queryClient.invalidateQueries({ queryKey: queryKeys.blogs.byId(id) })
         }
       />

@@ -42,3 +42,15 @@ export const useGetCourses = (page: number, limit: number) => {
     queryFn: () => QUERIES.getCourses(page, limit),
   });
 };
+
+export const useGetCoursesByCategory = (
+  page: number,
+  limit: number,
+  category: string,
+) => {
+  return useQuery({
+    queryKey: queryKeys.courses.category(page, limit, category),
+    queryFn: () => QUERIES.getCoursesByCategory(page, limit, category),
+    enabled: category !== 'all' && category !== 'undefined',
+  });
+};

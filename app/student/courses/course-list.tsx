@@ -9,9 +9,9 @@ import { useGetCourses } from '@/lib/queries/hooks';
 import { CourseData } from '@/lib/constants';
 import { queryKeys } from '@/lib/queries/query-keys';
 import EmptyState from '@/components/empty-state';
-import { CoursesError } from '@/components/navbar';
 import { useState } from 'react';
 import { Pagination } from '@/components/ui/custom/pagination';
+import ErrorCard from '@/components/error-card';
 
 const CourseList = () => {
   const [tab, _] = useQueryState('category', {
@@ -43,7 +43,7 @@ const CourseList = () => {
           <div className="-mx-40">
             <div className="w-full">
               {isError ? (
-                <CoursesError handleRetry={handleRetry} />
+                <ErrorCard handleRetry={handleRetry} />
               ) : (
                 <div className="scrollbar flex items-center gap-13 overflow-auto px-40">
                   {isPending ? (
@@ -68,7 +68,7 @@ const CourseList = () => {
         )}
         {(tab === 'saved' || tab === 'history') &&
           (isError ? (
-            <CoursesError handleRetry={handleRetry} />
+            <ErrorCard handleRetry={handleRetry} />
           ) : (
             <div className="flex flex-col gap-10">
               <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
