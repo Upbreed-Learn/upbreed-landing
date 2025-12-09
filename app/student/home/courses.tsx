@@ -1,19 +1,20 @@
 'use client';
 
-import CourseCard, {
-  CourseCardError,
-  CourseCardLoading,
-} from '@/components/course-card';
+import CourseCard, { CourseCardLoading } from '@/components/course-card';
 import EmptyState from '@/components/empty-state';
+import ErrorCard from '@/components/error-card';
 import {
   COURSE_BUNDLES,
-  CoursesError,
   CoursesLoading,
 } from '@/components/navbar';
 import { Pagination } from '@/components/ui/custom/pagination';
 import { Category, CourseData } from '@/lib/constants';
 import { QUERIES } from '@/lib/queries';
-import { useGetCategories, useGetCourses } from '@/lib/queries/hooks';
+import {
+  useGetCategories,
+  useGetCourses,
+  useGetCoursesByCategory,
+} from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn, formatMinutes } from '@/lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -80,7 +81,7 @@ const CourseBundles = () => {
       </aside>
       <div className="relative flex items-center gap-7.5 rounded-[10px] bg-[#305B43] py-8.5 pr-10 pl-8 max-md:hidden lg:flex-5/6">
         {isError ? (
-          <CoursesError handleRetry={handleRetry} />
+          <ErrorCard handleRetry={handleRetry} />
         ) : isPending ? (
           <LatestCourseLoader />
         ) : courses.length > 0 ? (
@@ -136,18 +137,6 @@ const CourseBundles = () => {
   );
 };
 
-const useGetCoursesByCategory = (
-  page: number,
-  limit: number,
-  category: string,
-) => {
-  return useQuery({
-    queryKey: queryKeys.courses.category(page, limit, category),
-    queryFn: () => QUERIES.getCoursesByCategory(page, limit, category),
-    enabled: category !== 'all',
-  });
-};
-
 const AllCourses = () => {
   const [page, setPage] = useState(1);
   const [coursesByCategoryPage, setCoursesByCategoryPage] = useState(1);
@@ -197,7 +186,7 @@ const AllCourses = () => {
         </button>
         <div className={cn(categories?.length < 1 && 'hidden')}>
           {isError ? (
-            <CoursesError handleRetry={handleRetry} />
+            <ErrorCard handleRetry={handleRetry} />
           ) : (
             <ul className="flex gap-3 max-md:flex-wrap max-md:text-xs md:flex-col [&>li]:border-[#6F6F6F] [&>li]:last:border-none [&>li]:last:pr-0 max-md:[&>li]:border-r max-md:[&>li]:pr-3">
               {isPending ? (
@@ -229,7 +218,7 @@ const AllCourses = () => {
             : categories?.find(c => c.id.toString() === course)?.name}
         </h3>
         {coursesError || (course !== 'all' && coursesErrorByCategory) ? (
-          <CourseCardError handleRetry={handleRetryCourses} />
+          <ErrorCard handleRetry={handleRetryCourses} />
         ) : (
           <div className="flex flex-col gap-6">
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { Input } from './ui/input';
 import NavLink from './navlink';
-import AvatarCustom from './ui/custom/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +46,7 @@ import EmptyState from './empty-state';
 import ContactUs from './contact-us';
 import Gifts from './gifts';
 import { useState } from 'react';
+import ErrorCard from './error-card';
 
 const Navbar = () => {
   const { ref, isVisible } = useIntersectionObserver();
@@ -266,7 +266,7 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
             All Courses <ChevronRight />
           </Link>
           {isError ? (
-            <CoursesError handleRetry={handleRetry} />
+            <ErrorCard handleRetry={handleRetry} />
           ) : (
             <ul className="flex flex-col gap-3">
               {isPending ? (
@@ -359,7 +359,7 @@ const MobileNav = (props: { children: React.ReactNode }) => {
           </div>
           <div className="flex w-full flex-col gap-6 self-end px-11 pt-14 text-end text-sm/6 font-semibold text-white">
             {isError ? (
-              <CoursesError handleRetry={handleRetry} />
+              <ErrorCard handleRetry={handleRetry} />
             ) : (
               <ul className="flex flex-col gap-3">
                 {isPending ? (
@@ -433,22 +433,3 @@ export const CoursesLoading = () => {
   );
 };
 
-export const CoursesError = (props: { handleRetry: () => void }) => {
-  const { handleRetry } = props;
-  return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="rounded-lg border border-red-300 bg-red-50 px-6 py-8 text-center">
-        <h3 className="mb-2 text-lg font-semibold text-red-700">
-          Unable to load courses
-        </h3>
-        <p className="mb-4 text-sm text-red-600">
-          Something went wrong while fetching the courses list. Please try
-          again.
-        </p>
-        <div className="flex justify-center gap-2">
-          <Button onClick={handleRetry}>Retry</Button>
-        </div>
-      </div>
-    </div>
-  );
-};

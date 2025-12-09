@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  ContentError,
-  ContentLoader,
-} from '@/app/(landing-page)/press/[id]/press-content';
+import { ContentLoader } from '@/app/(landing-page)/press/[id]/press-content';
 import { BlogDetailsData } from '@/lib/constants';
 import { useGetBlogById } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
@@ -11,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import DOMPurify from 'dompurify';
+import ErrorCard from '@/components/error-card';
 
 const NewsContent = (props: { id: string }) => {
   const queryClient = useQueryClient();
@@ -25,8 +23,8 @@ const NewsContent = (props: { id: string }) => {
 
   if (isError) {
     return (
-      <ContentError
-        onRetry={() =>
+      <ErrorCard
+        handleRetry={() =>
           queryClient.invalidateQueries({ queryKey: queryKeys.blogs.byId(id) })
         }
       />

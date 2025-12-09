@@ -12,6 +12,7 @@ import { BlogsData, BlogsResponse } from '@/lib/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
 import EmptyState from '@/components/empty-state';
+import ErrorCard from '@/components/error-card';
 
 const PressList = () => {
   const [page, setPage] = useState(1);
@@ -117,25 +118,6 @@ const LoadingCard = () => {
       <div className="h-[8.105625rem] w-full overflow-hidden rounded-[6px] bg-gray-700" />
       <div className="h-4 w-3/4 rounded bg-gray-700" />
       <div className="mt-2 h-3 w-1/2 rounded bg-gray-700" />
-    </div>
-  );
-};
-
-const ErrorCard = (props: { handleRetry: () => void }) => {
-  const { handleRetry } = props;
-  return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="rounded-lg border border-red-300 bg-red-50 px-6 py-8 text-center">
-        <h3 className="mb-2 text-lg font-semibold text-red-700">
-          Unable to load press articles
-        </h3>
-        <p className="mb-4 text-sm text-red-600">
-          Something went wrong while fetching the press list. Please try again.
-        </p>
-        <div className="flex justify-center gap-2">
-          <Button onClick={handleRetry}>Retry</Button>
-        </div>
-      </div>
     </div>
   );
 };

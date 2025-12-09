@@ -5,7 +5,7 @@ import Image from 'next/image';
 import StarIcon from '@/components/jsx-icons/star';
 import { ChevronLeftCircle, ChevronRightCircle } from 'lucide-react';
 import { useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { QUERIES } from '@/lib/queries';
 import { Category, Instructor } from '@/lib/constants';
@@ -22,7 +22,6 @@ const useGetInstructors = () => {
 
 const Elevate = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const queryClient = useQueryClient();
 
   const { data, isPending, isError } = useGetInstructors();
   const {
@@ -36,12 +35,6 @@ const Elevate = () => {
   >[] = categoryData?.data.data;
 
   const instructors: Instructor[] = data?.data.data;
-
-  const handleRetry = () => {
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.instructors.all,
-    });
-  };
 
   const handleScrollLeft = () => {
     scrollRef.current?.scrollTo({

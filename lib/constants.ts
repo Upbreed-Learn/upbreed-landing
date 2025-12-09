@@ -89,3 +89,17 @@ export interface CourseData {
     durationInMinutes: number;
   };
 }
+export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
+  videos: {
+    id: number;
+    title: string;
+    position: number;
+    durationInSeconds: number;
+    isTrailer: boolean;
+    isPublic: boolean;
+  }[];
+  categories: Omit<
+    Category['category'][],
+    'createdAt' | 'updatedAt' | 'deletedAt'
+  >;
+}

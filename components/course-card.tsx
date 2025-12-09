@@ -1,8 +1,6 @@
 import { Bookmark, Play } from 'lucide-react';
-import preview from '@/public/img/course-preview.jpg';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from './ui/button';
 import { CourseData } from '@/lib/constants';
 import { formatMinutes } from '@/lib/utils';
 
@@ -120,26 +118,6 @@ export const CourseCardLoading = () => {
         <div className="flex items-center justify-between">
           <div className="h-3 w-28 rounded bg-gray-400"></div>
           <div className="h-6 w-6 rounded bg-gray-400"></div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const CourseCardError = (props: { handleRetry: () => void }) => {
-  const { handleRetry } = props;
-  return (
-    <div className="group relative flex flex-col items-center gap-6 rounded-lg border border-red-300 bg-red-50 px-6 pt-4 pb-14">
-      <div className="rounded-lg border border-red-300 bg-red-50 px-6 py-8 text-center">
-        <h3 className="mb-2 text-lg font-semibold text-red-700">
-          Unable to load courses
-        </h3>
-        <p className="mb-4 text-sm text-red-600">
-          Something went wrong while fetching the courses list. Please try
-          again.
-        </p>
-        <div className="flex justify-center gap-2">
-          <Button onClick={handleRetry}>Retry</Button>
         </div>
       </div>
     </div>
