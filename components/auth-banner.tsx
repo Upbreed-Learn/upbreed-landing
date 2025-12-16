@@ -1,8 +1,15 @@
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
+import { useQueryState } from 'nuqs';
 
 const AuthBanner = (props: { className?: string }) => {
   const { className } = props;
+  const [_, setAuth] = useQueryState('auth');
+
+  const handleSignUp = () => {
+    setAuth('sign-up');
+  };
+
   return (
     <div
       className={cn(
@@ -15,7 +22,7 @@ const AuthBanner = (props: { className?: string }) => {
           classes start at <s className="text-[#FFFFFF3B]">$10</s> $5 per month{' '}
           <span className="max-md:block">(billed 6 months/annually)</span>
         </p>
-        <Button>Sign up</Button>
+        <Button onClick={handleSignUp}>Sign up</Button>
       </div>
     </div>
   );

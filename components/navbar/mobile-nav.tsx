@@ -1,5 +1,5 @@
 import { Category } from '@/lib/constants';
-import { useGetCategories } from '@/lib/queries/hooks';
+import { useGetCategories, useGetToken } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -20,14 +20,21 @@ import Gifts from '../gifts';
 import { Button } from '../ui/button';
 import { CoursesLoading } from '.';
 import { COURSE_BUNDLES } from './classes-hover';
+import { cn } from '@/lib/utils';
+import { deleteToken } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
+import { useQueryState } from 'nuqs';
 
 const MobileNav = (props: { children: React.ReactNode }) => {
-  const [open, setOpen] = useState(false);
   const { children } = props;
-
+  const [_, setAuth] = useQueryState('auth');
+  const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   const { data, isPending, isError } = useGetCategories();
+  const { data: tokenData } = useGetToken();
+
+  const token = tokenData?.data.token;
   const categories: Omit<
     Category['category'],
     'createdAt' | 'updatedAt' | 'deletedAt'
@@ -37,6 +44,21 @@ const MobileNav = (props: { children: React.ReactNode }) => {
     queryClient.invalidateQueries({
       queryKey: queryKeys.categories.all,
     });
+  };
+
+  const handleSignUp = () => {
+    setAuth('sign-up');
+  };
+
+  const handleLogin = () => {
+    setAuth('login');
+  };
+
+  const handleLogout = async () => {
+    await deleteToken();
+    queryClient.invalidateQueries({ queryKey: queryKeys.token });
+    setOpen(false);
+    router.push('/');
   };
 
   return (
@@ -73,7 +95,7 @@ const MobileNav = (props: { children: React.ReactNode }) => {
             ) : (
               <ul className="flex flex-col gap-3">
                 {isPending ? (
-                  <CoursesLoading />
+                  <CoursesLoading className="self-end" />
                 ) : categories.length > 0 ? (
                   categories.map(category => (
                     <li key={category.id}>
@@ -105,26 +127,44 @@ const MobileNav = (props: { children: React.ReactNode }) => {
             </Link>
           </div>
 
-          <ul className="flex flex-col gap-3 self-end px-11 pb-48 text-end text-sm/4 font-semibold text-white">
-            <li>
-              <Link onClick={() => setOpen(false)} href="/student/settings">
-                Settings
-              </Link>
-            </li>
+          <ul
+            className={cn(
+              'flex flex-col gap-3 self-end px-11 text-end text-sm/4 font-semibold text-white',
+              token ? 'pb-11' : 'pb-48',
+            )}
+          >
+            {token && (
+              <li>
+                <Link onClick={() => setOpen(false)} href="/student/settings">
+                  Settings
+                </Link>
+              </li>
+            )}
             <li>
               <ContactUs>Contact Us</ContactUs>
             </li>
             <li>
               <Gifts>Gifts</Gifts>
             </li>
-            <li>Log out</li>
+            {token && (
+              <li>
+                <button onClick={handleLogout}>Log out</button>
+              </li>
+            )}
           </ul>
-          <div className="fixed bottom-0 left-1/2 flex w-screen -translate-x-1/2 flex-col justify-center gap-2 bg-white p-3">
-            <Button className="h-12 w-full">Sign Up</Button>
-            <Button className="h-12 w-full border border-[#34A853] bg-white">
-              Login
-            </Button>
-          </div>
+          {!token && (
+            <div className="fixed bottom-0 left-1/2 flex w-screen -translate-x-1/2 flex-col justify-center gap-2 bg-white p-3">
+              <Button onClick={handleSignUp} className="h-12 w-full">
+                Sign Up
+              </Button>
+              <Button
+                onClick={handleLogin}
+                className="h-12 w-full border border-[#34A853] bg-white"
+              >
+                Login
+              </Button>
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>

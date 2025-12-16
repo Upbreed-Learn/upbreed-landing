@@ -9,6 +9,9 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import ContactUs from '../components/contact-us';
 import Gifts from '../components/gifts';
 import Navbar from '@/components/navbar';
+import LoginDialog from '@/components/auth/login';
+import SignupDialog from '@/components/auth/signup';
+import AuthPages from '@/components/auth';
 
 const myFont = localFont({
   src: [
@@ -55,6 +58,7 @@ export default function RootLayout({
       <body className={cn('bg-[#00230F]', myFont.className)}>
         <QueryProvider>
           <NuqsAdapter>
+            <AuthPages />
             <Navbar />
             <main className="">{children}</main>
             <Footer />
