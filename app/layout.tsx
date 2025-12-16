@@ -12,6 +12,7 @@ import Navbar from '@/components/navbar';
 import LoginDialog from '@/components/auth/login';
 import SignupDialog from '@/components/auth/signup';
 import AuthPages from '@/components/auth';
+import { Suspense } from 'react';
 
 const myFont = localFont({
   src: [
@@ -59,7 +60,9 @@ export default function RootLayout({
         <QueryProvider>
           <NuqsAdapter>
             <AuthPages />
-            <Navbar />
+            <Suspense>
+              <Navbar />
+            </Suspense>
             <main className="">{children}</main>
             <Footer />
             <ContactUs />

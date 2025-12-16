@@ -9,7 +9,7 @@ import NavLink from '../navlink';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import AuthBanner from '../auth-banner';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import SearchInput from './search-courses';
 import { useQueryState } from 'nuqs';
 import { useGetToken } from '@/lib/queries/hooks';
@@ -92,9 +92,11 @@ const Navbar = () => {
                     <NavLink href="/student/courses">My Courses</NavLink>
                   </div>
                   <div className="flex items-center gap-7 max-lg:hidden">
-                    <MenuDropdown>
-                      <Menu />
-                    </MenuDropdown>
+                    <Suspense>
+                      <MenuDropdown>
+                        <Menu />
+                      </MenuDropdown>
+                    </Suspense>
                     <AvatarCustom src={''} alt="Avatar" fallback="JO" />
                   </div>
                 </>
@@ -125,7 +127,7 @@ export default Navbar;
 
 export const CoursesLoading = (props: { className?: string }) => {
   const { className } = props;
-  
+
   return (
     <ul className={cn('flex flex-col gap-3', className)}>
       {[...Array(5)].map((_, i) => (
