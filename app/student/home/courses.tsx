@@ -7,7 +7,6 @@ import { CoursesLoading } from '@/components/navbar';
 import { COURSE_BUNDLES } from '@/components/navbar/classes-hover';
 import { Pagination } from '@/components/ui/custom/pagination';
 import { Category, CourseData } from '@/lib/constants';
-import { QUERIES } from '@/lib/queries';
 import {
   useGetCategories,
   useGetCourses,
@@ -15,7 +14,7 @@ import {
 } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn, formatMinutes } from '@/lib/utils';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Bookmark, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
