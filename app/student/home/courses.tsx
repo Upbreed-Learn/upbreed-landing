@@ -3,10 +3,8 @@
 import CourseCard, { CourseCardLoading } from '@/components/course-card';
 import EmptyState from '@/components/empty-state';
 import ErrorCard from '@/components/error-card';
-import {
-  COURSE_BUNDLES,
-  CoursesLoading,
-} from '@/components/navbar';
+import { CoursesLoading } from '@/components/navbar';
+import { COURSE_BUNDLES } from '@/components/navbar/classes-hover';
 import { Pagination } from '@/components/ui/custom/pagination';
 import { Category, CourseData } from '@/lib/constants';
 import { QUERIES } from '@/lib/queries';
