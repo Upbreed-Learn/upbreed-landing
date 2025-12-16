@@ -61,6 +61,7 @@ function SearchInput(props: {
     router.push(`/student/courses/${result}`);
     setSearchQuery('');
     setIsOpen(false);
+    setMobileSearch(false);
   };
 
   const handleSearchMobile = () => {

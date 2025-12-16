@@ -1,4 +1,45 @@
+import axios from 'axios';
 import { https } from '../https';
+
+export const MUTATIONS = {
+  authSignup: async (data: {
+    fname: string;
+    lname: string;
+    email: string;
+    phone: string;
+    password: string;
+    deviceSignature: string;
+  }) => {
+    return await https.post('/auth/signup', data);
+  },
+  authVerify: async (data: {
+    email: string;
+    otp: string;
+    deviceSignature: string;
+  }) => {
+    return await https.post('/auth/verify-account', data);
+  },
+  authRequestOtp: async (data: {
+    email: string;
+    otpType: 'LOGIN' | 'PASSWORD_RESET' | 'ACCOUNT_VERIFICATION';
+  }) => {
+    return await https.post('/auth/request-otp', data);
+  },
+  authLogin: async function (data: {
+    email: string;
+    password: string;
+    deviceSignature: string;
+  }) {
+    return await https.post(`/auth/login`, data);
+  },
+  authPasswordReset: async function (data: {
+    email: string;
+    password: string;
+    otp: string;
+  }) {
+    return await https.post(`/auth/password/reset`, data);
+  },
+};
 
 export const QUERIES = {
   getBlogs: async (
@@ -86,5 +127,11 @@ export const QUERIES = {
     const url = `/instructor/${id}`;
 
     return await https.get(url);
+  },
+  getUserProfile: async function () {
+    return await https.get(`/user/profile`);
+  },
+  getToken: async function () {
+    return await axios.get(`/api/auth/token`);
   },
 };

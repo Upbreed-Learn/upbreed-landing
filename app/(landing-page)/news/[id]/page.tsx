@@ -4,6 +4,7 @@ import More from './more';
 import NewsContent from './news-content';
 import { BlogDetailsData } from '@/lib/constants';
 import { getBlogByIdServer } from '@/lib/server/blogs';
+import { Suspense } from 'react';
 
 export async function generateMetadata({
   params,
@@ -49,7 +50,9 @@ const Details = async ({ params }: { params: { id: string } }) => {
           <NewsHeader id={id} />
           <NewsContent id={id} />
         </article>
-        <More id={id} />
+        <Suspense>
+          <More id={id} />
+        </Suspense>
       </section>
     </div>
   );

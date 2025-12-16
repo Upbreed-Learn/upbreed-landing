@@ -4,18 +4,34 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import logo from '@/public/upbreed-logo.svg';
 import ClassesHover from './classes-hover';
-import { ChevronDown, CircleQuestionMark } from 'lucide-react';
+import { ChevronDown, CircleQuestionMark, Menu } from 'lucide-react';
 import NavLink from '../navlink';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import AuthBanner from '../auth-banner';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import SearchInput from './search-courses';
+import { useQueryState } from 'nuqs';
+import { useGetToken } from '@/lib/queries/hooks';
+import MenuDropdown from './menu-dropdown';
+import AvatarCustom from '../ui/custom/avatar';
 
 const Navbar = () => {
   const [mobileSearch, setMobileSearch] = useState(false);
+  const [_, setAuth] = useQueryState('auth');
   const { ref, isVisible } = useIntersectionObserver();
   const pathname = usePathname();
+  const { data } = useGetToken();
+
+  const token = data?.data.token;
+
+  const handleSignUp = () => {
+    setAuth('sign-up');
+  };
+
+  const handleLogin = () => {
+    setAuth('login');
+  };
 
   return (
     <>
@@ -58,29 +74,33 @@ const Navbar = () => {
                   setMobileSearch={setMobileSearch}
                 />
               </div>
-              <div className="flex items-center gap-8 max-lg:hidden">
-                <Button
-                  // onClick={handleLogin}
-                  className="cursor-pointer bg-transparent text-white hover:bg-transparent"
-                >
-                  Login
-                </Button>
-                <Button
-                //  onClick={handleSignUp}
-                >
-                  Sign Up
-                </Button>
-              </div>
-              {/* <div className="flex items-center gap-9">
-                <NavLink href="/1-on-1">1 - on - 1</NavLink>
-                <NavLink href="/student/courses">My Courses</NavLink>
-              </div>
-              <div className="flex items-center gap-7">
-                <MenuDropdown>
-                  <Menu />
-                </MenuDropdown>
-                <AvatarCustom src={''} alt="Avatar" fallback="JO" />
-              </div> */}
+              {!token && (
+                <div className="flex items-center gap-8 max-lg:hidden">
+                  <Button
+                    onClick={handleLogin}
+                    className="cursor-pointer bg-transparent text-white hover:bg-transparent"
+                  >
+                    Login
+                  </Button>
+                  <Button onClick={handleSignUp}>Sign Up</Button>
+                </div>
+              )}
+              {token && (
+                <>
+                  <div className="flex items-center gap-9 max-lg:hidden">
+                    <NavLink href="/1-on-1">1 - on - 1</NavLink>
+                    <NavLink href="/student/courses">My Courses</NavLink>
+                  </div>
+                  <div className="flex items-center gap-7 max-lg:hidden">
+                    <Suspense>
+                      <MenuDropdown>
+                        <Menu />
+                      </MenuDropdown>
+                    </Suspense>
+                    <AvatarCustom src={''} alt="Avatar" fallback="JO" />
+                  </div>
+                </>
+              )}
             </>
           ) : (
             <Link
@@ -92,20 +112,24 @@ const Navbar = () => {
           )}
         </div>
       </nav>
-      <AuthBanner
-        className={cn(
-          isVisible && 'translate-y-20 transition-transform duration-500',
-        )}
-      />
+      {!token && (
+        <AuthBanner
+          className={cn(
+            isVisible && 'translate-y-20 transition-transform duration-500',
+          )}
+        />
+      )}
     </>
   );
 };
 
 export default Navbar;
 
-export const CoursesLoading = () => {
+export const CoursesLoading = (props: { className?: string }) => {
+  const { className } = props;
+
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className={cn('flex flex-col gap-3', className)}>
       {[...Array(5)].map((_, i) => (
         <li key={i}>
           <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />

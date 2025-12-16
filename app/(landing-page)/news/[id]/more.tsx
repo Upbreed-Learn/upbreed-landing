@@ -2,12 +2,13 @@
 
 import { Button } from '@/components/ui/button';
 import { NewsCard, NewsCardLoading } from '../news-list';
-import { useGetBlogById } from '@/lib/queries/hooks';
+import { useGetBlogById, useGetToken } from '@/lib/queries/hooks';
 import { BlogDetailsData, BlogsResponse } from '@/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { QUERIES } from '@/lib/queries';
 import { cn } from '@/lib/utils';
+import { useQueryState } from 'nuqs';
 
 export const useGetSimilarBlogs = (
   page: number,
@@ -31,7 +32,10 @@ export const useGetSimilarBlogs = (
 
 const More = (props: { id: string }) => {
   const { id } = props;
+  const [_, setAuth] = useQueryState('auth');
   const { data } = useGetBlogById(id);
+  const { data: tokenData } = useGetToken();
+  const token = tokenData?.data.token;
   const blog: BlogDetailsData = data?.data;
   const {
     data: similarBlogs,
@@ -49,6 +53,10 @@ const More = (props: { id: string }) => {
   const filteredBlogs = blogsResponse?.data.filter(
     blog => blog.id.toString() !== id,
   );
+
+  const handleSignUp = () => {
+    setAuth('sign-up');
+  };
 
   return (
     <section
@@ -70,7 +78,11 @@ const More = (props: { id: string }) => {
                 <NewsCard key={blog.id} blog={blog} />
               ))}
         </div>
-        <Button className="max-lg:hidden">Sign Up</Button>
+        {!token && (
+          <Button onClick={handleSignUp} className="max-lg:hidden">
+            Sign Up
+          </Button>
+        )}
       </div>
     </section>
   );

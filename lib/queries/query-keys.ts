@@ -41,4 +41,8 @@ export const queryKeys = {
     ],
     byId: (id: string) => [...queryKeys.courses.all, 'byId', id],
   },
+  userProfile: {
+    all: ['userProfile'],
+  },
+  token: ['token'],
 };

@@ -1,6 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from './query-keys';
 import { QUERIES } from '.';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
+
+export const useDeviceFingerprint = () => {
+  return useQuery({
+    queryKey: ['deviceFingerprint'],
+    queryFn: async () => {
+      const fp = await FingerprintJS.load();
+      const { visitorId } = await fp.get();
+      return visitorId;
+    },
+    staleTime: Infinity,
+  });
+};
+
+export const useGetUserProfile = (token: string) => {
+  return useQuery({
+    queryKey: queryKeys.userProfile.all,
+    queryFn: () => QUERIES.getUserProfile(),
+    enabled: !!token,
+  });
+};
 
 export const useGetAllPublishedBlogs = (
   page: number,
@@ -52,5 +73,12 @@ export const useGetCoursesByCategory = (
     queryKey: queryKeys.courses.category(page, limit, category),
     queryFn: () => QUERIES.getCoursesByCategory(page, limit, category),
     enabled: category !== 'all' && category !== 'undefined',
+  });
+};
+
+export const useGetToken = () => {
+  return useQuery({
+    queryKey: queryKeys.token,
+    queryFn: () => QUERIES.getToken(),
   });
 };
