@@ -29,6 +29,11 @@ export const queryKeys = {
       page,
       limit,
     ],
+    search: (page: number, limit: number, search: string) => [
+      ...queryKeys.courses.paginated(page, limit),
+      'search',
+      { search },
+    ],
     category: (page: number, limit: number, category: string) => [
       ...queryKeys.courses.paginated(page, limit),
       'category',
