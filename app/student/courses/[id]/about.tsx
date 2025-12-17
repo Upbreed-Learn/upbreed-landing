@@ -74,8 +74,8 @@ const About = (props: { id: string }) => {
         ) : (
           <>
             <div className="flex w-full flex-col gap-11 md:gap-6">
-              <div className="_md:h-126 flex items-center max-md:flex-col max-md:gap-4 md:h-max md:bg-[#00230F]">
-                <div className="_md:h-full relative h-45.25 max-md:w-full max-md:overflow-hidden max-md:rounded-[10px] sm:h-80 md:h-[37.96875rem] md:flex-2/3 lg:flex-3/4">
+              <div className="flex items-center max-md:flex-col max-md:gap-4 md:h-max md:bg-[#00230F]">
+                <div className="relative max-md:w-full max-md:overflow-hidden max-md:rounded-[10px] md:flex md:h-full md:max-h-[37.96875rem] md:flex-2/3 lg:flex-3/4">
                   <Activity mode={playVideo ? 'hidden' : 'visible'}>
                     <Image
                       src={courseDetailsData.thumbnail}
@@ -96,17 +96,17 @@ const About = (props: { id: string }) => {
                     </button>
                   </Activity>
                   <Activity mode={playVideo ? 'visible' : 'hidden'}>
-                    <VideoPlayer />
+                    <VideoPlayer className="self-center" />
                   </Activity>
                 </div>
-                <div className="scrollbar-custom flex h-97.25 flex-col gap-6 overflow-auto max-md:w-full max-md:px-5 md:h-[37.96875rem] md:flex-1/3 md:gap-11 md:p-7.5 md:py-11 lg:flex-1/4">
+                <div className="scrollbar-custom _md:h-full flex h-97.25 flex-col gap-6 overflow-auto max-md:w-full max-md:px-5 md:flex-1/3 md:gap-11 md:p-7.5 md:py-11 lg:flex-1/4">
                   <div className="flex flex-col gap-2">
                     <span className="text-xs/6 font-semibold text-[#7D1E1E] md:hidden">
                       {courseDetailsData.preview.lessonCount} Lessons
                     </span>
                     <button
                       onClick={() => setPlayVideo(true)}
-                      className="flex cursor-pointer items-center justify-between rounded-[10px] bg-[#305B43] px-9 py-3.5 text-[#D0EA50]"
+                      className="flex cursor-pointer items-center justify-between rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-[#D0EA50]"
                     >
                       <p className="text-xs/6 font-semibold">
                         {courseDetailsData.videos[0].title}
@@ -119,9 +119,11 @@ const About = (props: { id: string }) => {
                       <button
                         key={video.id}
                         onClick={handleSafePlayVideo}
-                        className="flex cursor-pointer items-center justify-between gap-3 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-white"
+                        className="flex cursor-pointer justify-between gap-3 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white"
                       >
-                        <p className="text-xs/6 font-semibold">{video.title}</p>
+                        <p className="line-clamp-1 text-xs/6 font-semibold text-ellipsis">
+                          {video.title}
+                        </p>
                         <PlayIcon size={24} />
                       </button>
                     ))}
