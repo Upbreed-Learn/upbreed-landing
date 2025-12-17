@@ -6,20 +6,30 @@ import Location from '@/components/jsx-icons/location';
 import { useQueryState } from 'nuqs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Suspense } from 'react';
+import { useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
+import { UserProfileType } from '@/lib/constants';
 
 const Hero = () => {
+  const { data } = useGetToken();
+  const token = data?.data.token;
+
+  const { data: userData } = useGetUserProfile(token);
+  const userProfile: UserProfileType = userData?.data.data;
+
   return (
     <section className="flex justify-center bg-[#305B43] text-white">
       <div className="flex w-full max-w-7xl flex-col px-9 pt-14.5 md:px-12 lg:px-18">
         <div className="flex gap-13 max-sm:flex-col sm:items-center">
           <AvatarCustom
-            src={preview}
-            alt="course-preview"
-            fallback="JO"
+            src={userProfile?.avatarUrl}
+            alt="avatar"
+            fallback={`${userProfile?.fname[0]}${userProfile?.lname[0]}`}
             className="size-31.75"
           />
           <div className="flex flex-col gap-1.5">
-            <p className="text-lg/6 font-semibold">Tope Adenola</p>
+            <p className="text-lg/6 font-semibold">
+              {userProfile?.fname} {userProfile?.lname}
+            </p>
             <div className="flex items-center gap-1">
               <Location />
               <p className="text-xs/6 font-semibold text-[#E0E0E0]">

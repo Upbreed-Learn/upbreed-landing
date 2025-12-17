@@ -1,8 +1,12 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { CourseData } from '@/lib/constants';
-import { useGetCourses } from '@/lib/queries/hooks';
+import { CourseData, UserProfileType } from '@/lib/constants';
+import {
+  useGetCourses,
+  useGetToken,
+  useGetUserProfile,
+} from '@/lib/queries/hooks';
 import { cn } from '@/lib/utils';
 import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
@@ -12,14 +16,32 @@ const Hero = () => {
   const progressLevel = 50;
 
   const { data, isPending, isError } = useGetCourses(1, 1);
+  const { data: tokenData } = useGetToken();
+  const token = tokenData?.data.token;
+
+  const {
+    data: userData,
+    isPending: isUserPending,
+    isError: isUserError,
+  } = useGetUserProfile(token);
+  const userProfile: UserProfileType = userData?.data.data;
 
   const courses: CourseData[] = data?.data.data;
 
   return (
     <section className="flex items-end gap-7 bg-[#305B43] pt-10 pb-8 max-lg:hidden">
-      <h1 className="flex-1/3 pb-7 text-end text-4xl/[100%] font-bold text-white">
-        Welcome <br /> Back <br /> Jennifer O,
-      </h1>
+      {isUserPending ? (
+        <DesktopNameLoader />
+      ) : (
+        <h1
+          className={cn(
+            'flex-1/3 pb-7 text-end text-4xl/[100%] font-bold text-white',
+            isUserError && 'hidden',
+          )}
+        >
+          Welcome <br /> Back <br /> {userProfile.fname} {userProfile.lname[0]},
+        </h1>
+      )}
       <div
         className={cn(
           'flex flex-2/3 flex-col gap-6 rounded-l-lg bg-white pt-12 pb-10 pl-12',
@@ -86,15 +108,33 @@ export const MobileHero = () => {
   const progressLevel = 50;
 
   const { data, isPending, isError } = useGetCourses(1, 1);
+  const { data: tokenData } = useGetToken();
+  const token = tokenData?.data.token;
+
+  const {
+    data: userData,
+    isPending: isUserPending,
+    isError: isUserError,
+  } = useGetUserProfile(token);
+  const userProfile: UserProfileType = userData?.data.data;
 
   const courses: CourseData[] = data?.data.data;
 
   return (
     <section className="flex items-end gap-7 bg-white lg:hidden">
       <div className="flex w-full flex-col gap-4 pt-6 pb-4 text-center">
-        <h1 className="text-xl/[100%] font-bold text-[#00230F]">
-          Welcome Back <br /> Jennifer O,
-        </h1>
+        {isUserPending ? (
+          <MobileNameLoader />
+        ) : (
+          <h1
+            className={cn(
+              'text-xl/[100%] font-bold text-[#00230F]',
+              isUserError && 'hidden',
+            )}
+          >
+            Welcome Back <br /> {userProfile.fname} {userProfile.lname[0]},
+          </h1>
+        )}
         <p className="text-xs/[10px] font-semibold text-[#9B9B9B]">
           Try read for about 5 - 10mins a day, to track your progress to success
         </p>
@@ -202,5 +242,27 @@ const MobileLoader = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const DesktopNameLoader = () => {
+  return (
+    <h1 className="flex-1/3 pb-7 text-end text-4xl/[100%] font-bold text-white">
+      <span className="inline-block h-10 w-40 animate-pulse rounded bg-white/30" />
+      <br />
+      <span className="mt-2 inline-block h-10 w-32 animate-pulse rounded bg-white/30" />
+      <br />
+      <span className="mt-2 inline-block h-10 w-52 animate-pulse rounded bg-white/30" />
+    </h1>
+  );
+};
+
+const MobileNameLoader = () => {
+  return (
+    <h1 className="text-xl/[100%] font-bold text-[#00230F]">
+      <span className="inline-block h-5 w-32 animate-pulse rounded bg-[#00230F]/20" />
+      <br />
+      <span className="mt-2 inline-block h-5 w-24 animate-pulse rounded bg-[#00230F]/20" />
+    </h1>
   );
 };

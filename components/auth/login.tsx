@@ -252,7 +252,7 @@ const LoginDialog = () => {
           </div>
           <button
             onClick={handleForgotPassword}
-            className="text-sm/[100%] font-semibold text-[#9C9C9C]"
+            className="cursor-pointer text-sm/[100%] font-semibold text-[#9C9C9C]"
           >
             Forgot your password?
           </button>

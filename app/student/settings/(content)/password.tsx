@@ -6,7 +6,13 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import useSendRequest from '@/lib/hooks/useSendRequest';
+import useTimer from '@/lib/hooks/useTimer';
+import { MUTATIONS } from '@/lib/queries';
+import { useUserEmailStore } from '@/store/useUserEmailStore';
 import { useForm } from '@tanstack/react-form';
+import { LoaderPinwheelIcon } from 'lucide-react';
+import { useQueryState } from 'nuqs';
 import z from 'zod';
 
 const formSchema = z.object({
@@ -16,6 +22,35 @@ const formSchema = z.object({
 });
 
 const Password = () => {
+  const [_, setAuth] = useQueryState('auth');
+  const { setUserEmail } = useUserEmailStore();
+  const { handleStartTimer } = useTimer(30);
+  const { mutate, isPending } = useSendRequest<
+    {
+      email: string;
+      otpType: 'LOGIN' | 'PASSWORD_RESET' | 'ACCOUNT_VERIFICATION';
+    },
+    any
+  >({
+    mutationFn: (data: {
+      email: string;
+      otpType: 'LOGIN' | 'PASSWORD_RESET' | 'ACCOUNT_VERIFICATION';
+    }) => MUTATIONS.authRequestOtp(data),
+    errorToast: {
+      title: 'Error',
+      description: 'Request failed! Please try again.',
+    },
+    successToast: {
+      title: 'Success',
+      description: 'OTP sent successfully!',
+    },
+    onSuccessCallback: () => {
+      handleStartTimer();
+      setAuth('reset-password');
+      form.reset();
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       email: '',
@@ -24,7 +59,17 @@ const Password = () => {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      mutate(
+        {
+          email: value.email,
+          otpType: 'PASSWORD_RESET',
+        },
+        {
+          onSuccess: () => {
+            setUserEmail(value.email);
+          },
+        },
+      );
     },
   });
 
@@ -65,14 +110,13 @@ const Password = () => {
           }}
         />
       </FieldGroup>
-      <Button className="w-max">Reset password</Button>
-      {/* <Button disabled={isPending} type="submit">
+      <Button disabled={isPending} type="submit">
         {isPending ? (
           <LoaderPinwheelIcon className="animate-spin" />
         ) : (
-          'Send Verification Code'
+          'Reset password'
         )}
-      </Button> */}
+      </Button>
     </form>
   );
 };

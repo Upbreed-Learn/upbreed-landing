@@ -9,12 +9,13 @@ import NavLink from '../navlink';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import AuthBanner from '../auth-banner';
-import { Suspense, useState } from 'react';
+import { Activity, Suspense, useState } from 'react';
 import SearchInput from './search-courses';
 import { useQueryState } from 'nuqs';
-import { useGetToken } from '@/lib/queries/hooks';
+import { useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
 import MenuDropdown from './menu-dropdown';
 import AvatarCustom from '../ui/custom/avatar';
+import { UserProfileType } from '@/lib/constants';
 
 const Navbar = () => {
   const [mobileSearch, setMobileSearch] = useState(false);
@@ -24,6 +25,9 @@ const Navbar = () => {
   const { data } = useGetToken();
 
   const token = data?.data.token;
+
+  const { data: userData } = useGetUserProfile(token);
+  const userProfile: UserProfileType = userData?.data.data;
 
   const handleSignUp = () => {
     setAuth('sign-up');
@@ -74,7 +78,7 @@ const Navbar = () => {
                   setMobileSearch={setMobileSearch}
                 />
               </div>
-              {!token && (
+              <Activity mode={token ? 'hidden' : 'visible'}>
                 <div className="flex items-center gap-8 max-lg:hidden">
                   <Button
                     onClick={handleLogin}
@@ -84,8 +88,8 @@ const Navbar = () => {
                   </Button>
                   <Button onClick={handleSignUp}>Sign Up</Button>
                 </div>
-              )}
-              {token && (
+              </Activity>
+              <Activity mode={token ? 'visible' : 'hidden'}>
                 <>
                   <div className="flex items-center gap-9 max-lg:hidden">
                     <NavLink href="/1-on-1">1 - on - 1</NavLink>
@@ -97,10 +101,14 @@ const Navbar = () => {
                         <Menu />
                       </MenuDropdown>
                     </Suspense>
-                    <AvatarCustom src={''} alt="Avatar" fallback="JO" />
+                    <AvatarCustom
+                      src={userProfile?.avatarUrl}
+                      alt="Avatar"
+                      fallback={`${userProfile?.fname[0]} ${userProfile?.lname[0]}`}
+                    />
                   </div>
                 </>
-              )}
+              </Activity>
             </>
           ) : (
             <Link
@@ -112,13 +120,13 @@ const Navbar = () => {
           )}
         </div>
       </nav>
-      {!token && (
+      <Activity mode={token ? 'hidden' : 'visible'}>
         <AuthBanner
           className={cn(
             isVisible && 'translate-y-20 transition-transform duration-500',
           )}
         />
-      )}
+      </Activity>
     </>
   );
 };
