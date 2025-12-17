@@ -84,7 +84,7 @@ const ClassesHover = (props: { children: React.ReactNode }) => {
                 categories.map(category => (
                   <li key={category.id}>
                     <Link
-                      href={`/student/home?allCourses=${category.name.trim()}`}
+                      href={`/student/home?allCourses=${category.id}`}
                       className="hover:text-[#D0EA50]"
                     >
                       {category.name}

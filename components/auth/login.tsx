@@ -110,9 +110,18 @@ const LoginDialog = () => {
     setAuth('forgot-password');
   };
 
+  const handleGoogleLogin = () => {
+    // Generate or get device signature
+    const deviceSignature = deviceFingerprint;
+
+    // Redirect to Google OAuth
+    const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google?deviceSignature=${deviceSignature}`;
+    window.location.href = googleAuthUrl;
+  };
+
   return (
     <Dialog open={auth === 'login'} onOpenChange={handleOpenChange}>
-      <DialogContent className="custom-font max-h-160 gap-6 overflow-auto px-16 py-9 sm:w-max">
+      <DialogContent className="custom-font max-h-160 gap-6 overflow-auto px-6 py-9 sm:w-max md:px-16">
         <DialogHeader className="sr-only">
           <DialogTitle>Login</DialogTitle>
           <DialogDescription>
@@ -125,7 +134,7 @@ const LoginDialog = () => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="flex w-62.5 flex-col gap-6 text-black"
+          className="flex w-full flex-col gap-6 text-black md:w-62.5"
         >
           <FieldSet>
             <FieldLegend className="text-[10px]/[100%] font-semibold text-[#9B9B9B]">
@@ -214,7 +223,7 @@ const LoginDialog = () => {
         </form>
 
         <div className="flex flex-col gap-5">
-          {/* <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6">
             <hr className="flex-1 border border-[#737373]" />
             <span className="custom-font-semibold text-sm/[100%] text-[#949494]">
               OR
@@ -223,7 +232,8 @@ const LoginDialog = () => {
           </div>
           <button
             type="button"
-            className="custom-font-semibold flex w-full items-center justify-center gap-[10px] rounded-xl border-2 border-[#9B9B9B] px-4 py-3 text-sm text-[#9C9C9C] transition-transform active:scale-95"
+            onClick={handleGoogleLogin}
+            className="custom-font-semibold flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-[#9B9B9B] px-4 py-3 text-sm text-[#9C9C9C] transition-transform active:scale-95"
           >
             <img
               src="/assets/google.svg"
@@ -232,7 +242,7 @@ const LoginDialog = () => {
             />
             Sign Up with Google
             <span className="sr-only">Sign up with Google</span>
-          </button> */}
+          </button>
           <div className="flex items-center justify-center gap-2.5 text-sm text-[#00230F]">
             <p>New to upbreed ?</p>
             <button onClick={handleSignUp} className="text-[#34A853]">
