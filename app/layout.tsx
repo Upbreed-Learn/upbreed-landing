@@ -9,10 +9,9 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import ContactUs from '../components/contact-us';
 import Gifts from '../components/gifts';
 import Navbar from '@/components/navbar';
-import LoginDialog from '@/components/auth/login';
-import SignupDialog from '@/components/auth/signup';
 import AuthPages from '@/components/auth';
 import { Suspense } from 'react';
+import { Toaster } from '@/components/ui/sonner';
 
 const myFont = localFont({
   src: [
@@ -67,6 +66,7 @@ export default function RootLayout({
             <Footer />
             <ContactUs />
             <Gifts />
+            <Toaster />
           </NuqsAdapter>
         </QueryProvider>
       </body>

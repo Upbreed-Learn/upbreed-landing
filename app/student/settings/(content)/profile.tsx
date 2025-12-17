@@ -19,6 +19,8 @@ import { useField, useForm } from '@tanstack/react-form';
 import z from 'zod';
 import { Country, State } from 'country-state-city';
 import { Button } from '@/components/ui/button';
+import { useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
+import { UserProfileType } from '@/lib/constants';
 
 const formSchema = z.object({
   firstName: z
@@ -36,10 +38,15 @@ const formSchema = z.object({
 });
 
 const Profile = () => {
+  const { data } = useGetToken();
+  const token = data?.data.token;
+  const { data: userData } = useGetUserProfile(token);
+  const userProfile: UserProfileType = userData?.data.data;
+
   const form = useForm({
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      firstName: userProfile?.fname ?? '',
+      lastName: userProfile?.lname ?? '',
       country: '',
       state: '',
       website: '',

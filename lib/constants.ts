@@ -103,3 +103,35 @@ export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
     'createdAt' | 'updatedAt' | 'deletedAt'
   >;
 }
+
+type Role = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  role: {
+    id: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+  };
+};
+
+export interface UserProfileType {
+  id: string;
+  fname: string;
+  lname: string;
+  phone: string;
+  email: string;
+  isActive: boolean;
+  googleId: string | null;
+  avatarUrl: string | null;
+  authProvider: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  userProfile: null;
+  instructorProfile: InstructorProfile;
+  role: Role[];
+}

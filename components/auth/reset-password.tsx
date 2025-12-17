@@ -24,11 +24,13 @@ import {
 import { deleteToken } from '@/lib/actions';
 import useSendRequest from '@/lib/hooks/useSendRequest';
 import { MUTATIONS } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
 import { useUserEmailStore } from '@/store/useUserEmailStore';
 import { useForm } from '@tanstack/react-form';
-// import Cookies from 'js-cookie';
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Eye, EyeOff, LoaderPinwheelIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { useReducer } from 'react';
 import z from 'zod';
@@ -113,6 +115,8 @@ const ResetPassword = (props: {
 }) => {
   const [auth, setAuth] = useQueryState('auth');
   const { onStartTimer, formattedTime, timerRunning } = props;
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [passwordView, dispatch] = useReducer(passwordViewReducer, {
     password: 'password',
@@ -136,9 +140,10 @@ const ResetPassword = (props: {
       description: 'Password reset successfully!',
     },
     onSuccessCallback: async () => {
-      await deleteToken();
       form.reset();
-      setAuth('login');
+      await deleteToken();
+      queryClient.invalidateQueries({ queryKey: queryKeys.token });
+      router.push('/?auth=login');
     },
   });
 

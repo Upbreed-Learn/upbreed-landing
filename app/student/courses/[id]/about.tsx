@@ -10,11 +10,19 @@ import { CourseDetailsData, Instructor } from '@/lib/constants';
 import { queryKeys } from '@/lib/queries/query-keys';
 import ErrorCard from '@/components/error-card';
 import { formatDuration } from '@/lib/utils';
+import VideoPlayer from '@/components/video-player';
+import { Activity, useState } from 'react';
+import { useGetToken } from '@/lib/queries/hooks';
+import { useQueryState } from 'nuqs';
 
 const About = (props: { id: string }) => {
   const { id } = props;
+  const [__, setAuth] = useQueryState('auth');
 
   const queryClient = useQueryClient();
+  const [playVideo, setPlayVideo] = useState(false);
+  const { data: tokenData } = useGetToken();
+  const token = tokenData?.data.token;
 
   const [course] = useGetCourseAndInstructor(Number(id), undefined);
   const courseDetailsData: CourseDetailsData = course?.data?.data.data;
@@ -43,6 +51,14 @@ const About = (props: { id: string }) => {
     });
   };
 
+  const handleSafePlayVideo = () => {
+    if (!token) {
+      setAuth('login');
+      return;
+    }
+    setPlayVideo(true);
+  };
+
   return (
     <section className="flex justify-center pt-11 pb-[12.6675rem] md:pt-20.5">
       <div className="flex w-full flex-col items-center gap-5 max-md:px-9">
@@ -58,27 +74,40 @@ const About = (props: { id: string }) => {
         ) : (
           <>
             <div className="flex w-full flex-col gap-11 md:gap-6">
-              <div className="flex items-center max-md:flex-col max-md:gap-4 md:h-126 md:bg-[#00230F]">
-                <div className="relative h-45.25 max-md:w-full max-md:overflow-hidden max-md:rounded-[10px] sm:h-80 md:h-full md:flex-2/3 lg:flex-3/4">
-                  <Image
-                    src={courseDetailsData.thumbnail}
-                    fill
-                    sizes="(max-width: 1200px) 100vw, 1200px"
-                    alt={courseDetailsData.title}
-                    className="size-full object-cover"
-                  />
-                  <Image
-                    src={play}
-                    alt="play"
-                    className="absolute top-1/2 left-1/2 -translate-1/2"
-                  />
+              <div className="_md:h-126 flex items-center max-md:flex-col max-md:gap-4 md:h-max md:bg-[#00230F]">
+                <div className="_md:h-full relative h-45.25 max-md:w-full max-md:overflow-hidden max-md:rounded-[10px] sm:h-80 md:h-[37.96875rem] md:flex-2/3 lg:flex-3/4">
+                  <Activity mode={playVideo ? 'hidden' : 'visible'}>
+                    <Image
+                      src={courseDetailsData.thumbnail}
+                      fill
+                      sizes="(max-width: 1200px) 100vw, 1200px"
+                      alt={courseDetailsData.title}
+                      className="size-full object-cover"
+                    />
+                    <button
+                      onClick={() => setPlayVideo(true)}
+                      className="cursor-pointer"
+                    >
+                      <Image
+                        src={play}
+                        alt="play"
+                        className="absolute top-1/2 left-1/2 -translate-1/2"
+                      />
+                    </button>
+                  </Activity>
+                  <Activity mode={playVideo ? 'visible' : 'hidden'}>
+                    <VideoPlayer />
+                  </Activity>
                 </div>
-                <div className="scrollbar-custom flex h-97.25 flex-col gap-6 overflow-auto max-md:w-full max-md:px-5 md:h-full md:flex-1/3 md:gap-11 md:p-7.5 md:py-11 lg:flex-1/4">
+                <div className="scrollbar-custom flex h-97.25 flex-col gap-6 overflow-auto max-md:w-full max-md:px-5 md:h-[37.96875rem] md:flex-1/3 md:gap-11 md:p-7.5 md:py-11 lg:flex-1/4">
                   <div className="flex flex-col gap-2">
                     <span className="text-xs/6 font-semibold text-[#7D1E1E] md:hidden">
                       {courseDetailsData.preview.lessonCount} Lessons
                     </span>
-                    <button className="flex cursor-pointer items-center justify-between rounded-[10px] bg-[#305B43] px-9 py-3.5 text-[#D0EA50]">
+                    <button
+                      onClick={() => setPlayVideo(true)}
+                      className="flex cursor-pointer items-center justify-between rounded-[10px] bg-[#305B43] px-9 py-3.5 text-[#D0EA50]"
+                    >
                       <p className="text-xs/6 font-semibold">
                         {courseDetailsData.videos[0].title}
                       </p>
@@ -89,6 +118,7 @@ const About = (props: { id: string }) => {
                     {courseDetailsData.videos.slice(1).map(video => (
                       <button
                         key={video.id}
+                        onClick={handleSafePlayVideo}
                         className="flex cursor-pointer items-center justify-between gap-3 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-white"
                       >
                         <p className="text-xs/6 font-semibold">{video.title}</p>
