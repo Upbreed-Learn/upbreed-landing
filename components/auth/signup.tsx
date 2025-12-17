@@ -221,7 +221,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
 
   return (
     <Dialog open={auth === 'sign-up'} onOpenChange={handleOpenChange}>
-      <DialogContent className="custom-font max-h-160 gap-6 overflow-auto px-16 py-9 sm:w-max">
+      <DialogContent className="custom-font max-h-160 gap-6 overflow-auto px-6 py-9 sm:w-max md:px-16">
         <DialogHeader className="sr-only">
           <DialogTitle>Sign Up</DialogTitle>
           <DialogDescription>
@@ -234,7 +234,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="flex w-62.5 flex-col gap-6 text-black"
+          className="flex w-full flex-col gap-6 text-black md:w-62.5"
         >
           <FieldSet>
             <FieldLegend className="text-[10px]/[100%] font-semibold text-[#9B9B9B]">

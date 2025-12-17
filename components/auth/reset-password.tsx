@@ -201,7 +201,7 @@ const ResetPassword = (props: {
 
   return (
     <Dialog open={auth === 'reset-password'} onOpenChange={handleOpenChange}>
-      <DialogContent className="custom-font max-h-160 gap-6 overflow-auto px-16 py-9 sm:w-max">
+      <DialogContent className="custom-font max-h-160 gap-6 overflow-auto px-6 py-9 sm:w-max md:px-16">
         <DialogHeader className="sr-only">
           <DialogTitle>Reset Password</DialogTitle>
           <DialogDescription>
