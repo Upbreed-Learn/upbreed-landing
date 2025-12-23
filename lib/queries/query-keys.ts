@@ -40,6 +40,12 @@ export const queryKeys = {
       category,
     ],
     byId: (id: string) => [...queryKeys.courses.all, 'byId', id],
+    bookmarked: (page: number, limit: number) => [
+      ...queryKeys.courses.all,
+      'bookmarked',
+      page,
+      limit,
+    ],
   },
   userProfile: {
     all: ['userProfile'],

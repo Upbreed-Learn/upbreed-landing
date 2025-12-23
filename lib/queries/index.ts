@@ -39,6 +39,14 @@ export const MUTATIONS = {
   }) {
     return await https.post(`/auth/password/reset`, data);
   },
+  contactForm: async function (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    message: string;
+  }) {
+    return await https.post(`/contact`, data);
+  },
 };
 
 export const QUERIES = {
@@ -133,5 +141,9 @@ export const QUERIES = {
   },
   getToken: async function () {
     return await axios.get(`/api/auth/token`);
+  },
+  getBookmarkedCourses: async () => {
+    const url = `/course/bookmarks`;
+    return await https.get(url);
   },
 };

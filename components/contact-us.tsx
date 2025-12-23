@@ -21,15 +21,20 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import useSendRequest from '@/lib/hooks/useSendRequest';
+import { MUTATIONS } from '@/lib/queries';
 import { useForm } from '@tanstack/react-form';
+import { LoaderPinwheelIcon } from 'lucide-react';
 import Link from 'next/link';
+import React, { useState } from 'react';
 import z from 'zod';
 
 const ContactUs = (props: { children?: React.ReactNode }) => {
+  const [open, setOpen] = useState(false);
   const { children } = props;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="cursor-pointer hover:text-[#D0EA50]">
         {children}
       </DialogTrigger>
@@ -41,7 +46,7 @@ const ContactUs = (props: { children?: React.ReactNode }) => {
           </DialogDescription>
         </DialogHeader>
         <ContactIntro />
-        <ContactForm />
+        <ContactForm onOpenChange={setOpen} />
       </DialogContent>
     </Dialog>
   );
@@ -120,7 +125,34 @@ const formSchema = z.object({
     .min(10, { message: 'Message should be at least 10 characters' }),
 });
 
-const ContactForm = () => {
+const ContactForm = (props: {
+  onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const { onOpenChange } = props;
+
+  const { mutate, isPending } = useSendRequest<
+    { firstName: string; lastName: string; email: string; message: string },
+    any
+  >({
+    mutationFn: (data: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      message: string;
+    }) => MUTATIONS.contactForm(data),
+    errorToast: {
+      title: 'Error',
+      description: 'Failed to send message',
+    },
+    successToast: {
+      title: 'Success',
+      description: 'Message sent successfully!',
+    },
+    onSuccessCallback: () => {
+      onOpenChange(false);
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       firstName: '',
@@ -132,7 +164,11 @@ const ContactForm = () => {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      mutate(value, {
+        onSuccess: () => {
+          form.reset;
+        },
+      });
     },
   });
 
@@ -249,8 +285,15 @@ const ContactForm = () => {
           />
         </FieldGroup>
       </FieldGroup>
-      <Button className="h-12 w-[9.88875rem] self-end rounded-lg bg-[#00230F] text-[#D0EA50] hover:bg-[#00230F]/80">
-        Send Message
+      <Button
+        disabled={isPending}
+        className="h-12 w-[9.88875rem] self-end rounded-lg bg-[#00230F] text-[#D0EA50] transition-colors hover:bg-[#00230F]/80 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {isPending ? (
+          <LoaderPinwheelIcon className="animate-spin" />
+        ) : (
+          'Send Message'
+        )}
       </Button>
     </form>
   );
