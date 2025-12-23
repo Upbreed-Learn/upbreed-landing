@@ -82,3 +82,10 @@ export const useGetToken = () => {
     queryFn: () => QUERIES.getToken(),
   });
 };
+
+export const useGetBookmarkedCourses = (page: number, limit: number) => {
+  return useQuery({
+    queryKey: queryKeys.courses.bookmarked(page, limit),
+    queryFn: () => QUERIES.getBookmarkedCourses(),
+  });
+};

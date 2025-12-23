@@ -8,6 +8,7 @@ import { COURSE_BUNDLES } from '@/components/navbar/classes-hover';
 import { Pagination } from '@/components/ui/custom/pagination';
 import { Category, CourseData } from '@/lib/constants';
 import {
+  useGetBookmarkedCourses,
   useGetCategories,
   useGetCourses,
   useGetCoursesByCategory,
@@ -43,7 +44,15 @@ const CourseBundles = () => {
   const queryClient = useQueryClient();
 
   const { data, isPending, isError } = useGetCourses(1, 1);
+  const {
+    data: bookmarkedCoursesData,
+    isPending: isBookmarkedPending,
+    isError: isBookmarkedError,
+  } = useGetBookmarkedCourses(1, 10);
+
   const courses: CourseData[] = data?.data.data;
+
+  console.log(bookmarkedCoursesData);
 
   const handleRetry = () => {
     queryClient.invalidateQueries({

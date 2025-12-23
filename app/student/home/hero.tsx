@@ -61,8 +61,8 @@ const Hero = () => {
           <div className="flex items-center gap-6">
             <div className="relative h-41.5 w-76.5 overflow-hidden rounded-l-lg">
               <Image
-                src={courses[1].thumbnail}
-                alt={courses[1].title}
+                src={courses[0].thumbnail}
+                alt={courses[0].title}
                 fill
                 sizes="(max-width: 1200px) 100vw, 1200px"
                 className="size-full object-cover"
@@ -72,10 +72,10 @@ const Hero = () => {
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-1.5">
                   <p className="leading-[100%] font-semibold text-[#110000]">
-                    {courses[1].title}
+                    {courses[0].title}
                   </p>
                   <p className="text-xs/[100%] font-semibold text-[#949494]">
-                    {courses[1].instructor.fname} {courses[1].instructor.lname}
+                    {courses[0].instructor.fname} {courses[0].instructor.lname}
                   </p>
                 </div>
                 <span className="relative block h-2.5 w-70.25 rounded-l-lg bg-[#D9D9D9]">
@@ -89,7 +89,7 @@ const Hero = () => {
                 </span>
               </div>
               <Button asChild className="w-max">
-                <Link href={`/student/courses/${courses[1].id}`}>
+                <Link href={`/student/courses/${courses[0].id}`}>
                   Continue
                   <ChevronRight />
                 </Link>
@@ -154,8 +154,8 @@ export const MobileHero = () => {
               <div className="flex items-center gap-1.5">
                 <div className="relative h-[4.563125rem] w-33.5 shrink-0 overflow-hidden rounded">
                   <Image
-                    src={courses[1].thumbnail}
-                    alt={courses[1].title}
+                    src={courses[0].thumbnail}
+                    alt={courses[0].title}
                     fill
                     sizes="(max-width: 1200px) 100vw, 1200px"
                     className="size-full object-cover"
@@ -164,11 +164,11 @@ export const MobileHero = () => {
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-col gap-1">
                     <p className="text-start text-[10px]/3 font-bold">
-                      {courses[1].title}
+                      {courses[0].title}
                     </p>
                     <p className="text-start text-[8px]/[100%] font-semibold text-[#949494]">
-                      {courses[1].instructor.fname}{' '}
-                      {courses[1].instructor.lname}
+                      {courses[0].instructor.fname}{' '}
+                      {courses[0].instructor.lname}
                     </p>
                   </div>
                   <span className="relative block h-1 w-full rounded-lg bg-[#D9D9D9]">
