@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import Content from './(content)';
 import Hero from './hero';
 import { Metadata } from 'next';
+import SuspenseLoader from '@/components/suspense-loader';
 
 export const metadata: Metadata = {
   title: 'Upbreed Learn | Settings',
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 const Settings = () => {
   return (
     <>
-      <Suspense>
+      <Suspense fallback={<SuspenseLoader />}>
         <Hero />
         <Content />
       </Suspense>

@@ -45,7 +45,7 @@ const CourseList = () => {
               {isError ? (
                 <ErrorCard handleRetry={handleRetry} />
               ) : (
-                <div className="scrollbar flex items-center gap-13 overflow-auto px-40">
+                <div className="grid gap-5 px-40 sm:grid-cols-2 md:grid-cols-3">
                   {isPending ? (
                     Array(10)
                       .fill(0)

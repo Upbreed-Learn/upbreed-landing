@@ -26,7 +26,7 @@ const Navbar = () => {
 
   const token = data?.data.token;
 
-  const { data: userData } = useGetUserProfile(token);
+  const { data: userData, isPending } = useGetUserProfile(token);
   const userProfile: UserProfileType = userData?.data.data;
 
   const handleSignUp = () => {
@@ -101,11 +101,15 @@ const Navbar = () => {
                         <Menu />
                       </MenuDropdown>
                     </Suspense>
-                    <AvatarCustom
-                      src={userProfile?.avatarUrl}
-                      alt="Avatar"
-                      fallback={`${userProfile?.fname[0]} ${userProfile?.lname[0]}`}
-                    />
+                    {isPending ? (
+                      <div className="size-9 animate-pulse rounded-full bg-gray-200"></div>
+                    ) : (
+                      <AvatarCustom
+                        src={userProfile?.avatarUrl}
+                        alt="Avatar"
+                        fallback={`${userProfile?.fname[0]} ${userProfile?.lname[0]}`}
+                      />
+                    )}
                   </div>
                 </>
               </Activity>
