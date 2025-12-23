@@ -50,6 +50,8 @@ export interface BlogDetailsData {
   updatedAt: string;
   deletedAt: string | null;
   categories: Category[];
+  nextId: number;
+  previousId: number;
 }
 
 type InstructorProfile = {

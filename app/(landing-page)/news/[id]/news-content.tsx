@@ -37,11 +37,14 @@ const NewsContent = (props: { id: string }) => {
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
       ></div>
       <div className="flex items-center justify-between text-[#305B43] [&_p]:text-xs/[100%] [&_p]:font-medium">
-        <Link href={'/news'} className="flex items-center gap-2">
+        <Link
+          href={`/news/${blog.previousId}`}
+          className="flex items-center gap-2"
+        >
           <ArrowLeft />
           <p>Previous Post</p>
         </Link>
-        <Link href={'/news'} className="flex items-center gap-2">
+        <Link href={`/news/${blog.nextId}`} className="flex items-center gap-2">
           <p>Next Post</p>
           <ArrowRight />
         </Link>
