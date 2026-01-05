@@ -74,6 +74,7 @@ const VerifyDialog = (props: {
     onSuccessCallback: () => {
       form.reset();
       queryClient.invalidateQueries({ queryKey: queryKeys.token });
+      setAuth(null);
       router.push('/student/home');
     },
   });

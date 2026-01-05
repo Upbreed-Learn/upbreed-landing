@@ -1,8 +1,30 @@
+'use client';
+
 import { ChevronLeftCircle, ChevronRightCircle } from 'lucide-react';
 import tubo from '@/public/img/tubo.jpg';
 import Image from 'next/image';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { useHorizontalScrollPercentage } from '@/lib/hooks/useHorizontalScroll';
 
 const Feedback = () => {
+  const [items, setItems] = useState(0);
+  const { percentage, ref } = useHorizontalScrollPercentage<HTMLDivElement>();
+
+  const scrollToLength = (percentage / 100) * 3;
+
+  const handleScrollLeft = () => {
+    if (items === 0) return;
+    setItems(items - 1);
+  };
+
+  const handleScrollRight = () => {
+    if (items === 3) return;
+    setItems(items + 1);
+  };
+
+  const isEven = (num = items) => num % 2 === 0;
+
   return (
     <section className="custom-gradient-2 flex justify-center pt-17.5 pb-14 md:pb-41">
       <div className="w-full max-w-191.25">
@@ -11,28 +33,53 @@ const Feedback = () => {
             Feedback from our learners
           </h2>
           <div className="flex w-full items-center justify-center gap-10">
-            <button className="cursor-pointer transition-transform active:scale-95 max-md:hidden">
+            <button
+              onClick={handleScrollLeft}
+              className="cursor-pointer transition-transform active:scale-95 max-md:hidden"
+            >
               <ChevronLeftCircle className="size-10 text-[#FFFFFF]" />
             </button>
-            <div className="scrollbar-hidden max-md:overflow-auto">
+            <div ref={ref} className="scrollbar-hidden max-md:overflow-auto">
               <div className="grid-stack max-md:flex max-md:w-max max-md:gap-10 max-md:px-9 md:grid">
                 {Array(4)
                   .fill(0)
                   .map((_, index) => (
-                    <FeedbackCard key={index} />
+                    <FeedbackCard
+                      key={index}
+                      className={cn(
+                        'transition-[rotate] md:rotate-6',
+                        items === index &&
+                          isEven(index) &&
+                          'odd:md:-rotate-2 even:md:rotate-6',
+                      )}
+                    />
                   ))}
               </div>
             </div>
-            <button className="cursor-pointer transition-transform active:scale-95 max-md:hidden">
+            <button
+              onClick={handleScrollRight}
+              className="cursor-pointer transition-transform active:scale-95 max-md:hidden"
+            >
               <ChevronRightCircle className="size-10 text-[#FFFFFF]" />
             </button>
           </div>
           <div className="flex items-center gap-2">
+            {Array(4)
+              .fill(0)
+              .map((_, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    'block w-4 rounded border-2 border-[#737373]',
+                    items === i && 'md:border-white',
+                    Math.ceil(scrollToLength) === i && 'max-md:border-white',
+                  )}
+                ></span>
+              ))}
+            {/* <span className="block w-8 rounded border-2 border-white"></span>
             <span className="block w-4 rounded border-2 border-[#737373]"></span>
-            <span className="block w-8 rounded border-2 border-white"></span>
             <span className="block w-4 rounded border-2 border-[#737373]"></span>
-            <span className="block w-4 rounded border-2 border-[#737373]"></span>
-            <span className="block w-4 rounded border-2 border-[#737373]"></span>
+            <span className="block w-4 rounded border-2 border-[#737373]"></span> */}
           </div>
         </div>
       </div>
@@ -42,9 +89,15 @@ const Feedback = () => {
 
 export default Feedback;
 
-const FeedbackCard = () => {
+const FeedbackCard = (props: { className?: string }) => {
+  const { className } = props;
   return (
-    <div className="grid-area-stack flex items-center gap-8 rounded-lg border-2 border-[#949494] bg-[#393939] p-6 max-md:h-76 max-md:flex-col max-md:justify-between md:pt-12 md:pr-14 md:pb-12 md:pl-11 odd:md:-rotate-2 even:md:rotate-6">
+    <div
+      className={cn(
+        'grid-area-stack _odd:md:-rotate-2 _even:md:rotate-6 flex items-center gap-8 rounded-lg border-2 border-[#949494] bg-[#393939] p-6 max-md:h-76 max-md:flex-col max-md:justify-between md:pt-12 md:pr-14 md:pb-12 md:pl-11',
+        className,
+      )}
+    >
       <div className="flex w-full max-w-[14.219375rem] flex-col gap-4 text-white">
         <p className="leading-[100%] font-bold max-md:text-sm">
           One of the best platform for me to learn, my best class was from
