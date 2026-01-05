@@ -6,19 +6,46 @@ import { CourseData } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useGetCourses } from '@/lib/queries/hooks';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { useRef } from 'react';
+import { ScrollTrigger } from 'gsap/all';
+
+gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(ScrollTrigger);
 
 const Trailer = () => {
   const { data, isPending, isError } = useGetCourses(1, 1);
   const courses: CourseData[] = data?.data.data;
 
+  const revealRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (revealRef.current) {
+      ScrollTrigger.create({
+        trigger: revealRef.current,
+        start: 'top center',
+        onEnter: () => {
+          gsap.to('.reveal', {
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            ease: 'power2.out',
+          });
+        },
+      });
+    }
+  });
+
   return (
     <section
+      ref={revealRef}
       className={cn(
         'flex justify-center',
         (isError || courses?.length < 1) && 'hidden',
       )}
     >
-      <div className="w-full max-w-7xl px-9 py-7 md:px-12 md:py-10 lg:px-18">
+      <div className="reveal w-full max-w-7xl translate-y-240 px-9 py-7 opacity-0 md:px-12 md:py-10 lg:px-18">
         {isPending ? (
           <TrailerLoading />
         ) : (

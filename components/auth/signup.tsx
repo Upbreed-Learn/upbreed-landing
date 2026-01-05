@@ -221,7 +221,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
 
   return (
     <Dialog open={auth === 'sign-up'} onOpenChange={handleOpenChange}>
-      <DialogContent className="custom-font max-h-160 gap-6 overflow-auto px-6 py-9 sm:w-max md:px-16">
+      <DialogContent className="custom-font z-999 max-h-160 gap-6 overflow-auto px-6 py-9 sm:w-max md:px-16">
         <DialogHeader className="sr-only">
           <DialogTitle>Sign Up</DialogTitle>
           <DialogDescription>

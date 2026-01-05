@@ -12,6 +12,12 @@ import { Category, Instructor } from '@/lib/constants';
 import EmptyState from '@/components/empty-state';
 import { cn } from '@/lib/utils';
 import { useGetCategories } from '@/lib/queries/hooks';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/all';
+
+gsap.registerPlugin(useGSAP);
+gsap.registerPlugin(ScrollTrigger);
 
 const useGetInstructors = () => {
   return useQuery({
@@ -22,6 +28,7 @@ const useGetInstructors = () => {
 
 const Elevate = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const revealRef = useRef<HTMLDivElement>(null);
 
   const { data, isPending, isError } = useGetInstructors();
   const {
@@ -35,6 +42,24 @@ const Elevate = () => {
   >[] = categoryData?.data.data;
 
   const instructors: Instructor[] = data?.data.data;
+
+  useGSAP(() => {
+    if (revealRef.current) {
+      ScrollTrigger.create({
+        trigger: revealRef.current,
+        start: 'top center',
+        onEnter: () => {
+          gsap.to('.reveal', {
+            y: 0,
+            opacity: 1,
+            duration: 0.9,
+            stagger: 0.2,
+            ease: 'power2.out',
+          });
+        },
+      });
+    }
+  });
 
   const handleScrollLeft = () => {
     scrollRef.current?.scrollTo({
@@ -52,7 +77,10 @@ const Elevate = () => {
 
   return (
     <section className="flex justify-center px-8 md:py-7">
-      <div className="flex w-full max-w-7xl flex-col items-center gap-6 pt-11 pb-8 md:gap-10">
+      <div
+        ref={revealRef}
+        className="flex w-full max-w-7xl flex-col items-center gap-6 pt-11 pb-8 md:gap-10"
+      >
         <h2 className="text-center text-2xl leading-[100%] font-extrabold text-[#D0EA50] md:text-4xl">
           Elevate Your Skills
         </h2>
@@ -66,7 +94,7 @@ const Elevate = () => {
             )}
           >
             {categories?.map(category => (
-              <li key={category.id}>
+              <li key={category.id} className="reveal translate-y-96 opacity-0">
                 <Link href={`/student/home?allCourses=${category.id}`}>
                   {category.name}
                 </Link>
