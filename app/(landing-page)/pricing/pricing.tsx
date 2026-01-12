@@ -2,8 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Subscription, UserProfileType } from '@/lib/constants';
+import useSendRequest from '@/lib/hooks/useSendRequest';
+import { MUTATIONS, QUERIES } from '@/lib/queries';
+import { useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
+import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Check, Loader2 } from 'lucide-react';
 import { useQueryState } from 'nuqs';
 import { Dispatch, SetStateAction, useState } from 'react';
 
@@ -32,24 +38,39 @@ const ChooseYourPlan = () => {
 
 export default ChooseYourPlan;
 
+const useGetSubscriptions = () => {
+  return useQuery({
+    queryKey: queryKeys.subscriptions.all,
+    queryFn: () => QUERIES.getSubscriptions(),
+  });
+};
+
 const PlanTabs = () => {
-  const [tab, setTab] = useQueryState('plan', { defaultValue: 'annually' });
+  const { data } = useGetSubscriptions();
+  const subscriptions: Subscription[] = data?.data.data;
+
+  const [tab, setTab] = useQueryState('plan', {
+    defaultValue: subscriptions?.[0]?.period,
+  });
 
   return (
-    <Tabs value={tab} defaultValue="annually" onValueChange={setTab}>
+    <Tabs value={tab} defaultValue={tab} onValueChange={setTab}>
       <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
-        <TabsTrigger
-          value="6-months"
-          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
-        >
-          6 Months
-        </TabsTrigger>
-        <TabsTrigger
+        {subscriptions?.slice(0, 2).map(subscription => (
+          <TabsTrigger
+            key={subscription.id}
+            value={subscription.period}
+            className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
+          >
+            {subscription.name}
+          </TabsTrigger>
+        ))}
+        {/* <TabsTrigger
           value="annually"
           className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
         >
           Annually
-        </TabsTrigger>
+        </TabsTrigger> */}
       </TabsList>
     </Tabs>
   );
@@ -61,6 +82,51 @@ const PlansDesktop = (props: {
   setLevel: Dispatch<SetStateAction<string>>;
 }) => {
   const { tab, level, setLevel } = props;
+  const [_, setAuth] = useQueryState('auth');
+  const { data: tokenData } = useGetToken();
+  const token = tokenData?.data.token;
+  const { data } = useGetUserProfile(token);
+  const userProfile: UserProfileType = data?.data.data;
+  const rootUrl = window.location.origin;
+
+  const { mutate, isPending } = useSendRequest<
+    {
+      planId: number;
+      currency: string;
+      email: string;
+      callbackUrl: string;
+    },
+    any
+  >({
+    mutationFn: (data: {
+      planId: number;
+      currency: string;
+      email: string;
+      callbackUrl: string;
+    }) => MUTATIONS.initiateSubscription(data),
+    successToast: {
+      title: 'Success',
+      description: 'Your subscription has been created successfully.',
+    },
+    errorToast: {
+      title: 'Error',
+      description: 'An unexpected error occurred. Please try again.',
+    },
+  });
+
+  const handleSubscription = () => {
+    if (!token) {
+      setAuth('login');
+      return;
+    } else {
+      mutate({
+        planId: tab === 'annually' ? 1 : 2,
+        currency: 'USD',
+        email: userProfile.email,
+        callbackUrl: `${rootUrl}/student/courses`,
+      });
+    }
+  };
 
   return (
     <div className="relative flex flex-col gap-29.25 max-lg:hidden">
@@ -96,7 +162,9 @@ const PlansDesktop = (props: {
         accessSessions="Check"
         watch="Check"
       />
-      <Button className="w-3/5 self-center">Continue</Button>
+      <Button onClick={handleSubscription} className="w-3/5 self-center">
+        {isPending ? <Loader2 className="animate-spin" /> : 'Continue'}
+      </Button>
     </div>
   );
 };

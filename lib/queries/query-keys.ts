@@ -51,4 +51,7 @@ export const queryKeys = {
     all: ['userProfile'],
   },
   token: ['token'],
+  subscriptions: {
+    all: ['subscriptions'],
+  },
 };
