@@ -47,6 +47,23 @@ export const MUTATIONS = {
   }) {
     return await https.post(`/contact`, data);
   },
+  subscription: async function (data: {
+    name: string;
+    period: string;
+    noDevices: number;
+    amountUsd: number;
+    amountNaira: number;
+  }) {
+    return await https.post(`/subscription`, data);
+  },
+  initiateSubscription: async function (data: {
+    email: string;
+    planId: number;
+    currency: string;
+    callbackUrl: string;
+  }) {
+    return await https.post(`/payment/subscription/initiate`, data);
+  },
 };
 
 export const QUERIES = {
@@ -144,6 +161,10 @@ export const QUERIES = {
   },
   getBookmarkedCourses: async () => {
     const url = `/course/bookmarks`;
+    return await https.get(url);
+  },
+  getSubscriptions: async () => {
+    const url = `/subscription`;
     return await https.get(url);
   },
 };

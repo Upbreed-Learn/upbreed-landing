@@ -137,3 +137,18 @@ export interface UserProfileType {
   instructorProfile: InstructorProfile;
   role: Role[];
 }
+
+export interface Subscription {
+  id: number;
+  name: string;
+  period: string;
+  paystackPlanCode: string | null;
+  stripeProductId: string | null;
+  stripePriceId: string | null;
+  noDevices: number;
+  amountUsd: string;
+  amountNaira: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
