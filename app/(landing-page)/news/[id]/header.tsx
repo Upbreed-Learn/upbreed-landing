@@ -4,6 +4,7 @@ import { HeaderLoader } from '@/app/(landing-page)/press/[id]/header';
 import ErrorCard from '@/components/error-card';
 import Facebook from '@/components/jsx-icons/facebook';
 import Twitter from '@/components/jsx-icons/twitter';
+import { Button } from '@/components/ui/button';
 import { BlogDetailsData } from '@/lib/constants';
 import { useGetBlogById } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
@@ -13,12 +14,26 @@ import {
   handleShareToTwitter,
 } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Copy } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 const NewsHeader = (props: { id: string }) => {
   const queryClient = useQueryClient();
   const { id } = props;
   const { data, isPending, isError } = useGetBlogById(id);
+  const router = useRouter();
+
+  const handleBack = () => {
+    router.back();
+  };
+
+  const handleCopy = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    toast.success('Copied to clipboard');
+  };
 
   const blog: BlogDetailsData = data?.data;
 
@@ -38,6 +53,10 @@ const NewsHeader = (props: { id: string }) => {
 
   return (
     <section className="flex flex-col gap-6 border-b-[0.88px] border-[#00000033] pb-4">
+      <Button onClick={handleBack} className="w-max">
+        <ArrowLeft />
+        Back
+      </Button>
       <div className="relative h-79 w-full overflow-hidden rounded-[10px]">
         <Image
           src={blog.previewImage}
@@ -66,6 +85,9 @@ const NewsHeader = (props: { id: string }) => {
             className="cursor-pointer p-2"
           >
             <Facebook fill="#9C9C9C" width="8.86" height="16.9" />
+          </button>
+          <button className="cursor-pointer p-2" onClick={handleCopy}>
+            <Copy className="size-5 text-[#9C9C9C]" />
           </button>
         </div>
       </div>

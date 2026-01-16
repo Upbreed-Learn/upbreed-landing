@@ -3,12 +3,11 @@
 import { cn, formatPrettyDate } from '@/lib/utils';
 import Image from 'next/image';
 import { useQueryState } from 'nuqs';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Pagination } from '@/components/ui/custom/pagination';
 import { useGetAllPublishedBlogs, useGetCategories } from '@/lib/queries/hooks';
 import { BlogsData, BlogsResponse, Category } from '@/lib/constants';
-import { Button } from '@/components/ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
 import EmptyState from '@/components/empty-state';

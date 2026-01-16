@@ -1,7 +1,6 @@
 'use client';
 
 import AvatarCustom from '@/components/ui/custom/avatar';
-import preview from '@/public/img/course-preview.jpg';
 import Location from '@/components/jsx-icons/location';
 import { useQueryState } from 'nuqs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';

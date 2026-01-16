@@ -5,7 +5,7 @@ const H1 = (props: { className?: string; children: React.ReactNode }) => {
   return (
     <h1
       className={cn(
-        'text-4xl leading-[100%] font-extrabold text-[#D0EA50] md:text-[3.555625rem]',
+        'text-2xl leading-[100%] font-medium text-[#D0EA50] md:text-[3.555625rem]',
         className,
       )}
     >

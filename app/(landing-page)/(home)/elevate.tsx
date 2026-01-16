@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import StarIcon from '@/components/jsx-icons/star';
-import { ChevronLeftCircle, ChevronRightCircle } from 'lucide-react';
+// import { ChevronLeftCircle, ChevronRightCircle } from 'lucide-react';
 import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
@@ -76,7 +76,7 @@ const Elevate = () => {
   };
 
   return (
-    <section className="flex justify-center px-8 md:py-7">
+    <section className="flex h-[calc(100vh-89px)] justify-center px-8 md:py-7">
       <div
         ref={revealRef}
         className="flex w-full max-w-7xl flex-col items-center gap-6 pt-11 pb-8 md:gap-10"
@@ -108,7 +108,7 @@ const Elevate = () => {
             (isError || instructors?.length < 1) && 'hidden',
           )}
         >
-          <div className="flex items-center gap-2.5 text-sm/[100%] font-bold">
+          <div className="flex items-center gap-2.5 px-9 text-sm/[100%] font-bold md:pl-12 lg:pl-18">
             <p className="text-[#D0EA50]">Trending Courses</p>
             <Link
               href={'#'}
@@ -120,32 +120,34 @@ const Elevate = () => {
           <div className="relative">
             <div
               ref={scrollRef}
-              className="scrollbar-hidden flex w-full gap-[1.38875rem] overflow-auto"
+              className="scrollbar-hidden flex w-full gap-[1.38875rem] overflow-auto lg:justify-center"
             >
               {isPending ? (
-                Array(8)
+                Array(5)
                   .fill(0)
                   .map((_, index) => <InstructorCardLoading key={index} />)
               ) : instructors.length > 0 ? (
                 <>
-                  <button
+                  {/* <button
                     onClick={handleScrollLeft}
                     className="-transition-y-1/2 absolute top-1/2 -left-6 z-10 cursor-pointer transition-transform active:scale-95"
                   >
                     <ChevronLeftCircle className="size-10 text-[#FFFFFF]" />
-                  </button>
-                  {instructors.map(instructor => (
-                    <InstructorCard
-                      key={instructor.id}
-                      instructor={instructor}
-                    />
-                  ))}
-                  <button
+                  </button> */}
+                  <div className="grid-cols-5 gap-5 max-lg:flex lg:grid">
+                    {instructors.slice(0, 5).map(instructor => (
+                      <InstructorCard
+                        key={instructor.id}
+                        instructor={instructor}
+                      />
+                    ))}
+                  </div>
+                  {/* <button
                     onClick={handleScrollRight}
                     className="-transition-y-1/2 absolute top-1/2 -right-6 z-10 cursor-pointer transition-transform active:scale-95"
                   >
                     <ChevronRightCircle className="size-10 text-[#FFFFFF]" />
-                  </button>
+                  </button> */}
                 </>
               ) : (
                 <EmptyState
@@ -166,7 +168,7 @@ export default Elevate;
 const InstructorCard = (props: { instructor: Instructor }) => {
   const { instructor } = props;
   return (
-    <div className="relative size-max h-[19.7775rem] w-[12.916875rem] shrink-0 overflow-hidden rounded-lg ease-in-out hover:brightness-125">
+    <div className="relative size-max h-87.5 w-50 shrink-0 overflow-hidden rounded-lg ease-in-out hover:brightness-125">
       <span className="absolute top-4 right-5 z-10 rounded-lg border border-[#D0EA50] px-2 py-1 text-[8px]/[100%] font-semibold text-white">
         New
       </span>

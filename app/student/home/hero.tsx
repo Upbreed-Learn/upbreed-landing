@@ -29,7 +29,7 @@ const Hero = () => {
   const courses: CourseData[] = data?.data.data;
 
   return (
-    <section className="flex items-end gap-7 bg-[#305B43] pt-10 pb-8 max-lg:hidden">
+    <section className="_max-lg:hidden _flex hidden items-end gap-7 bg-[#305B43] pt-10 pb-8">
       {isUserPending ? (
         <DesktopNameLoader />
       ) : (
@@ -121,7 +121,7 @@ export const MobileHero = () => {
   const courses: CourseData[] = data?.data.data;
 
   return (
-    <section className="flex items-end gap-7 bg-white lg:hidden">
+    <section className="_flex _lg:hidden hidden items-end gap-7 bg-white">
       <div className="flex w-full flex-col gap-4 pt-6 pb-4 text-center">
         {isUserPending ? (
           <MobileNameLoader />

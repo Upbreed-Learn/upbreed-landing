@@ -8,25 +8,32 @@ import { cn } from '@/lib/utils';
 import { useHorizontalScrollPercentage } from '@/lib/hooks/useHorizontalScroll';
 
 const Feedback = () => {
+  const feedbackLength = 4;
   const [items, setItems] = useState(0);
   const { percentage, ref } = useHorizontalScrollPercentage<HTMLDivElement>();
 
   const scrollToLength = (percentage / 100) * 3;
 
   const handleScrollLeft = () => {
-    if (items === 0) return;
-    setItems(items - 1);
+    if (items === 0) {
+      setItems(feedbackLength - 1);
+    } else {
+      setItems(items - 1);
+    }
   };
 
   const handleScrollRight = () => {
-    if (items === 3) return;
-    setItems(items + 1);
+    if (items === 3) {
+      setItems(0);
+    } else {
+      setItems(items + 1);
+    }
   };
 
   const isEven = (num = items) => num % 2 === 0;
 
   return (
-    <section className="custom-gradient-2 flex justify-center pt-17.5 pb-14 md:pb-41">
+    <section className="custom-gradient-2 flex h-[calc(100vh-89px)] justify-center pt-17.5 pb-14 md:pb-41">
       <div className="w-full max-w-191.25">
         <div className="flex flex-col items-center gap-12 md:gap-24">
           <h2 className="text-center text-xl leading-[100%] font-bold text-white md:text-[2rem]">
@@ -41,7 +48,7 @@ const Feedback = () => {
             </button>
             <div ref={ref} className="scrollbar-hidden max-md:overflow-auto">
               <div className="grid-stack max-md:flex max-md:w-max max-md:gap-10 max-md:px-9 md:grid">
-                {Array(4)
+                {Array(feedbackLength)
                   .fill(0)
                   .map((_, index) => (
                     <FeedbackCard

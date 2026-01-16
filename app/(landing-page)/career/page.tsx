@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Hero from './hero';
 import Roles from './roles';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Upbreed Learn | Career',
@@ -10,10 +11,10 @@ export const metadata: Metadata = {
 
 const Career = () => {
   return (
-    <>
+    <Suspense>
       <Hero />
       <Roles />
-    </>
+    </Suspense>
   );
 };
 

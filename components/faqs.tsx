@@ -43,7 +43,7 @@ const Faqs = () => {
         <h2 className="text-center text-[2rem]/[100%] font-bold">
           Frequently Asked Questions
         </h2>
-        <Accordion type="single" collapsible>
+        <Accordion type="single" collapsible className="flex flex-col gap-5">
           {QUESTIONS.map((question, index) => (
             <AccordionItem key={index} value={`item-${index}`}>
               <AccordionTrigger className="text-sm font-semibold md:text-base/[100%]">

@@ -19,7 +19,7 @@ const ChooseYourPlan = () => {
 
   return (
     <section className="flex justify-center bg-[#00230F] pb-6">
-      <div className="flex w-full max-w-7xl flex-col gap-7 px-9 pt-12 text-white max-lg:items-center lg:gap-16 lg:px-18 xl:px-36.25">
+      <div className="_max-w-7xl flex w-full flex-col gap-7 px-9 pt-12 text-white max-lg:items-center lg:gap-16 lg:px-18 xl:px-36.25">
         <div className="flex flex-col gap-6 max-lg:items-center max-lg:text-center xl:ml-13.5">
           <div className="flex flex-col gap-3">
             <h2 className="text-2xl/[100%] font-medium">Choose your plan</h2>
@@ -87,7 +87,8 @@ const PlansDesktop = (props: {
   const token = tokenData?.data.token;
   const { data } = useGetUserProfile(token);
   const userProfile: UserProfileType = data?.data.data;
-  const rootUrl = window.location.origin;
+  // const rootUrl = window?.location?.origin;
+  // const router = useRouter();
 
   const { mutate, isPending } = useSendRequest<
     {
@@ -112,21 +113,24 @@ const PlansDesktop = (props: {
       title: 'Error',
       description: 'An unexpected error occurred. Please try again.',
     },
+    // onSuccessCallback: () => {
+    //   router.push('/student/courses');
+    // },
   });
 
-  const handleSubscription = () => {
-    if (!token) {
-      setAuth('login');
-      return;
-    } else {
-      mutate({
-        planId: tab === 'annually' ? 1 : 2,
-        currency: 'USD',
-        email: userProfile.email,
-        callbackUrl: `${rootUrl}/student/courses`,
-      });
-    }
-  };
+  // const handleSubscription = () => {
+  //   if (!token) {
+  //     setAuth('login');
+  //     return;
+  //   } else {
+  //     mutate({
+  //       planId: tab === 'annually' ? 4 : 5,
+  //       currency: 'NGN',
+  //       email: userProfile.email,
+  //       // callbackUrl: `${rootUrl}/student/courses`,
+  //     });
+  //   }
+  // };
 
   return (
     <div className="relative flex flex-col gap-29.25 max-lg:hidden">
@@ -162,7 +166,10 @@ const PlansDesktop = (props: {
         accessSessions="Check"
         watch="Check"
       />
-      <Button onClick={handleSubscription} className="w-3/5 self-center">
+      <Button
+        //  onClick={handleSubscription}
+        className="w-3/5 self-center"
+      >
         {isPending ? <Loader2 className="animate-spin" /> : 'Continue'}
       </Button>
     </div>

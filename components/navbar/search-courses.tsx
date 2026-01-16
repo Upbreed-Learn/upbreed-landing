@@ -35,6 +35,7 @@ function SearchInput(props: {
   const progressLevel = 50;
   const queryClient = useQueryClient();
   const router = useRouter();
+  const isMobile = window.innerWidth <= 639;
 
   const handleRetry = () => {
     queryClient.invalidateQueries({
@@ -65,6 +66,7 @@ function SearchInput(props: {
   };
 
   const handleSearchMobile = () => {
+    if (!isMobile) return;
     setMobileSearch(!mobileSearch);
   };
 
