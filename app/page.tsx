@@ -21,7 +21,7 @@ export default function Home() {
         <Elevate />
       </div>
       <Feedback />
-      <OneOnOne />
+      {/* <OneOnOne /> */}
       <Faqs />
     </>
   );

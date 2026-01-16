@@ -41,16 +41,16 @@ const Trailer = () => {
     <section
       ref={revealRef}
       className={cn(
-        'flex justify-center',
+        'flex h-[calc(100vh-89px)] justify-center',
         (isError || courses?.length < 1) && 'hidden',
       )}
     >
-      <div className="reveal w-full max-w-7xl translate-y-240 px-9 py-7 opacity-0 md:px-12 md:py-10 lg:px-18">
+      <div className="reveal flex w-full max-w-7xl translate-y-240 items-center justify-center px-9 py-7 opacity-0 md:px-12 md:py-10 lg:px-18">
         {isPending ? (
           <TrailerLoading />
         ) : (
-          <div className="relative size-max">
-            <div className="relative h-123 w-[calc(100vw-4.5rem)] max-w-[66.38875rem] overflow-hidden rounded-2xl md:h-132 md:w-[calc(100vw-6rem)] lg:md:w-[calc(100vw-9rem)]">
+          <div className="_size-max relative h-max w-full">
+            <div className="_lg:w-[calc(100vw-9rem)] _max-w-[66.38875rem] _w-[calc(100vw-4.5rem)] _md:w-[calc(100vw-6rem)] relative h-123 overflow-hidden rounded-2xl md:h-140 lg:w-full">
               <Image
                 src={courses[0].thumbnail}
                 alt={courses[0].title}
