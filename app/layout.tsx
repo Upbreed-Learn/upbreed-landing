@@ -57,17 +57,19 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn('bg-[#00230F]', myFont.className)}>
         <QueryProvider>
-          <NuqsAdapter>
-            <AuthPages />
-            <Suspense>
-              <Navbar />
-            </Suspense>
-            <main className="pt-22.25">{children}</main>
-            <Footer />
-            <ContactUs />
-            <Gifts />
-            <Toaster />
-          </NuqsAdapter>
+          <Suspense>
+            <NuqsAdapter>
+              <AuthPages />
+              <Suspense>
+                <Navbar />
+              </Suspense>
+              <main className="pt-22.25">{children}</main>
+              <Footer />
+              <ContactUs />
+              <Gifts />
+              <Toaster />
+            </NuqsAdapter>
+          </Suspense>
         </QueryProvider>
       </body>
     </html>
