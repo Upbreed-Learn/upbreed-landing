@@ -13,6 +13,7 @@ import ErrorCard from '../error-card';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import useIsMobile from '@/lib/hooks/useIsMobile';
 
 const useGetSearchCourses = (search: string) => {
   return useQuery({
@@ -35,7 +36,7 @@ function SearchInput(props: {
   const progressLevel = 50;
   const queryClient = useQueryClient();
   const router = useRouter();
-  const isMobile = window.innerWidth <= 639;
+  const isMobile = useIsMobile();
 
   const handleRetry = () => {
     queryClient.invalidateQueries({
