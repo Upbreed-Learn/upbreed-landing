@@ -9,20 +9,39 @@ import { useGetCourseAndInstructor } from './hero';
 import { CourseDetailsData, Instructor } from '@/lib/constants';
 import { queryKeys } from '@/lib/queries/query-keys';
 import ErrorCard from '@/components/error-card';
-import { formatDuration } from '@/lib/utils';
+import { cn, formatDuration } from '@/lib/utils';
 import VideoPlayer from '@/components/video-player';
-import { Activity, useState } from 'react';
+import { Activity, useEffect, useRef, useState } from 'react';
 import { useGetToken } from '@/lib/queries/hooks';
 import { useQueryState } from 'nuqs';
+import SuspenseLoader from '@/components/suspense-loader';
+import ProgressTrackingVideoPlayer from '@/components/progress-tracking-video-player';
+
+const libraryId = process.env.NEXT_PUBLIC_LIBRARY_ID;
+const BUNNY_TOKEN = process.env.NEXT_PUBLIC_BUNNY_TOKEN;
+const videoId = 'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95';
+const pullZone = 4672058;
 
 const About = (props: { id: string }) => {
   const { id } = props;
   const [__, setAuth] = useQueryState('auth');
+  const [height, setHeight] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const height = containerRef.current.clientHeight;
+      setHeight(height);
+    }
+  }, [containerRef]);
 
   const queryClient = useQueryClient();
   const [playVideo, setPlayVideo] = useState(false);
   const { data: tokenData } = useGetToken();
   const token = tokenData?.data.token;
+
+  // const videoUrl = `https://${pullZone}.b-cdn.net/${videoId}/playlist.m3u8?token=${BUNNY_TOKEN}&expires=1893456000`;
 
   const [course] = useGetCourseAndInstructor(Number(id), undefined);
   const courseDetailsData: CourseDetailsData = course?.data?.data.data;
@@ -75,7 +94,10 @@ const About = (props: { id: string }) => {
           <>
             <div className="flex w-full flex-col gap-11 md:gap-6">
               <div className="flex items-center max-md:flex-col max-md:gap-4 md:h-max md:bg-[#00230F]">
-                <div className="relative max-md:w-full max-md:overflow-hidden max-md:rounded-[10px] md:flex md:h-full md:max-h-[37.96875rem] md:flex-2/3 lg:flex-3/4">
+                <div className="_md:h-full relative max-md:w-full max-md:overflow-hidden max-md:rounded-[10px] md:flex md:h-[37.96875rem] md:flex-2/3 lg:flex-3/4">
+                  <div className="absolute top-1/2 left-1/2 size-full -translate-1/2">
+                    <SuspenseLoader />
+                  </div>
                   <Activity mode={playVideo ? 'hidden' : 'visible'}>
                     <Image
                       src={courseDetailsData.thumbnail}
@@ -96,10 +118,14 @@ const About = (props: { id: string }) => {
                     </button>
                   </Activity>
                   <Activity mode={playVideo ? 'visible' : 'hidden'}>
-                    <VideoPlayer className="self-center" />
+                    <VideoPlayer
+                      videoId={'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95'}
+                      enableProgressTracking={true}
+                      className="self-center"
+                    />
                   </Activity>
                 </div>
-                <div className="scrollbar-custom _md:h-full flex h-97.25 flex-col gap-6 overflow-auto max-md:w-full max-md:px-5 md:flex-1/3 md:gap-11 md:p-7.5 md:py-11 lg:flex-1/4">
+                <div className="scrollbar-custom flex flex-col gap-6 overflow-auto max-md:w-full max-md:px-5 md:max-h-[37.96875rem] md:flex-1/3 md:gap-11 md:p-7.5 md:py-11 lg:flex-1/4">
                   <div className="flex flex-col gap-2">
                     <span className="text-xs/6 font-semibold text-[#7D1E1E] md:hidden">
                       {courseDetailsData.preview.lessonCount} Lessons
@@ -131,6 +157,14 @@ const About = (props: { id: string }) => {
                 </div>
               </div>
             </div>
+            {/* <ProgressTrackingVideoPlayer
+              videoId={videoId}
+              videoUrl={videoUrl}
+              onProgressUpdate={position => console.log('Progress:', position)}
+              onConnectionChange={connected =>
+                console.log('Connected:', connected)
+              }
+            /> */}
             <div className="w-full max-w-7xl">
               <div className="flex flex-col gap-3 md:gap-8 md:pl-12 lg:pl-27.25">
                 <p className="w-full max-w-201.75 text-sm/5 tracking-[0.14px] text-black max-md:border-b max-md:border-[#0000000D] max-md:pb-2.5">

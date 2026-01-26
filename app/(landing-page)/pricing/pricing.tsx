@@ -1,21 +1,35 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Subscription, UserProfileType } from '@/lib/constants';
-import useSendRequest from '@/lib/hooks/useSendRequest';
+import useSendRequest, {
+  errorToastClassName,
+} from '@/lib/hooks/useSendRequest';
 import { MUTATIONS, QUERIES } from '@/lib/queries';
 import { useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { Check, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { Dispatch, SetStateAction, useState } from 'react';
+import { toast } from 'sonner';
 
 const ChooseYourPlan = () => {
   const [tab, _] = useQueryState('plan', { defaultValue: 'annually' });
-  const [level, setLevel] = useState('');
+  const [subChoice, setSubChoice] = useState<Subscription | null>(null);
 
   return (
     <section className="flex justify-center bg-[#00230F] pb-6">
@@ -28,9 +42,10 @@ const ChooseYourPlan = () => {
             </p>
           </div>
           <PlanTabs />
+          <CurrencyTabs />
         </div>
-        <PlansDesktop tab={tab} level={level} setLevel={setLevel} />
-        <PlansMobile tab={tab} level={level} setLevel={setLevel} />
+        <PlansDesktop tab={tab} level={subChoice} setLevel={setSubChoice} />
+        <PlansMobile tab={tab} level={subChoice} setLevel={setSubChoice} />
       </div>
     </section>
   );
@@ -46,23 +61,42 @@ const useGetSubscriptions = () => {
 };
 
 const PlanTabs = () => {
-  const { data } = useGetSubscriptions();
+  const { data, isPending, isError } = useGetSubscriptions();
   const subscriptions: Subscription[] = data?.data.data;
 
   const [tab, setTab] = useQueryState('plan', {
     defaultValue: subscriptions?.[0]?.period,
   });
 
+  if (isPending)
+    return (
+      <div className="h-10 w-52 animate-pulse rounded-[30px] bg-white/40"></div>
+    );
+
+  if (isError)
+    return (
+      <div>
+        <p className="text-destructive">
+          Error fetching subscriptions. Please try again later.
+        </p>
+      </div>
+    );
+
   return (
-    <Tabs value={tab} defaultValue={tab} onValueChange={setTab}>
+    <Tabs
+      value={tab}
+      defaultValue={tab}
+      onValueChange={setTab}
+      className={cn(isError && 'hidden')}
+    >
       <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
-        {subscriptions?.slice(0, 2).map(subscription => (
+        {subscriptions?.slice(3, 5).map(subscription => (
           <TabsTrigger
             key={subscription.id}
             value={subscription.period}
-            className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
+            className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
           >
-            {subscription.name}
+            {subscription.period}
           </TabsTrigger>
         ))}
         {/* <TabsTrigger
@@ -76,19 +110,313 @@ const PlanTabs = () => {
   );
 };
 
+const CurrencyTabs = () => {
+  const [tab, setTab] = useQueryState('currency', {
+    defaultValue: 'USD',
+  });
+
+  return (
+    <Tabs value={tab} defaultValue={tab} onValueChange={setTab}>
+      <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
+        <TabsTrigger
+          value={'USD'}
+          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
+        >
+          USD
+        </TabsTrigger>
+        <TabsTrigger
+          value={'NGN'}
+          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
+        >
+          NGN
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
+  );
+};
+
 const PlansDesktop = (props: {
   tab: string;
-  level: string;
-  setLevel: Dispatch<SetStateAction<string>>;
+  level: Subscription | null;
+  setLevel: Dispatch<SetStateAction<Subscription | null>>;
+}) => {
+  const { level, setLevel } = props;
+  const [currency, __] = useQueryState('currency', {
+    defaultValue: 'USD',
+  });
+  const { data: subscriptionData, isPending: isSubscriptionPending } =
+    useGetSubscriptions();
+  const subscriptions: Subscription[] = subscriptionData?.data.data;
+
+  return (
+    <div className="relative flex flex-col gap-29.25 max-lg:hidden">
+      <ul className="text-xs/[100%] font-medium [&>li]:border-b [&>li]:border-[#305B43] [&>li]:py-7 [&>li]:pl-13.5 [&>li]:last:border-none">
+        <li>Monthly Price ( billed half-year and annually)</li>
+        <li>Download for Offline viewing</li>
+        <li>All 200+ classes acrross 11 categories</li>
+        <li>
+          Access to Sessions by UPBREED <br /> Learn by doing in just 30 days.
+        </li>
+        <li>Watch on your computer, TV, Phone or tablet</li>
+        <li>Bonus class guides & content</li>
+      </ul>
+      {isSubscriptionPending ? (
+        <>
+          <div
+            className={cn(
+              'group absolute -top-40 right-80 flex h-151 w-44.25 animate-pulse flex-col items-center bg-white/40 px-10 pt-4 pb-18 text-xs/[100%] font-semibold transition-colors',
+            )}
+          ></div>
+          <div
+            className={cn(
+              'group absolute -top-40 right-20 flex h-151 w-44.25 animate-pulse flex-col items-center bg-white/40 px-10 pt-4 pb-18 text-xs/[100%] font-semibold transition-colors',
+            )}
+          ></div>
+        </>
+      ) : (
+        subscriptions
+          ?.slice(3, 5)
+          .map((subscription, i) => (
+            <PlanSpecCard
+              className={cn(i === 1 && 'right-20')}
+              plan={subscription.period}
+              onClick={() => setLevel(subscription)}
+              selected={level}
+              device={`${subscription.noDevices} Device${subscription.noDevices > 1 ? 's' : ''}`}
+              offline="No Offline mode"
+              monthlyPrice={
+                currency === 'USD'
+                  ? `$${subscription.amountUsd}`
+                  : `₦${subscription.amountNaira}`
+              }
+              download="No"
+            />
+          ))
+      )}
+      <SubscriptionNotice level={level}>
+        <Button className="w-3/5 self-center">Continue</Button>
+      </SubscriptionNotice>
+    </div>
+  );
+};
+
+const PlansMobile = (props: {
+  tab: string;
+  level: Subscription | null;
+  setLevel: Dispatch<SetStateAction<Subscription | null>>;
 }) => {
   const { tab, level, setLevel } = props;
+  const [currency, __] = useQueryState('currency', {
+    defaultValue: 'USD',
+  });
+  const { data: subscriptionData, isPending: isSubscriptionPending } =
+    useGetSubscriptions();
+  const subscriptions: Subscription[] = subscriptionData?.data.data;
+
+  return (
+    <div className="flex w-full max-w-96 flex-col gap-12 lg:hidden">
+      <div className="flex justify-between text-center">
+        {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+          <div key={i} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4.5 text-white">
+              <p className="font-semibold capitalize">{subscription.period}</p>
+              <div
+                className={cn(
+                  'flex flex-col gap-4',
+                  level?.period === subscription.period && 'text-[#D0EA50]',
+                )}
+              >
+                <p className="text-sm/[100%] font-medium">
+                  {subscription.noDevices} Device
+                  {subscription.noDevices > 1 ? 's' : ''}
+                </p>
+                <p className="text-xs/[100%] font-medium">No Offline mode</p>
+              </div>
+            </div>
+            <Button
+              onClick={() => setLevel(subscription)}
+              className={cn(
+                'w-24.25 border border-[#305B43] bg-transparent text-white',
+                level?.period === subscription.period &&
+                  'border-transparent bg-[#D0EA50] text-black',
+              )}
+            >
+              {level?.period === subscription.period ? 'Selected' : 'Select'}
+            </Button>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-4 text-sm/[100%] font-medium">
+        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
+          <div className="flex items-center justify-between px-8">
+            {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+              <p
+                key={i}
+                className={cn(
+                  level?.period === subscription.period && 'text-[#D0EA50]',
+                )}
+              >
+                {currency === 'USD'
+                  ? `$${Number(subscription.amountUsd).toLocaleString()}`
+                  : `₦${Number(subscription.amountNaira).toLocaleString()}`}
+              </p>
+            ))}
+          </div>
+          <p className="text-center text-xs">Monthly Price (billed annually)</p>
+        </div>
+        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
+          <div className="flex items-center justify-between px-8">
+            {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+              <p
+                key={i}
+                className={cn(
+                  level?.period === subscription.period && 'text-[#D0EA50]',
+                )}
+              >
+                No
+              </p>
+            ))}
+          </div>
+          <p className="text-center text-xs">Download for Offline viewing</p>
+        </div>
+        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
+          <div className="flex items-center justify-between px-8">
+            <Check
+              className={cn(
+                level?.period === subscriptions[0].period
+                  ? 'text-[#D0EA50]'
+                  : 'text-white',
+              )}
+            />
+          </div>
+          <p className="text-center text-xs">
+            All 200+ classes acrross 11 categories
+          </p>
+        </div>
+        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
+          <div className="flex items-center justify-between px-8">
+            {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+              <Check
+                key={i}
+                className={cn(
+                  level?.period === subscription.period
+                    ? 'text-[#D0EA50]'
+                    : 'text-white',
+                )}
+              />
+            ))}
+          </div>
+          <p className="text-center text-xs">
+            Watch on your computer, TV, Phone or tablet
+          </p>
+        </div>
+        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
+          <div className="flex items-center justify-between px-8">
+            {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+              <Check
+                key={i}
+                className={cn(
+                  level?.period === subscription.period
+                    ? 'text-[#D0EA50]'
+                    : 'text-white',
+                )}
+              />
+            ))}
+          </div>
+          <p className="text-center text-xs">Bonus class guides & content</p>
+        </div>
+        <SubscriptionNotice level={level}>
+          <Button>Continue</Button>
+        </SubscriptionNotice>
+      </div>
+    </div>
+  );
+};
+
+const PlanSpecCard = (props: {
+  className?: string;
+  plan: string;
+  device: string;
+  offline: string;
+  btnClassName?: string;
+  monthlyPrice: string;
+  download: string;
+  allClasses?: string;
+  accessSessions?: string;
+  watch?: string;
+  onClick: () => void;
+  selected: Subscription | null;
+}) => {
+  const {
+    className,
+    plan,
+    device,
+    offline,
+    btnClassName,
+    monthlyPrice,
+    download,
+    allClasses,
+    accessSessions,
+    watch,
+    onClick,
+    selected,
+  } = props;
+  return (
+    <ul
+      className={cn(
+        'group absolute -top-40 right-80 flex flex-col items-center bg-transparent px-10 pt-4 pb-18 text-xs/[100%] font-semibold transition-colors hover:bg-[#305B43]',
+        className,
+      )}
+    >
+      <li className="pb-4.5 font-semibold! capitalize">{plan}</li>
+      <li className="pb-4">{device}</li>
+      <li className="pb-5">{offline}</li>
+      <li className="pb-12">
+        <Button
+          onClick={onClick}
+          className={cn(
+            'h-8.5 w-24.25 rounded border border-[#305B43] bg-transparent text-white group-hover:border-transparent hover:bg-[#D0EA50] hover:text-black',
+            btnClassName,
+            selected?.period === plan.toLowerCase() &&
+              'border-transparent bg-[#D0EA50] text-black',
+          )}
+        >
+          {selected?.period === plan.toLowerCase() ? 'Selected' : 'Select'}
+        </Button>
+      </li>
+      <li className="pb-12 text-xl leading-[100%] font-semibold text-[#D0EA50] group-hover:text-white">
+        {monthlyPrice}
+      </li>
+      <li className="pb-12">{download}</li>
+      <li className="pb-12">
+        <Check className={cn('text-white', allClasses)} />
+      </li>
+      <li className="pb-12">
+        <Check className={cn('text-white', accessSessions)} />
+      </li>
+      <li className="pb-12">
+        <Check className={cn('text-white', watch)} />
+      </li>
+    </ul>
+  );
+};
+
+const SubscriptionNotice = (props: {
+  children: React.ReactNode;
+  level: Subscription | null;
+}) => {
+  const { children, level } = props;
+  const [open, setOpen] = useState(false);
   const [_, setAuth] = useQueryState('auth');
+  const [currency, __] = useQueryState('currency', {
+    defaultValue: 'USD',
+  });
   const { data: tokenData } = useGetToken();
   const token = tokenData?.data.token;
   const { data } = useGetUserProfile(token);
   const userProfile: UserProfileType = data?.data.data;
-  // const rootUrl = window?.location?.origin;
-  // const router = useRouter();
+  const rootUrl = typeof window !== 'undefined' && window.location.origin;
+  const router = useRouter();
 
   const { mutate, isPending } = useSendRequest<
     {
@@ -113,261 +441,56 @@ const PlansDesktop = (props: {
       title: 'Error',
       description: 'An unexpected error occurred. Please try again.',
     },
-    // onSuccessCallback: () => {
-    //   router.push('/student/courses');
-    // },
+    onSuccessCallback: () => {
+      router.push('/student/courses');
+    },
   });
 
-  // const handleSubscription = () => {
-  //   if (!token) {
-  //     setAuth('login');
-  //     return;
-  //   } else {
-  //     mutate({
-  //       planId: tab === 'annually' ? 4 : 5,
-  //       currency: 'NGN',
-  //       email: userProfile.email,
-  //       // callbackUrl: `${rootUrl}/student/courses`,
-  //     });
-  //   }
-  // };
+  const handleSubscription = () => {
+    if (!level) {
+      toast.error(`Cannot subscribe!`, {
+        description: 'Please select a plan.',
+        className: errorToastClassName,
+      });
+      return;
+    }
+    if (!token) {
+      setAuth('login');
+      return;
+    } else {
+      mutate({
+        planId: level?.id!!,
+        currency: currency,
+        email: userProfile.email,
+        callbackUrl: `${rootUrl}/student/courses`,
+      });
+    }
+  };
 
   return (
-    <div className="relative flex flex-col gap-29.25 max-lg:hidden">
-      <ul className="text-xs/[100%] font-medium [&>li]:border-b [&>li]:border-[#305B43] [&>li]:py-7 [&>li]:pl-13.5 [&>li]:last:border-none">
-        <li>Monthly Price ( billed half-year and annually)</li>
-        <li>Download for Offline viewing</li>
-        <li>All 200+ classes acrross 11 categories</li>
-        <li>
-          Access to Sessions by UPBREED <br /> Learn by doing in just 30 days.
-        </li>
-        <li>Watch on your computer, TV, Phone or tablet</li>
-        <li>Bonus class guides & content</li>
-      </ul>
-      <PlanSpecCard
-        plan="Standard"
-        onClick={setLevel}
-        selected={level}
-        device="1 Device"
-        offline="No Offline mode"
-        monthlyPrice={tab === 'annually' ? '$60' : '$30'}
-        download="No"
-      />
-      <PlanSpecCard
-        className="right-20"
-        onClick={setLevel}
-        selected={level}
-        plan="Premium"
-        device="2 Devices"
-        offline="Offline mode"
-        monthlyPrice={tab === 'annually' ? '$120' : '$60'}
-        download="Yes"
-        allClasses="text-transparent"
-        accessSessions="Check"
-        watch="Check"
-      />
-      <Button
-        //  onClick={handleSubscription}
-        className="w-3/5 self-center"
-      >
-        {isPending ? <Loader2 className="animate-spin" /> : 'Continue'}
-      </Button>
-    </div>
-  );
-};
-
-const PlansMobile = (props: {
-  tab: string;
-  level: string;
-  setLevel: Dispatch<SetStateAction<string>>;
-}) => {
-  const { tab, level, setLevel } = props;
-
-  return (
-    <div className="flex w-full max-w-96 flex-col gap-12 lg:hidden">
-      <div className="flex justify-between text-center">
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-4.5 text-white">
-            <p className="font-semibold">Standard</p>
-            <div
-              className={cn(
-                'flex flex-col gap-4',
-                level === 'standard' && 'text-[#D0EA50]',
-              )}
-            >
-              <p className="text-sm/[100%] font-medium">1 Device</p>
-              <p className="text-xs/[100%] font-medium">No Offline mode</p>
-            </div>
-          </div>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            You are about to make payment for your subscription. This action
+            cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant={'outline'}>Cancel</Button>
+          </DialogClose>
           <Button
-            onClick={() => setLevel('standard')}
-            className={cn(
-              'w-24.25 border border-[#305B43] bg-transparent text-white',
-              level === 'standard' &&
-                'border-transparent bg-[#D0EA50] text-black',
-            )}
+            className="disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={isPending}
+            onClick={handleSubscription}
           >
-            {level === 'standard' ? 'Selected' : 'Select'}
+            {isPending ? 'Loading...' : 'Subscribe'}
           </Button>
-        </div>
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-4.5 text-white">
-            <p className="font-semibold">Premium</p>
-            <div
-              className={cn(
-                'flex flex-col gap-4',
-                level === 'premium' && 'text-[#D0EA50]',
-              )}
-            >
-              <p className="text-sm/[100%] font-medium">2 Devices</p>
-              <p className="text-xs/[100%] font-medium">Offline mode</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => setLevel('premium')}
-            className={cn(
-              'w-24.25 border border-[#305B43] bg-transparent text-white',
-              level === 'premium' &&
-                'border-transparent bg-[#D0EA50] text-black',
-            )}
-          >
-            {level === 'premium' ? 'Selected' : 'Select'}
-          </Button>
-        </div>
-      </div>
-      <div className="flex flex-col gap-4 text-sm/[100%] font-medium">
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            <p className={cn(level === 'standard' && 'text-[#D0EA50]')}>
-              {tab === 'annually' ? '$60' : '$30'}
-            </p>
-            <p className={cn(level === 'premium' && 'text-[#D0EA50]')}>
-              {tab === 'annually' ? '$120' : '$60'}
-            </p>
-          </div>
-          <p className="text-center text-xs">Monthly Price (billed annually)</p>
-        </div>
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            <p className={cn(level === 'standard' && 'text-[#D0EA50]')}>No</p>
-            <p className={cn(level === 'premium' && 'text-[#D0EA50]')}>Yes</p>
-          </div>
-          <p className="text-center text-xs">Download for Offline viewing</p>
-        </div>
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            <Check
-              className={cn(
-                level === 'standard' ? 'text-[#D0EA50]' : 'text-white',
-              )}
-            />
-          </div>
-          <p className="text-center text-xs">
-            All 200+ classes acrross 11 categories
-          </p>
-        </div>
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            <Check
-              className={cn(
-                level === 'standard' ? 'text-[#D0EA50]' : 'text-white',
-              )}
-            />
-            <Check
-              className={cn(
-                level === 'premium' ? 'text-[#D0EA50]' : 'text-white',
-              )}
-            />
-          </div>
-          <p className="text-center text-xs">
-            Watch on your computer, TV, Phone or tablet
-          </p>
-        </div>
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            <Check
-              className={cn(
-                level === 'standard' ? 'text-[#D0EA50]' : 'text-white',
-              )}
-            />
-            <Check
-              className={cn(
-                level === 'premium' ? 'text-[#D0EA50]' : 'text-white',
-              )}
-            />
-          </div>
-          <p className="text-center text-xs">Bonus class guides & content</p>
-        </div>
-        <Button>Continue</Button>
-      </div>
-    </div>
-  );
-};
-
-const PlanSpecCard = (props: {
-  className?: string;
-  plan: string;
-  device: string;
-  offline: string;
-  btnClassName?: string;
-  monthlyPrice: string;
-  download: string;
-  allClasses?: string;
-  accessSessions?: string;
-  watch?: string;
-  onClick: Dispatch<SetStateAction<string>>;
-  selected: string;
-}) => {
-  const {
-    className,
-    plan,
-    device,
-    offline,
-    btnClassName,
-    monthlyPrice,
-    download,
-    allClasses,
-    accessSessions,
-    watch,
-    onClick,
-    selected,
-  } = props;
-  return (
-    <ul
-      className={cn(
-        'group absolute -top-40 right-80 flex flex-col items-center bg-transparent px-10 pt-4 pb-18 text-xs/[100%] font-semibold transition-colors hover:bg-[#305B43]',
-        className,
-      )}
-    >
-      <li className="pb-4.5 font-semibold!">{plan}</li>
-      <li className="pb-4">{device}</li>
-      <li className="pb-5">{offline}</li>
-      <li className="pb-12">
-        <Button
-          onClick={() => onClick(plan.toLowerCase())}
-          className={cn(
-            'h-8.5 w-24.25 rounded border border-[#305B43] bg-transparent text-white group-hover:border-transparent hover:bg-[#D0EA50] hover:text-black',
-            btnClassName,
-            selected === plan.toLowerCase() &&
-              'border-transparent bg-[#D0EA50] text-black',
-          )}
-        >
-          {selected === plan.toLowerCase() ? 'Selected' : 'Select'}
-        </Button>
-      </li>
-      <li className="pb-12 text-xl leading-[100%] font-semibold text-[#D0EA50] group-hover:text-white">
-        {monthlyPrice}
-      </li>
-      <li className="pb-12">{download}</li>
-      <li className="pb-12">
-        <Check className={cn('text-white', allClasses)} />
-      </li>
-      <li className="pb-12">
-        <Check className={cn('text-white', accessSessions)} />
-      </li>
-      <li className="pb-12">
-        <Check className={cn('text-white', watch)} />
-      </li>
-    </ul>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
