@@ -89,3 +89,17 @@ export const useGetBookmarkedCourses = (page: number, limit: number) => {
     queryFn: () => QUERIES.getBookmarkedCourses(),
   });
 };
+
+export const useGetSubscriptions = () => {
+  return useQuery({
+    queryKey: queryKeys.subscriptions.all,
+    queryFn: () => QUERIES.getSubscriptions(),
+  });
+};
+
+export const useGetCurrentSubscription = () => {
+  return useQuery({
+    queryKey: queryKeys.subscriptions.current(),
+    queryFn: () => QUERIES.getCurrentSubscription(),
+  });
+};

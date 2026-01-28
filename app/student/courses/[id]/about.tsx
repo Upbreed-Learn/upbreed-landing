@@ -18,7 +18,6 @@ import SuspenseLoader from '@/components/suspense-loader';
 import ProgressTrackingVideoPlayer from '@/components/progress-tracking-video-player';
 
 const libraryId = process.env.NEXT_PUBLIC_LIBRARY_ID;
-const BUNNY_TOKEN = process.env.NEXT_PUBLIC_BUNNY_TOKEN;
 const videoId = 'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95';
 const pullZone = 4672058;
 
@@ -157,14 +156,6 @@ const About = (props: { id: string }) => {
                 </div>
               </div>
             </div>
-            {/* <ProgressTrackingVideoPlayer
-              videoId={videoId}
-              videoUrl={videoUrl}
-              onProgressUpdate={position => console.log('Progress:', position)}
-              onConnectionChange={connected =>
-                console.log('Connected:', connected)
-              }
-            /> */}
             <div className="w-full max-w-7xl">
               <div className="flex flex-col gap-3 md:gap-8 md:pl-12 lg:pl-27.25">
                 <p className="w-full max-w-201.75 text-sm/5 tracking-[0.14px] text-black max-md:border-b max-md:border-[#0000000D] max-md:pb-2.5">

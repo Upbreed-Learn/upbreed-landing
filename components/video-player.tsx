@@ -22,11 +22,6 @@ const VideoPlayer = ({
   const { data: tokenData } = useGetToken();
   const token = tokenData?.data.token;
 
-  // Use provided videoUrl or construct Bunny.net URL
-  const finalVideoUrl =
-    videoUrl ||
-    `https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}`;
-
   // Only use progress tracking for HTML5 videos (not iframes)
   const { videoRef, isConnected, error, clearError } = useVideoPlayerProgress({
     videoId,
@@ -52,7 +47,7 @@ const VideoPlayer = ({
   }
 
   // If progress tracking is enabled with custom video URL, use HTML5 video element
-  if (enableProgressTracking && videoUrl) {
+  if (!enableProgressTracking && videoUrl) {
     return (
       <div className={cn('relative aspect-video w-full', className)}>
         {/* Connection Status Indicator */}

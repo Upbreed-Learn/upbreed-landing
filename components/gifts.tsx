@@ -21,9 +21,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
+import { Subscription } from '@/lib/constants';
+import { useGetSubscriptions } from '@/lib/queries/hooks';
 import { useField, useForm } from '@tanstack/react-form';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import z from 'zod';
+import { Skeleton } from './ui/custom/skeleton';
+import { MUTATIONS } from '@/lib/queries';
+import useSendRequest from '@/lib/hooks/useSendRequest';
 
 const plans = [
   {
@@ -49,10 +54,47 @@ const formSchema = z.object({
     .string()
     .min(10, { message: 'Message should be at least 10 characters' }),
   plan: z.string().min(1, 'You must select a subscription plan to continue.'),
+  currency: z.string().min(1, 'You must select a currency to continue.'),
 });
 
 const Gifts = (props: { children?: React.ReactNode }) => {
   const { children } = props;
+  const [open, setOpen] = useState(false);
+
+  const { data, isPending } = useGetSubscriptions();
+  const subscriptions: Subscription[] = data?.data.data;
+  const rootUrl = typeof window !== 'undefined' && window.location.origin;
+
+  const { mutate, isPending: isPendingGift } = useSendRequest<
+    {
+      recipientName: string;
+      recipientEmail: string;
+      planId: string;
+      currency: string;
+      callbackUrl: string;
+    },
+    any
+  >({
+    mutationFn: (data: {
+      recipientName: string;
+      recipientEmail: string;
+      planId: string;
+      currency: string;
+      callbackUrl: string;
+    }) => MUTATIONS.giftSubscription(data),
+    successToast: {
+      title: 'Success',
+      description: 'Your gift has been sent successfully.',
+    },
+    errorToast: {
+      title: 'Error',
+      description: 'An unexpected error occurred. Please try again.',
+    },
+    onSuccessCallback: () => {
+      setOpen(false);
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       recipientName: '',
@@ -60,14 +102,34 @@ const Gifts = (props: { children?: React.ReactNode }) => {
       yourName: '',
       yourEmail: '',
       message: '',
-      plan: '',
+      plan: subscriptions ? `${subscriptions[3]?.id}` : '',
+      currency: '',
     } as const as z.infer<typeof formSchema>,
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      mutate({
+        recipientName: value.recipientName,
+        recipientEmail: value.recipientEmail,
+        planId: value.plan,
+        currency: value.currency,
+        callbackUrl: `${rootUrl}`,
+      });
     },
+  });
+
+  useEffect(() => {
+    if (subscriptions.length > 0) {
+      messageField.setValue(
+        `I hope you enjoy your ${filterPlans(Number(subscriptions[3]?.id)).name} subscription at Upbreed Learn. This subscription gives you access for a period of 6 months. You have access to all our instructors, and what they teach. Happy Learning!`,
+      );
+    }
+  }, [subscriptions]);
+
+  const currencyField = useField({
+    form,
+    name: 'currency',
   });
 
   const planField = useField({
@@ -80,24 +142,17 @@ const Gifts = (props: { children?: React.ReactNode }) => {
     name: 'message',
   });
 
-  useEffect(() => {
-    if (planField.state.value === '6 Months') {
-      messageField.setValue(
-        'I hope you enjoy your first 6 months at Upbreed Learn. This subscription gives you access for a period of 6 months. You have access to all our instructors, and what they teach. Happy Learning!',
-      );
-    } else if (planField.state.value === '1 Year') {
-      messageField.setValue(
-        'I hope you enjoy your first year at Upbreed Learn. This subscription gives you access for a period of 1 year. You have access to all our instructors, and what they teach. Happy Learning!',
-      );
-    }
-  }, [planField.state.value]);
+  const filterPlans = (planId: number) => {
+    const filteredPlans = subscriptions.filter(plan => plan.id === planId);
+    return filteredPlans[0];
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="cursor-pointer hover:text-[#D0EA50]">
         {children}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="z-100">
         <DialogHeader className="sr-only">
           <DialogTitle>Gifts</DialogTitle>
           <DialogDescription>
@@ -117,10 +172,14 @@ const Gifts = (props: { children?: React.ReactNode }) => {
               <FieldLegend className="text-xl font-semibold text-[#305B43]">
                 UPBREED LEARN
               </FieldLegend>
-              <FieldDescription className="text-sm/6 font-medium">
-                Total Billed :{' '}
-                {planField.state.value === '6 Months' ? '$60' : '$120'}
-              </FieldDescription>
+              {currencyField.state.value !== '' && (
+                <FieldDescription className="text-sm/6 font-medium">
+                  Total Billed :{' '}
+                  {currencyField.state.value === 'USD'
+                    ? `$${Number(filterPlans(Number(planField.state.value)).amountUsd).toLocaleString()}`
+                    : `₦${Number(filterPlans(Number(planField.state.value)).amountNaira).toLocaleString()}`}
+                </FieldDescription>
+              )}
             </FieldSet>
             <FieldGroup className="">
               <form.Field
@@ -255,52 +314,118 @@ const Gifts = (props: { children?: React.ReactNode }) => {
                   );
                 }}
               />
-              <form.Field
-                name="plan"
-                children={field => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid;
-                  return (
-                    <FieldSet>
-                      <RadioGroup
-                        name={field.name}
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        className="flex items-center justify-end"
-                      >
-                        {plans.map(plan => (
-                          <FieldLabel
-                            key={plan.id}
-                            htmlFor={`form-tanstack-radiogroup-${plan.id}`}
-                            className="h-auto w-max! border-none bg-transparent! p-0!"
+              {isPending ? (
+                <Skeleton className="h-[52px] w-full rounded-lg border-[#9B9B9B] bg-[#f5f5f5] font-semibold text-black" />
+              ) : (
+                <FieldSet className="gap-0">
+                  <form.Field
+                    name="plan"
+                    children={field => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <FieldSet>
+                          <RadioGroup
+                            name={field.name}
+                            value={field.state.value}
+                            onValueChange={value => {
+                              (field.handleChange(value),
+                                messageField.setValue(
+                                  `I hope you enjoy your ${filterPlans(Number(value)).period} subscription at Upbreed Learn. This subscription gives you access for a period of 6 months. You have access to all our instructors, and what they teach. Happy Learning!`,
+                                ));
+                            }}
+                            className="flex items-center justify-end"
                           >
-                            <Field
-                              orientation="horizontal"
-                              data-invalid={isInvalid}
-                              className="w-max flex-row-reverse"
-                            >
-                              <FieldContent>
-                                <FieldTitle>{plan.title}</FieldTitle>
-                              </FieldContent>
-                              <RadioGroupItem
-                                value={plan.title}
-                                id={`form-tanstack-radiogroup-${plan.id}`}
-                                aria-invalid={isInvalid}
-                              />
-                            </Field>
-                          </FieldLabel>
-                        ))}
-                      </RadioGroup>
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </FieldSet>
-                  );
-                }}
-              />
+                            {subscriptions.slice(3, 5).map(plan => (
+                              <FieldLabel
+                                key={plan.id}
+                                htmlFor={`form-tanstack-radiogroup-${plan.id}`}
+                                className="h-auto w-max! border-none bg-transparent! p-0!"
+                              >
+                                <Field
+                                  orientation="horizontal"
+                                  data-invalid={isInvalid}
+                                  className="w-max flex-row-reverse"
+                                >
+                                  <FieldContent>
+                                    <FieldTitle className="capitalize">
+                                      {plan.period}
+                                    </FieldTitle>
+                                  </FieldContent>
+                                  <RadioGroupItem
+                                    value={`${plan.id}`}
+                                    id={`form-tanstack-radiogroup-${plan.id}`}
+                                    aria-invalid={isInvalid}
+                                  />
+                                </Field>
+                              </FieldLabel>
+                            ))}
+                          </RadioGroup>
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </FieldSet>
+                      );
+                    }}
+                  />
+                  <form.Field
+                    name="currency"
+                    children={field => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <FieldSet>
+                          <RadioGroup
+                            name={field.name}
+                            value={field.state.value}
+                            onValueChange={field.handleChange}
+                            className="flex items-center justify-end"
+                          >
+                            {[
+                              { id: 1, currency: 'USD' },
+                              { id: 2, currency: 'NGN' },
+                            ].map(plan => (
+                              <FieldLabel
+                                key={plan.id}
+                                htmlFor={`currency-${plan.id}`}
+                                className="h-auto w-max! border-none bg-transparent! p-0!"
+                              >
+                                <Field
+                                  orientation="horizontal"
+                                  data-invalid={isInvalid}
+                                  className="w-max flex-row-reverse"
+                                >
+                                  <FieldContent>
+                                    <FieldTitle className="capitalize">
+                                      {plan.currency}
+                                    </FieldTitle>
+                                  </FieldContent>
+                                  <RadioGroupItem
+                                    value={`${plan.currency}`}
+                                    id={`currency-${plan.id}`}
+                                    aria-invalid={isInvalid}
+                                  />
+                                </Field>
+                              </FieldLabel>
+                            ))}
+                          </RadioGroup>
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </FieldSet>
+                      );
+                    }}
+                  />
+                </FieldSet>
+              )}
             </FieldGroup>
           </FieldGroup>
-          <Button className="h-12 rounded-lg">Send Gift</Button>
+          <Button
+            disabled={isPendingGift}
+            className="h-12 rounded-lg disabled:opacity-50"
+          >
+            {isPendingGift ? 'Sending gift...' : 'Send Gift'}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

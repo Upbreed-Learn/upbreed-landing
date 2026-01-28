@@ -53,5 +53,6 @@ export const queryKeys = {
   token: ['token'],
   subscriptions: {
     all: ['subscriptions'],
+    current: () => [...queryKeys.subscriptions.all, 'current'],
   },
 };
