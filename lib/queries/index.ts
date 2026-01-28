@@ -64,6 +64,15 @@ export const MUTATIONS = {
   }) {
     return await https.post(`/payment/subscription/initiate`, data);
   },
+  giftSubscription: async function (data: {
+    recipientName: string;
+    recipientEmail: string;
+    planId: string;
+    currency: string;
+    callbackUrl: string;
+  }) {
+    return await https.post(`/payment/subscription/gift`, data);
+  },
 };
 
 export const QUERIES = {
@@ -165,6 +174,10 @@ export const QUERIES = {
   },
   getSubscriptions: async () => {
     const url = `/subscription`;
+    return await https.get(url);
+  },
+  getCurrentSubscription: async () => {
+    const url = `/subscription/current`;
     return await https.get(url);
   },
 };

@@ -11,10 +11,14 @@ import AuthBanner from '../auth-banner';
 import { Activity, Suspense, useState } from 'react';
 import SearchInput from './search-courses';
 import { useQueryState } from 'nuqs';
-import { useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
+import {
+  useGetCurrentSubscription,
+  useGetToken,
+  useGetUserProfile,
+} from '@/lib/queries/hooks';
 import MenuDropdown from './menu-dropdown';
 import AvatarCustom from '../ui/custom/avatar';
-import { UserProfileType } from '@/lib/constants';
+import { Subscription, UserProfileType } from '@/lib/constants';
 
 const Navbar = () => {
   const [mobileSearch, setMobileSearch] = useState(false);
@@ -25,7 +29,9 @@ const Navbar = () => {
   const token = data?.data.token;
 
   const { data: userData, isPending } = useGetUserProfile(token);
+  const { data: subscriptionData } = useGetCurrentSubscription();
   const userProfile: UserProfileType = userData?.data.data;
+  const subscription: Subscription[] = subscriptionData?.data;
 
   const handleSignUp = () => {
     setAuth('sign-up');
@@ -51,15 +57,17 @@ const Navbar = () => {
                 <p>Classes</p>
                 <ChevronDown />
               </ClassesHover>
-              <NavLink
-                href={'/pricing'}
-                className={cn(
-                  'hover:text-[#D0EA50]',
-                  pathname === '/pricing' && 'text-[#D0EA50]',
-                )}
-              >
-                Pricing
-              </NavLink>
+              <Activity mode={subscription?.length < 1 ? 'visible' : 'hidden'}>
+                <NavLink
+                  href={'/pricing'}
+                  className={cn(
+                    'hover:text-[#D0EA50]',
+                    pathname === '/pricing' && 'text-[#D0EA50]',
+                  )}
+                >
+                  Pricing
+                </NavLink>
+              </Activity>
             </div>
             <div
               className={cn(

@@ -38,12 +38,12 @@ const Hero = () => {
               <p className="text-lg/6 font-semibold">
                 {userProfile?.fname} {userProfile?.lname}
               </p>
-              <div className="flex items-center gap-1">
+              {/* <div className="flex items-center gap-1">
                 <Location />
                 <p className="text-xs/6 font-semibold text-[#E0E0E0]">
                   Accra, Ghana
                 </p>
-              </div>
+              </div> */}
             </div>
           </div>
         )}

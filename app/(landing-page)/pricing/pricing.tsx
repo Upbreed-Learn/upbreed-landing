@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/custom/skeleton';
 import {
   Dialog,
   DialogClose,
@@ -17,10 +18,10 @@ import useSendRequest, {
   errorToastClassName,
 } from '@/lib/hooks/useSendRequest';
 import { MUTATIONS, QUERIES } from '@/lib/queries';
-import { useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
+import { useGetSubscriptions, useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
@@ -52,13 +53,6 @@ const ChooseYourPlan = () => {
 };
 
 export default ChooseYourPlan;
-
-const useGetSubscriptions = () => {
-  return useQuery({
-    queryKey: queryKeys.subscriptions.all,
-    queryFn: () => QUERIES.getSubscriptions(),
-  });
-};
 
 const PlanTabs = () => {
   const { data, isPending, isError } = useGetSubscriptions();
@@ -213,6 +207,8 @@ const PlansMobile = (props: {
     useGetSubscriptions();
   const subscriptions: Subscription[] = subscriptionData?.data.data;
 
+  if (isSubscriptionPending) return <SubscriptionMobileLoading />;
+
   return (
     <div className="flex w-full max-w-96 flex-col gap-12 lg:hidden">
       <div className="flex justify-between text-center">
@@ -283,7 +279,7 @@ const PlansMobile = (props: {
           <div className="flex items-center justify-between px-8">
             <Check
               className={cn(
-                level?.period === subscriptions[0].period
+                level?.period === subscriptions[0]?.period
                   ? 'text-[#D0EA50]'
                   : 'text-white',
               )}
@@ -406,6 +402,7 @@ const SubscriptionNotice = (props: {
   level: Subscription | null;
 }) => {
   const { children, level } = props;
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [_, setAuth] = useQueryState('auth');
   const [currency, __] = useQueryState('currency', {
@@ -442,6 +439,9 @@ const SubscriptionNotice = (props: {
       description: 'An unexpected error occurred. Please try again.',
     },
     onSuccessCallback: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.subscriptions.current(),
+      });
       router.push('/student/courses');
     },
   });
@@ -492,5 +492,56 @@ const SubscriptionNotice = (props: {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+};
+
+const SubscriptionColumnSkeleton = () => {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4.5">
+        <Skeleton className="mx-auto h-4 w-16" />
+        <div className="flex flex-col items-center gap-3">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-3 w-20" />
+        </div>
+      </div>
+      <Skeleton className="h-9 w-24.25 rounded-md" />
+    </div>
+  );
+};
+
+const FeatureRowSkeleton = () => {
+  return (
+    <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
+      <div className="flex items-center justify-between px-8">
+        <Skeleton className="h-4 w-10" />
+        <Skeleton className="h-4 w-10" />
+      </div>
+      <Skeleton className="mx-auto h-3 w-48" />
+    </div>
+  );
+};
+
+const SubscriptionMobileLoading = () => {
+  return (
+    <div className="pointer-events-none flex w-full max-w-96 flex-col gap-12 lg:hidden">
+      {/* Top plans */}
+      <div className="flex justify-between text-center">
+        <SubscriptionColumnSkeleton />
+        <SubscriptionColumnSkeleton />
+      </div>
+
+      {/* Feature comparison */}
+      <div className="flex flex-col gap-4 text-sm/[100%] font-medium">
+        <FeatureRowSkeleton />
+        <FeatureRowSkeleton />
+        <FeatureRowSkeleton />
+        <FeatureRowSkeleton />
+        <FeatureRowSkeleton />
+
+        {/* Continue button */}
+        <Skeleton className="mt-2 h-10 w-full rounded-md" />
+      </div>
+    </div>
   );
 };
