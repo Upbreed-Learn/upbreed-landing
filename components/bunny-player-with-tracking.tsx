@@ -14,12 +14,14 @@ interface BunnyPlayerWithTrackingProps {
   videoId: string;
   className?: string;
   token?: string;
+  bunnyVideoId?: string;
 }
 
 export const BunnyPlayerWithTracking = ({
   videoId,
   className,
   token,
+  bunnyVideoId,
 }: BunnyPlayerWithTrackingProps) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const playerRef = useRef<any>(null);
@@ -127,7 +129,7 @@ export const BunnyPlayerWithTracking = ({
     >
       <iframe
         ref={iframeRef}
-        src={`https://iframe.mediadelivery.net/embed/${process.env.NEXT_PUBLIC_LIBRARY_ID}/${videoId}`}
+        src={`https://iframe.mediadelivery.net/embed/${process.env.NEXT_PUBLIC_LIBRARY_ID}/${bunnyVideoId}`}
         loading="lazy"
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
         allowFullScreen

@@ -45,6 +45,7 @@ interface VideoPlayerProps {
   videoUrl?: string; // Allow custom video URL for HTML5 videos
   bunnyPullZone?: string; // Bunny CDN pull zone for HLS streams
   bunnyToken?: string; // Bunny token for signed URLs
+  bunnyVideoId?: string; // Bunny video ID for tracking
 }
 
 const VideoPlayer = ({
@@ -54,6 +55,7 @@ const VideoPlayer = ({
   videoUrl,
   bunnyPullZone,
   bunnyToken,
+  bunnyVideoId,
 }: VideoPlayerProps) => {
   const { data: tokenData } = useGetToken();
   const token = tokenData?.data.token;
@@ -106,6 +108,7 @@ const VideoPlayer = ({
     return (
       <BunnyPlayerWithTracking
         videoId={videoId}
+        bunnyVideoId={bunnyVideoId}
         className={className}
         token={token}
       />
@@ -266,28 +269,28 @@ const VideoPlayer = ({
     );
   }
 
-  // Default: use iframe (Bunny.net) - no progress tracking possible
-  console.log('Using plain Bunny iframe - NO progress tracking');
-  const bunnyVideoId =
-    typeof videoId === 'string'
-      ? videoId
-      : 'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95';
-  return (
-    <div
-      className={cn(
-        'okay relative aspect-video w-full overflow-hidden rounded-xl',
-        className,
-      )}
-    >
-      <iframe
-        src={`https://iframe.mediadelivery.net/embed/${libraryId}/${bunnyVideoId}`}
-        loading="lazy"
-        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-        allowFullScreen
-        className="absolute inset-0 h-full w-full border-0"
-      />
-    </div>
-  );
+  // // Default: use iframe (Bunny.net) - no progress tracking possible
+  // console.log('Using plain Bunny iframe - NO progress tracking');
+  // const bunnyVideoId =
+  //   typeof videoId === 'string'
+  //     ? videoId
+  //     : 'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95';
+  // return (
+  //   <div
+  //     className={cn(
+  //       'okay relative aspect-video w-full overflow-hidden rounded-xl',
+  //       className,
+  //     )}
+  //   >
+  //     <iframe
+  //       src={`https://iframe.mediadelivery.net/embed/${libraryId}/${bunnyVideoId}`}
+  //       loading="lazy"
+  //       allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+  //       allowFullScreen
+  //       className="absolute inset-0 h-full w-full border-0"
+  //     />
+  //   </div>
+  // );
 };
 
 export default VideoPlayer;

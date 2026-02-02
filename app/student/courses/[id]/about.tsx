@@ -119,7 +119,8 @@ const About = (props: { id: string }) => {
                   </Activity>
                   <Activity mode={playVideo ? 'visible' : 'hidden'}>
                     <VideoPlayer
-                      videoId={'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95'}
+                      videoId={courseDetailsData.videos[0]?.id}
+                      bunnyVideoId={courseDetailsData.videos[0]?.bunnyVideoId}
                       enableProgressTracking={true} // Now works with string videoIds directly
                       bunnyPullZone={pullZone.toString()}
                       bunnyToken={bunnyToken}
@@ -137,7 +138,7 @@ const About = (props: { id: string }) => {
                       className="flex cursor-pointer items-center justify-between rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-[#D0EA50]"
                     >
                       <p className="text-xs/6 font-semibold">
-                        {courseDetailsData.videos[0].title}
+                        {courseDetailsData.videos[0]?.title}
                       </p>
                       <PlayIcon size={24} />
                     </button>

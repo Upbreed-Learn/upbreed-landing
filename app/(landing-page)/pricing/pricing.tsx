@@ -18,7 +18,11 @@ import useSendRequest, {
   errorToastClassName,
 } from '@/lib/hooks/useSendRequest';
 import { MUTATIONS, QUERIES } from '@/lib/queries';
-import { useGetSubscriptions, useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
+import {
+  useGetSubscriptions,
+  useGetToken,
+  useGetUserProfile,
+} from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -172,6 +176,7 @@ const PlansDesktop = (props: {
           ?.slice(3, 5)
           .map((subscription, i) => (
             <PlanSpecCard
+              key={i}
               className={cn(i === 1 && 'right-20')}
               plan={subscription.period}
               onClick={() => setLevel(subscription)}

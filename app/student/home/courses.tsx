@@ -238,11 +238,11 @@ const AllCourses = () => {
                 ) ? (
                 course !== 'all' ? (
                   coursesByCategory?.map(course => (
-                    <CourseCard key={course.id} course={course} />
+                    <CourseCard key={course.id} course={course} page={page} />
                   ))
                 ) : (
                   courses?.map(course => (
-                    <CourseCard key={course.id} course={course} />
+                    <CourseCard key={course.id} course={course} page={page} />
                   ))
                 )
               ) : (

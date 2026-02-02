@@ -3,15 +3,90 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { CourseData } from '@/lib/constants';
 import { formatMinutes } from '@/lib/utils';
+import { useQueryClient } from '@tanstack/react-query';
+import useSendRequest from '@/lib/hooks/useSendRequest';
+import { MUTATIONS } from '@/lib/queries';
+import { queryKeys } from '@/lib/queries/query-keys';
 
-const CourseCard = (props: { course: CourseData }) => {
-  const { course } = props;
+const CourseCard = (props: { course: CourseData; page: number }) => {
+  const { course, page } = props;
+  const queryClient = useQueryClient();
+
+  const { mutate: mutateRemoveBookmark, isPending: isPendingRemoveBookmark } =
+    useSendRequest<{ courseId: number }, any>({
+      mutationFn: (data: { courseId: number }) => {
+        return MUTATIONS.removeBookmark(data);
+      },
+      successToast: {
+        title: 'Success',
+        description: 'Course bookmark removed successfully.',
+      },
+      errorToast: {
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+      },
+      onSuccessCallback: () => {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.courses.bookmarked(page, 10),
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.courses.paginated(page, 9),
+        });
+      },
+    });
+
+  const { mutate, isPending } = useSendRequest<
+    {
+      courseId: number;
+    },
+    any
+  >({
+    mutationFn: (data: { courseId: number }) => {
+      return MUTATIONS.bookmarkCourse(data);
+    },
+    successToast: {
+      title: 'Success',
+      description: 'Course bookmarked successfully.',
+    },
+    errorToast: {
+      title: 'Error',
+      description: 'An unexpected error occurred. Please try again.',
+    },
+    onSuccessCallback: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.courses.bookmarked(1, 10),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.courses.paginated(page, 9),
+      });
+    },
+  });
+
+  const handleBookmark = () => {
+    if (course.isBookmark) {
+      mutateRemoveBookmark({ courseId: Number(course.id) });
+    } else {
+      mutate({ courseId: Number(course.id) });
+    }
+  };
+
+  const currentColor = course.isBookmark ? '#34A853' : '#F2F2F2';
+  const otherColor = currentColor === '#F2F2F2' ? '#34A853' : '#F2F2F2';
+
   return (
     <div className="group relative overflow-hidden rounded-lg bg-[#F2F2F2]">
       <div className="relative h-46 md:h-38">
         <span className="custom-gradient absolute inset-0 md:hidden"></span>
-        <button className="absolute top-4 right-5 z-10 cursor-pointer p-1 transition-transform active:scale-95 md:hidden">
-          <Bookmark size={22} className="text-white" />
+        <button
+          onClick={handleBookmark}
+          className="absolute top-4 right-5 z-10 cursor-pointer p-1 transition-transform active:scale-95 md:hidden"
+        >
+          <Bookmark
+            size={22}
+            className={
+              isPending || isPendingRemoveBookmark ? otherColor : currentColor
+            }
+          />
         </button>
         <Image
           src={course.thumbnail}
@@ -71,8 +146,17 @@ const CourseCard = (props: { course: CourseData }) => {
           <p className="text-sm/6 font-medium text-[#6F6F6F] capitalize">
             {course.instructor.fname} {course.instructor.lname}
           </p>
-          <button className="z-10 cursor-pointer p-1 transition-transform active:scale-95">
-            <Bookmark size={24} className="text-[#34A853]" />
+          <button
+            onClick={handleBookmark}
+            className="z-10 cursor-pointer p-1 transition-transform active:scale-95"
+          >
+            <Bookmark
+              size={24}
+              className="text-[#34A853]"
+              fill={
+                isPending || isPendingRemoveBookmark ? otherColor : currentColor
+              }
+            />
           </button>
         </div>
       </div>

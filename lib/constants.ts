@@ -87,6 +87,7 @@ export interface CourseData {
   instructor: Omit<Instructor, 'email' | 'isActive' | 'instructorProfile'>;
   categories: Category[];
   tags: Tag[];
+  isBookmark: boolean;
   preview: {
     lessonCount: number;
     durationInMinutes: number;
@@ -100,6 +101,7 @@ export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
     durationInSeconds: number;
     isTrailer: boolean;
     isPublic: boolean;
+    bunnyVideoId: string;
   }[];
   categories: Omit<
     Category['category'][],
