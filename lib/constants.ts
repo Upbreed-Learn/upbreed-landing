@@ -10,6 +10,7 @@ export type Category = {
   category: {
     id: number;
     name: string;
+    icon: string | null;
     createdAt: string;
     updatedAt: string;
     deletedAt: string | null;

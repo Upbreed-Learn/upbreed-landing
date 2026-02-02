@@ -9,7 +9,7 @@ export const VideoTestComponent = () => {
   const token = tokenData?.data.token;
 
   const { videoRef, isConnected, error, clearError } = useVideoPlayerProgress({
-    videoId: 'test-123',
+    videoId: 123, // Use a numeric ID for testing
     token: token || '',
     enabled: !!token,
     onProgressUpdate: position => {

@@ -60,9 +60,7 @@ export default function RootLayout({
           <Suspense>
             <NuqsAdapter>
               <AuthPages />
-              <Suspense>
-                <Navbar />
-              </Suspense>
+              <Navbar />
               <main className="pt-22.25">{children}</main>
               <Footer />
               <ContactUs />

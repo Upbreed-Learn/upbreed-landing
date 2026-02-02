@@ -61,20 +61,6 @@ const Elevate = () => {
     }
   });
 
-  const handleScrollLeft = () => {
-    scrollRef.current?.scrollTo({
-      left: scrollRef.current?.scrollLeft - 100,
-      behavior: 'smooth',
-    });
-  };
-
-  const handleScrollRight = () => {
-    scrollRef.current?.scrollTo({
-      left: scrollRef.current?.scrollLeft + 100,
-      behavior: 'smooth',
-    });
-  };
-
   return (
     <section className="flex h-[calc(100vh-89px)] justify-center px-8 md:py-7">
       <div
@@ -95,8 +81,19 @@ const Elevate = () => {
           >
             {categories?.map(category => (
               <li key={category.id} className="reveal translate-y-96 opacity-0">
-                <Link href={`/student/home?allCourses=${category.id}`}>
+                <Link
+                  href={`/student/home?allCourses=${category.id}`}
+                  className="flex items-center gap-2"
+                >
                   {category.name}
+                  {category.icon && (
+                    <Image
+                      src={category.icon}
+                      alt="icon"
+                      width={16}
+                      height={16}
+                    />
+                  )}
                 </Link>
               </li>
             ))}
