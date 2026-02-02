@@ -5,7 +5,7 @@ import {
 } from '@/store/useVideoProgressStore';
 
 interface UseVideoProgressTrackingOptions {
-  videoId: string;
+  videoId: string | number;
   token: string;
   enabled?: boolean;
   updateInterval?: number; // in milliseconds, default 5000 (5 seconds)
@@ -107,6 +107,9 @@ export const useVideoProgressTracking = ({
             Math.abs(currentTime - lastPositionRef.current) >= 5 ||
             lastPositionRef.current === 0
           ) {
+            console.log(
+              `Sending progress update: videoId=${videoId}, position=${currentTime}`,
+            );
             updateProgress(videoId, currentTime);
             lastPositionRef.current = currentTime;
           }

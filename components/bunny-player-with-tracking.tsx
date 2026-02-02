@@ -35,7 +35,7 @@ export const BunnyPlayerWithTracking = ({
     };
   }, [token]);
 
-  // Load Player.js and set up event listeners
+  // Load Player.js and set up event listeners for progress tracking
   useEffect(() => {
     let isMounted = true;
 
@@ -62,25 +62,26 @@ export const BunnyPlayerWithTracking = ({
         playerRef.current = player;
 
         player.on('ready', () => {
-          console.log('Bunny player ready');
+          console.log('Bunny player ready - progress tracking enabled');
         });
 
-        // Track progress updates
+        // Track progress updates using Player.js timeupdate event
         player.on('timeupdate', (data: any) => {
           if (data && typeof data.seconds === 'number') {
-            // Send progress update every 5 seconds or when position changes significantly
-            const position = Math.floor(data.seconds);
-            useVideoProgressStore.getState().updateProgress(videoId, position);
+            // Send progress update to WebSocket using string videoId
+            useVideoProgressStore
+              .getState()
+              .updateProgress(videoId, Math.floor(data.seconds));
           }
         });
 
-        // Handle play/pause events
+        // Handle play/pause events for additional tracking
         player.on('play', () => {
-          console.log('Video started playing');
+          console.log('Bunny video started playing');
         });
 
         player.on('pause', () => {
-          console.log('Video paused');
+          console.log('Bunny video paused');
           // Send current position when paused
           if (playerRef.current) {
             playerRef.current.getCurrentTime((seconds: number) => {
@@ -92,7 +93,7 @@ export const BunnyPlayerWithTracking = ({
         });
 
         player.on('ended', () => {
-          console.log('Video ended');
+          console.log('Bunny video ended');
           // Send final position
           if (playerRef.current) {
             playerRef.current.getDuration((duration: number) => {

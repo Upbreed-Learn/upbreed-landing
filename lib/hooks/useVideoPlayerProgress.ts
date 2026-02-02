@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useVideoProgressTracking } from './useVideoProgressTracking';
 
 interface UseVideoPlayerProgressOptions {
-  videoId: string;
+  videoId: string | number;
   token: string;
   enabled?: boolean;
   updateInterval?: number;

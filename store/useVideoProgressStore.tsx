@@ -16,7 +16,7 @@ interface VideoProgressState {
   // Actions
   connect: (token: string) => void;
   disconnect: () => void;
-  updateProgress: (videoId: string, position: number) => void;
+  updateProgress: (videoId: string | number, position: number) => void;
   clearError: () => void;
 }
 
@@ -58,13 +58,15 @@ export const useVideoProgressStore = create<VideoProgressState>()(
         try {
           const message = JSON.parse(event.data);
 
-          if (message.event === 'progress_updated') {
-            console.log('✅ Progress saved');
-            // You can emit events or update local state here if needed
-          } else if (message.event === 'error') {
-            console.error('❌ WebSocket error:', message.data.message);
-            set({ error: message.data.message });
-          }
+          console.log('✅ WebSocket message received:', message);
+
+          // if (message.event === 'progress_updated') {
+          //   console.log('✅ Progress saved');
+          //   // You can emit events or update local state here if needed
+          // } else if (message.event === 'error') {
+          //   console.error('❌ WebSocket error:', message.data.message);
+          //   set({ error: message.data.message });
+          // }
         } catch (err) {
           console.error('Failed to parse WebSocket message:', err);
           set({ error: 'Failed to parse server response' });
@@ -107,7 +109,7 @@ export const useVideoProgressStore = create<VideoProgressState>()(
       });
     },
 
-    updateProgress: (videoId: string, position: number) => {
+    updateProgress: (videoId: string | number, position: number) => {
       const { ws, isConnected } = get();
 
       if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN) {
@@ -116,6 +118,9 @@ export const useVideoProgressStore = create<VideoProgressState>()(
       }
 
       try {
+        console.log(
+          `WebSocket sending progress: videoId=${videoId}, position=${Math.floor(position)}`,
+        );
         ws.send(
           JSON.stringify({
             event: 'update_progress',
@@ -147,7 +152,7 @@ export const useVideoProgressConnection = () =>
 const connectAction = (token: string) =>
   useVideoProgressStore.getState().connect(token);
 const disconnectAction = () => useVideoProgressStore.getState().disconnect();
-const updateProgressAction = (videoId: string, position: number) =>
+const updateProgressAction = (videoId: string | number, position: number) =>
   useVideoProgressStore.getState().updateProgress(videoId, position);
 const clearErrorAction = () => useVideoProgressStore.getState().clearError();
 

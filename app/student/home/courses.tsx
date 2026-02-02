@@ -52,8 +52,6 @@ const CourseBundles = () => {
 
   const courses: CourseData[] = data?.data.data;
 
-  console.log(bookmarkedCoursesData);
-
   const handleRetry = () => {
     queryClient.invalidateQueries({
       queryKey: queryKeys.courses.paginated(1, 10),

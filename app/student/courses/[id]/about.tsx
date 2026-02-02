@@ -18,6 +18,7 @@ import SuspenseLoader from '@/components/suspense-loader';
 import ProgressTrackingVideoPlayer from '@/components/progress-tracking-video-player';
 
 const libraryId = process.env.NEXT_PUBLIC_LIBRARY_ID;
+const bunnyToken = process.env.NEXT_PUBLIC_BUNNY_TOKEN;
 const videoId = 'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95';
 const pullZone = 4672058;
 
@@ -119,7 +120,9 @@ const About = (props: { id: string }) => {
                   <Activity mode={playVideo ? 'visible' : 'hidden'}>
                     <VideoPlayer
                       videoId={'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95'}
-                      enableProgressTracking={true}
+                      enableProgressTracking={true} // Now works with string videoIds directly
+                      bunnyPullZone={pullZone.toString()}
+                      bunnyToken={bunnyToken}
                       className="self-center"
                     />
                   </Activity>
