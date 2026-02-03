@@ -6,16 +6,32 @@ import StarIcon from '@/components/jsx-icons/star';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
 import { useGetCourseAndInstructor } from './hero';
-import { CourseDetailsData, Instructor } from '@/lib/constants';
+import {
+  CourseDetailsData,
+  CurrentSubscription,
+  Instructor,
+} from '@/lib/constants';
 import { queryKeys } from '@/lib/queries/query-keys';
 import ErrorCard from '@/components/error-card';
 import { cn, formatDuration } from '@/lib/utils';
 import VideoPlayer from '@/components/video-player';
-import { Activity, useEffect, useRef, useState } from 'react';
-import { useGetToken } from '@/lib/queries/hooks';
+import { Activity, useEffect, useMemo, useRef, useState } from 'react';
+import { useGetCurrentSubscription, useGetToken } from '@/lib/queries/hooks';
 import { useQueryState } from 'nuqs';
 import SuspenseLoader from '@/components/suspense-loader';
 import ProgressTrackingVideoPlayer from '@/components/progress-tracking-video-player';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 const libraryId = process.env.NEXT_PUBLIC_LIBRARY_ID;
 const bunnyToken = process.env.NEXT_PUBLIC_BUNNY_TOKEN;
@@ -24,26 +40,18 @@ const pullZone = 4672058;
 
 const About = (props: { id: string }) => {
   const { id } = props;
+  const [selectedVideoId, setSelectedVideoId] = useState<number | null>(null);
   const [__, setAuth] = useQueryState('auth');
-  const [height, setHeight] = useState(0);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (containerRef.current) {
-      const height = containerRef.current.clientHeight;
-      setHeight(height);
-    }
-  }, [containerRef]);
+  const [open, setOpen] = useState(false);
 
   const queryClient = useQueryClient();
   const [playVideo, setPlayVideo] = useState(false);
   const { data: tokenData } = useGetToken();
   const token = tokenData?.data.token;
 
-  // const videoUrl = `https://${pullZone}.b-cdn.net/${videoId}/playlist.m3u8?token=${BUNNY_TOKEN}&expires=1893456000`;
-
   const [course] = useGetCourseAndInstructor(Number(id), undefined);
+  const { data } = useGetCurrentSubscription();
+  const subscriptions: CurrentSubscription[] = data?.data;
   const courseDetailsData: CourseDetailsData = course?.data?.data.data;
 
   const [_, instructor] = useGetCourseAndInstructor(
@@ -70,138 +78,165 @@ const About = (props: { id: string }) => {
     });
   };
 
-  const handleSafePlayVideo = () => {
+  const activeVideoId = selectedVideoId ?? courseDetailsData?.videos[0]?.id;
+
+  const handleSafePlayVideo = (videoId: number) => {
     if (!token) {
       setAuth('login');
       return;
     }
+    if (subscriptions.length === 0 || subscriptions[0].status === 'CANCELLED') {
+      setOpen(true);
+      return;
+    }
     setPlayVideo(true);
+    setSelectedVideoId(videoId);
   };
 
+  const activeVideo = courseDetailsData?.videos?.find(
+    v => v.id === activeVideoId,
+  );
+
   return (
-    <section className="flex justify-center pt-11 pb-[12.6675rem] md:pt-20.5">
-      <div className="flex w-full flex-col items-center gap-5 max-md:px-9">
-        <div className="w-full max-w-7xl">
-          <h2 className="text-start text-xl/6 font-semibold max-md:hidden md:pl-12 lg:px-20 lg:pl-27.25">
-            About this Class
-          </h2>
-        </div>
-        {isAnyError ? (
-          <ErrorCard handleRetry={handleRetry} />
-        ) : isAnyPending ? (
-          <AboutLoader />
-        ) : (
-          <>
-            <div className="flex w-full flex-col gap-11 md:gap-6">
-              <div className="flex items-center max-md:flex-col max-md:gap-4 md:h-max md:bg-[#00230F]">
-                <div className="_md:h-full relative max-md:w-full max-md:overflow-hidden max-md:rounded-[10px] md:flex md:h-[37.96875rem] md:flex-2/3 lg:flex-3/4">
-                  <div className="absolute top-1/2 left-1/2 size-full -translate-1/2">
-                    <SuspenseLoader />
-                  </div>
-                  <Activity mode={playVideo ? 'hidden' : 'visible'}>
-                    <Image
-                      src={courseDetailsData.thumbnail}
-                      fill
-                      sizes="(max-width: 1200px) 100vw, 1200px"
-                      alt={courseDetailsData.title}
-                      className="size-full object-cover"
-                    />
-                    <button
-                      onClick={() => setPlayVideo(true)}
-                      className="cursor-pointer"
-                    >
+    <>
+      <SubscriptionNotice open={open} setOpen={setOpen} />
+      <section className="flex justify-center pt-11 pb-[12.6675rem] md:pt-20.5">
+        <div className="flex w-full flex-col items-center gap-5 max-md:px-9">
+          <div className="w-full max-w-7xl">
+            <h2 className="text-start text-xl/6 font-semibold max-md:hidden md:pl-12 lg:px-20 lg:pl-27.25">
+              About this Class
+            </h2>
+          </div>
+          {isAnyError ? (
+            <ErrorCard handleRetry={handleRetry} />
+          ) : isAnyPending ? (
+            <AboutLoader />
+          ) : (
+            <>
+              <div className="flex w-full flex-col gap-11 md:gap-6">
+                <div className="flex items-center max-md:flex-col max-md:gap-4 md:h-max md:bg-[#00230F]">
+                  <div className="_md:h-full relative max-md:w-full max-md:overflow-hidden max-md:rounded-[10px] md:flex md:h-[37.96875rem] md:flex-2/3 lg:flex-3/4">
+                    <div className="absolute top-1/2 left-1/2 size-full -translate-1/2">
+                      <SuspenseLoader />
+                    </div>
+                    <Activity mode={playVideo ? 'hidden' : 'visible'}>
                       <Image
-                        src={play}
-                        alt="play"
-                        className="absolute top-1/2 left-1/2 -translate-1/2"
+                        src={courseDetailsData.thumbnail}
+                        fill
+                        sizes="(max-width: 1200px) 100vw, 1200px"
+                        alt={courseDetailsData.title}
+                        className="size-full object-cover"
                       />
-                    </button>
-                  </Activity>
-                  <Activity mode={playVideo ? 'visible' : 'hidden'}>
-                    <VideoPlayer
-                      videoId={courseDetailsData.videos[0]?.id}
-                      bunnyVideoId={courseDetailsData.videos[0]?.bunnyVideoId}
-                      enableProgressTracking={true} // Now works with string videoIds directly
-                      bunnyPullZone={pullZone.toString()}
-                      bunnyToken={bunnyToken}
-                      className="self-center"
-                    />
-                  </Activity>
-                </div>
-                <div className="scrollbar-custom flex flex-col gap-6 overflow-auto max-md:w-full max-md:px-5 md:max-h-[37.96875rem] md:flex-1/3 md:gap-11 md:p-7.5 md:py-11 lg:flex-1/4">
-                  <div className="flex flex-col gap-2">
-                    <span className="text-xs/6 font-semibold text-[#7D1E1E] md:hidden">
-                      {courseDetailsData.preview.lessonCount} Lessons
-                    </span>
-                    <button
-                      onClick={() => setPlayVideo(true)}
-                      className="flex cursor-pointer items-center justify-between rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-[#D0EA50]"
-                    >
-                      <p className="text-xs/6 font-semibold">
-                        {courseDetailsData.videos[0]?.title}
-                      </p>
-                      <PlayIcon size={24} />
-                    </button>
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    {courseDetailsData.videos.slice(1).map(video => (
                       <button
-                        key={video.id}
-                        onClick={handleSafePlayVideo}
-                        className="flex cursor-pointer justify-between gap-3 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white"
+                        onClick={() => (
+                          setPlayVideo(true),
+                          setSelectedVideoId(courseDetailsData.videos[0]?.id)
+                        )}
+                        className="cursor-pointer"
                       >
-                        <p className="line-clamp-1 text-xs/6 font-semibold text-ellipsis">
-                          {video.title}
+                        <Image
+                          src={play}
+                          alt="play"
+                          className="absolute top-1/2 left-1/2 -translate-1/2"
+                        />
+                      </button>
+                    </Activity>
+                    <Activity mode={playVideo ? 'visible' : 'hidden'}>
+                      <VideoPlayer
+                        videoId={activeVideo?.id}
+                        bunnyVideoId={activeVideo?.bunnyVideoId}
+                        enableProgressTracking
+                        bunnyPullZone={pullZone.toString()}
+                        bunnyToken={bunnyToken}
+                        className="self-center"
+                      />
+                    </Activity>
+                  </div>
+                  <div className="scrollbar-custom flex flex-col gap-6 self-start overflow-auto max-md:w-full max-md:px-5 md:max-h-[37.96875rem] md:flex-1/3 md:gap-11 md:p-7.5 md:py-11 lg:flex-1/4">
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs/6 font-semibold text-[#7D1E1E] md:hidden">
+                        {courseDetailsData.preview.lessonCount} Lessons
+                      </span>
+                      <button
+                        onClick={() => (
+                          setPlayVideo(true),
+                          setSelectedVideoId(courseDetailsData.videos[0]?.id)
+                        )}
+                        className={cn(
+                          'flex cursor-pointer items-center justify-between rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
+                          activeVideoId === courseDetailsData.videos[0]?.id &&
+                            'text-[#D0EA50]',
+                        )}
+                      >
+                        <p className="text-xs/6 font-semibold">
+                          {courseDetailsData.videos[0]?.title}
                         </p>
                         <PlayIcon size={24} />
                       </button>
-                    ))}
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      {courseDetailsData.videos.slice(1).map(video => (
+                        <button
+                          key={video.id}
+                          onClick={() => handleSafePlayVideo(video.id)}
+                          className={cn(
+                            'flex cursor-pointer justify-between gap-3 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
+                            activeVideoId === video.id && 'text-[#D0EA50]',
+                          )}
+                        >
+                          <p className="line-clamp-1 text-xs/6 font-semibold text-ellipsis">
+                            {video.title}
+                          </p>
+                          <PlayIcon size={24} />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="w-full max-w-7xl">
-              <div className="flex flex-col gap-3 md:gap-8 md:pl-12 lg:pl-27.25">
-                <p className="w-full max-w-201.75 text-sm/5 tracking-[0.14px] text-black max-md:border-b max-md:border-[#0000000D] max-md:pb-2.5">
-                  {courseDetailsData.description}
-                </p>
-                <div className="flex flex-col gap-2">
-                  <ul className="flex flex-col gap-2 text-xs text-[#6F6F6F] md:text-sm/6 [&_span]:font-bold">
-                    <li>
-                      Instructor(s):{' '}
-                      <span>
-                        {instructorDetailsData.fname}{' '}
-                        {instructorDetailsData.lname}
-                      </span>
-                    </li>
-                    <li>
-                      Class Length:{' '}
-                      <span>
-                        {courseDetailsData.videos.length} Video Lessons (
-                        {formatDuration(
-                          courseDetailsData.preview.durationInMinutes,
-                        )}
-                        )
-                      </span>
-                    </li>
-                    <li>
-                      Category: <span>{categories}</span>
-                    </li>
-                  </ul>
-                  <div className="flex items-center gap-0.5 max-md:hidden">
-                    <StarIcon fill="#FFC700" />
-                    <StarIcon fill="#FFC700" />
-                    <StarIcon fill="#FFC700" />
-                    <StarIcon fill="#FFC700" />
-                    <StarIcon />
+              <div className="w-full max-w-7xl">
+                <div className="flex flex-col gap-3 md:gap-8 md:pl-12 lg:pl-27.25">
+                  <p className="w-full max-w-201.75 text-sm/5 tracking-[0.14px] text-black max-md:border-b max-md:border-[#0000000D] max-md:pb-2.5">
+                    {courseDetailsData.description}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <ul className="flex flex-col gap-2 text-xs text-[#6F6F6F] md:text-sm/6 [&_span]:font-bold">
+                      <li>
+                        Instructor(s):{' '}
+                        <span>
+                          {instructorDetailsData.fname}{' '}
+                          {instructorDetailsData.lname}
+                        </span>
+                      </li>
+                      <li>
+                        Class Length:{' '}
+                        <span>
+                          {courseDetailsData.videos.length} Video Lessons (
+                          {formatDuration(
+                            courseDetailsData.preview.durationInMinutes,
+                          )}
+                          )
+                        </span>
+                      </li>
+                      <li>
+                        Category: <span>{categories}</span>
+                      </li>
+                    </ul>
+                    <div className="flex items-center gap-0.5 max-md:hidden">
+                      <StarIcon fill="#FFC700" />
+                      <StarIcon fill="#FFC700" />
+                      <StarIcon fill="#FFC700" />
+                      <StarIcon fill="#FFC700" />
+                      <StarIcon />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </>
-        )}
-      </div>
-    </section>
+            </>
+          )}
+        </div>
+      </section>
+    </>
   );
 };
 
@@ -274,5 +309,35 @@ const AboutLoader = () => {
         </div>
       </div>
     </>
+  );
+};
+
+const SubscriptionNotice = (props: {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const { open, setOpen } = props;
+  const router = useRouter();
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>You're not a member yet!</DialogTitle>
+          <DialogDescription>
+            Kindly subscribe to our membership plan to access all the features
+            of our platform.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant={'outline'}>Cancel</Button>
+          </DialogClose>
+          <Button onClick={() => router.push('/pricing')}>
+            Go to Pricing Page
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

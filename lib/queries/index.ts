@@ -79,6 +79,9 @@ export const MUTATIONS = {
   removeBookmark: async function (data: { courseId: number }) {
     return await https.delete(`/course/bookmarks/${data.courseId}`);
   },
+  cancelSubscription: async function () {
+    return await https.post(`/payment/subscription/disable`);
+  },
 };
 
 export const QUERIES = {

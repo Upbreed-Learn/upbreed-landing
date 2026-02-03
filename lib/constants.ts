@@ -155,3 +155,20 @@ export interface Subscription {
   updatedAt: string;
   deletedAt: string | null;
 }
+
+export interface CurrentSubscription {
+  id: number;
+  status: string;
+  expiresAt: string;
+  createdAt: string;
+  amountUsd: string;
+  amountNaira: string;
+  plan: {
+    id: number;
+    name: string;
+    period: string;
+    noDevices: number;
+    amountUsd: string;
+    amountNaira: string;
+  };
+}

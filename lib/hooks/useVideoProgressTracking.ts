@@ -5,7 +5,7 @@ import {
 } from '@/store/useVideoProgressStore';
 
 interface UseVideoProgressTrackingOptions {
-  videoId: string | number;
+  videoId: number;
   token: string;
   enabled?: boolean;
   updateInterval?: number; // in milliseconds, default 5000 (5 seconds)
@@ -62,9 +62,6 @@ export const useVideoProgressTracking = ({
       ); // Max 30 seconds
 
       reconnectTimeoutRef.current = setTimeout(() => {
-        console.log(
-          `Attempting to reconnect... (attempt ${reconnectAttemptsRef.current + 1})`,
-        );
         reconnectAttemptsRef.current += 1;
         connect(token);
       }, delay);
@@ -107,9 +104,6 @@ export const useVideoProgressTracking = ({
             Math.abs(currentTime - lastPositionRef.current) >= 5 ||
             lastPositionRef.current === 0
           ) {
-            console.log(
-              `Sending progress update: videoId=${videoId}, position=${currentTime}`,
-            );
             updateProgress(videoId, currentTime);
             lastPositionRef.current = currentTime;
           }

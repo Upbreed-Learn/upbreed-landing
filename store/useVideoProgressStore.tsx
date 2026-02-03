@@ -16,7 +16,7 @@ interface VideoProgressState {
   // Actions
   connect: (token: string) => void;
   disconnect: () => void;
-  updateProgress: (videoId: string | number, position: number) => void;
+  updateProgress: (videoId: number, position: number) => void;
   clearError: () => void;
 }
 
@@ -45,7 +45,6 @@ export const useVideoProgressStore = create<VideoProgressState>()(
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
-        console.log('✅ Connected to video progress tracker');
         set({
           isConnected: true,
           isConnecting: false,
@@ -58,17 +57,12 @@ export const useVideoProgressStore = create<VideoProgressState>()(
         try {
           const message = JSON.parse(event.data);
 
-          console.log('✅ WebSocket message received:', message);
-
-          // if (message.event === 'progress_updated') {
-          //   console.log('✅ Progress saved');
-          //   // You can emit events or update local state here if needed
-          // } else if (message.event === 'error') {
-          //   console.error('❌ WebSocket error:', message.data.message);
-          //   set({ error: message.data.message });
-          // }
+          if (message.event === 'progress_updated') {
+            // You can emit events or update local state here if needed
+          } else if (message.event === 'error') {
+            set({ error: message.data.message });
+          }
         } catch (err) {
-          console.error('Failed to parse WebSocket message:', err);
           set({ error: 'Failed to parse server response' });
         }
       };
@@ -82,7 +76,6 @@ export const useVideoProgressStore = create<VideoProgressState>()(
       };
 
       ws.onclose = event => {
-        console.log(`WebSocket disconnected: ${event.code} - ${event.reason}`);
         set({
           isConnected: false,
           isConnecting: false,
@@ -118,9 +111,6 @@ export const useVideoProgressStore = create<VideoProgressState>()(
       }
 
       try {
-        console.log(
-          `WebSocket sending progress: videoId=${videoId}, position=${Math.floor(position)}`,
-        );
         ws.send(
           JSON.stringify({
             event: 'update_progress',
@@ -152,7 +142,7 @@ export const useVideoProgressConnection = () =>
 const connectAction = (token: string) =>
   useVideoProgressStore.getState().connect(token);
 const disconnectAction = () => useVideoProgressStore.getState().disconnect();
-const updateProgressAction = (videoId: string | number, position: number) =>
+const updateProgressAction = (videoId: number, position: number) =>
   useVideoProgressStore.getState().updateProgress(videoId, position);
 const clearErrorAction = () => useVideoProgressStore.getState().clearError();
 

@@ -26,11 +26,21 @@ const useGetInstructors = () => {
   });
 };
 
+const useGetCoursesBySearch = (page: number, limit: number, search: string) => {
+  return useQuery({
+    queryKey: queryKeys.courses.search(page, limit, search),
+    queryFn: () => QUERIES.getCoursesBySearch(page, limit, search),
+  });
+};
+
 const Elevate = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const revealRef = useRef<HTMLDivElement>(null);
 
   const { data, isPending, isError } = useGetInstructors();
+  const { data: searchCourse } = useGetCoursesBySearch(1, 10, ' ');
+
+  console.log(searchCourse);
   const {
     data: categoryData,
     isPending: categoryDataIsPending,

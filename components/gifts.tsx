@@ -29,6 +29,7 @@ import z from 'zod';
 import { Skeleton } from './ui/custom/skeleton';
 import { MUTATIONS } from '@/lib/queries';
 import useSendRequest from '@/lib/hooks/useSendRequest';
+import { useRouter } from 'next/navigation';
 
 const plans = [
   {
@@ -64,6 +65,7 @@ const Gifts = (props: { children?: React.ReactNode }) => {
   const { data, isPending } = useGetSubscriptions();
   const subscriptions: Subscription[] = data?.data.data;
   const rootUrl = typeof window !== 'undefined' && window.location.origin;
+  const router = useRouter();
 
   const { mutate, isPending: isPendingGift } = useSendRequest<
     {
@@ -73,7 +75,23 @@ const Gifts = (props: { children?: React.ReactNode }) => {
       currency: string;
       callbackUrl: string;
     },
-    any
+    {
+      data: {
+        reference: string;
+        amount: string;
+        currency: string;
+        provider: string;
+        plan: {
+          id: number;
+          name: string;
+          period: string;
+          noDevices: number;
+          paystackPlanCode: string;
+        };
+        authorizationUrl: string;
+        accessCode: string;
+      };
+    }
   >({
     mutationFn: (data: {
       recipientName: string;
@@ -90,8 +108,11 @@ const Gifts = (props: { children?: React.ReactNode }) => {
       title: 'Error',
       description: 'An unexpected error occurred. Please try again.',
     },
-    onSuccessCallback: () => {
+    onSuccessCallback: data => {
       setOpen(false);
+      {
+        data?.data.authorizationUrl && router.push(data?.data.authorizationUrl);
+      }
     },
   });
 

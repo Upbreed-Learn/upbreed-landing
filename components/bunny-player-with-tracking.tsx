@@ -11,7 +11,7 @@ declare global {
 }
 
 interface BunnyPlayerWithTrackingProps {
-  videoId: string;
+  videoId: number;
   className?: string;
   token?: string;
   bunnyVideoId?: string;
@@ -63,9 +63,7 @@ export const BunnyPlayerWithTracking = ({
         const player = new window.playerjs.Player(iframeRef.current);
         playerRef.current = player;
 
-        player.on('ready', () => {
-          console.log('Bunny player ready - progress tracking enabled');
-        });
+        player.on('ready', () => {});
 
         // Track progress updates using Player.js timeupdate event
         player.on('timeupdate', (data: any) => {
@@ -78,12 +76,9 @@ export const BunnyPlayerWithTracking = ({
         });
 
         // Handle play/pause events for additional tracking
-        player.on('play', () => {
-          console.log('Bunny video started playing');
-        });
+        player.on('play', () => {});
 
         player.on('pause', () => {
-          console.log('Bunny video paused');
           // Send current position when paused
           if (playerRef.current) {
             playerRef.current.getCurrentTime((seconds: number) => {
@@ -95,7 +90,6 @@ export const BunnyPlayerWithTracking = ({
         });
 
         player.on('ended', () => {
-          console.log('Bunny video ended');
           // Send final position
           if (playerRef.current) {
             playerRef.current.getDuration((duration: number) => {

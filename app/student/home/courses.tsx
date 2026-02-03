@@ -7,6 +7,8 @@ import { CoursesLoading } from '@/components/navbar';
 import { COURSE_BUNDLES } from '@/components/navbar/classes-hover';
 import { Pagination } from '@/components/ui/custom/pagination';
 import { Category, CourseData } from '@/lib/constants';
+import useSendRequest from '@/lib/hooks/useSendRequest';
+import { MUTATIONS } from '@/lib/queries';
 import {
   useGetBookmarkedCourses,
   useGetCategories,
@@ -44,13 +46,69 @@ const CourseBundles = () => {
   const queryClient = useQueryClient();
 
   const { data, isPending, isError } = useGetCourses(1, 1);
-  const {
-    data: bookmarkedCoursesData,
-    isPending: isBookmarkedPending,
-    isError: isBookmarkedError,
-  } = useGetBookmarkedCourses(1, 10);
+
+  const { mutate: mutateRemoveBookmark, isPending: isPendingRemoveBookmark } =
+    useSendRequest<{ courseId: number }, any>({
+      mutationFn: (data: { courseId: number }) => {
+        return MUTATIONS.removeBookmark(data);
+      },
+      successToast: {
+        title: 'Success',
+        description: 'Course bookmark removed successfully.',
+      },
+      errorToast: {
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+      },
+      onSuccessCallback: () => {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.courses.bookmarked(1, 10),
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.courses.paginated(1, 9),
+        });
+      },
+    });
+
+  const { mutate, isPending: isPendingBookmark } = useSendRequest<
+    {
+      courseId: number;
+    },
+    any
+  >({
+    mutationFn: (data: { courseId: number }) => {
+      return MUTATIONS.bookmarkCourse(data);
+    },
+    successToast: {
+      title: 'Success',
+      description: 'Course bookmarked successfully.',
+    },
+    errorToast: {
+      title: 'Error',
+      description: 'An unexpected error occurred. Please try again.',
+    },
+    onSuccessCallback: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.courses.bookmarked(1, 10),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.courses.paginated(1, 1),
+      });
+    },
+  });
 
   const courses: CourseData[] = data?.data.data;
+
+  const handleBookmark = () => {
+    if (courses[0].isBookmark) {
+      mutateRemoveBookmark({ courseId: Number(courses[0].id) });
+    } else {
+      mutate({ courseId: Number(courses[0].id) });
+    }
+  };
+
+  // const currentColor = courses[0]?.isBookmark ? '#34A853' : '#F2F2F2';
+  // const otherColor = currentColor === '#F2F2F2' ? '#34A853' : '#F2F2F2';
 
   const handleRetry = () => {
     queryClient.invalidateQueries({
