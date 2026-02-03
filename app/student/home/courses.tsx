@@ -92,7 +92,7 @@ const CourseBundles = () => {
         queryKey: queryKeys.courses.bookmarked(1, 10),
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.courses.paginated(1, 1),
+        queryKey: queryKeys.courses.paginated(1, 9),
       });
     },
   });
@@ -100,15 +100,15 @@ const CourseBundles = () => {
   const courses: CourseData[] = data?.data.data;
 
   const handleBookmark = () => {
-    if (courses[0].isBookmark) {
-      mutateRemoveBookmark({ courseId: Number(courses[0].id) });
+    if (courses[0]?.isBookmark) {
+      mutateRemoveBookmark({ courseId: Number(courses[0]?.id) });
     } else {
-      mutate({ courseId: Number(courses[0].id) });
+      mutate({ courseId: Number(courses[0]?.id) });
     }
   };
 
-  // const currentColor = courses[0]?.isBookmark ? '#34A853' : '#F2F2F2';
-  // const otherColor = currentColor === '#F2F2F2' ? '#34A853' : '#F2F2F2';
+  const currentColor = courses?.[0]?.isBookmark ? '#F2F2F2' : '#305B43';
+  const otherColor = currentColor === '#F2F2F2' ? '#305B43' : '#F2F2F2';
 
   const handleRetry = () => {
     queryClient.invalidateQueries({
@@ -183,8 +183,18 @@ const CourseBundles = () => {
                   {courses[0].instructor.fname} {courses[0].instructor.lname}
                 </p>
               </div>
-              <button className="z-10 size-max cursor-pointer p-1 transition-transform active:scale-95">
-                <Bookmark className="text-white" />
+              <button
+                onClick={() => handleBookmark()}
+                className="z-10 size-max cursor-pointer p-1 transition-transform active:scale-95"
+              >
+                <Bookmark
+                  className="text-white"
+                  fill={
+                    isPendingBookmark || isPendingRemoveBookmark
+                      ? otherColor
+                      : currentColor
+                  }
+                />
               </button>
             </div>
           </>
