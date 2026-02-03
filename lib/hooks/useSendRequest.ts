@@ -37,7 +37,7 @@ const useSendRequest = <T, R>({
           description: `${successToast?.description}`,
           className: successToastClassName,
         });
-      onSuccessCallback && onSuccessCallback();
+      onSuccessCallback && onSuccessCallback(data);
     },
     onError: (error: any) => {
       if (error.isAxiosError && error.response) {

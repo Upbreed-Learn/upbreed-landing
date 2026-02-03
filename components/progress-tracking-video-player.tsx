@@ -5,7 +5,7 @@ import { useGetToken } from '@/lib/queries/hooks';
 import { cn } from '@/lib/utils';
 
 interface ProgressTrackingVideoPlayerProps {
-  videoId: string | number;
+  videoId: number;
   videoUrl: string;
   className?: string;
   onProgressUpdate?: (position: number) => void;

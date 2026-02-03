@@ -11,15 +11,17 @@ declare global {
 }
 
 interface BunnyPlayerWithTrackingProps {
-  videoId: string;
+  videoId: number;
   className?: string;
   token?: string;
+  bunnyVideoId?: string;
 }
 
 export const BunnyPlayerWithTracking = ({
   videoId,
   className,
   token,
+  bunnyVideoId,
 }: BunnyPlayerWithTrackingProps) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const playerRef = useRef<any>(null);
@@ -61,9 +63,7 @@ export const BunnyPlayerWithTracking = ({
         const player = new window.playerjs.Player(iframeRef.current);
         playerRef.current = player;
 
-        player.on('ready', () => {
-          console.log('Bunny player ready - progress tracking enabled');
-        });
+        player.on('ready', () => {});
 
         // Track progress updates using Player.js timeupdate event
         player.on('timeupdate', (data: any) => {
@@ -76,12 +76,9 @@ export const BunnyPlayerWithTracking = ({
         });
 
         // Handle play/pause events for additional tracking
-        player.on('play', () => {
-          console.log('Bunny video started playing');
-        });
+        player.on('play', () => {});
 
         player.on('pause', () => {
-          console.log('Bunny video paused');
           // Send current position when paused
           if (playerRef.current) {
             playerRef.current.getCurrentTime((seconds: number) => {
@@ -93,7 +90,6 @@ export const BunnyPlayerWithTracking = ({
         });
 
         player.on('ended', () => {
-          console.log('Bunny video ended');
           // Send final position
           if (playerRef.current) {
             playerRef.current.getDuration((duration: number) => {
@@ -127,7 +123,7 @@ export const BunnyPlayerWithTracking = ({
     >
       <iframe
         ref={iframeRef}
-        src={`https://iframe.mediadelivery.net/embed/${process.env.NEXT_PUBLIC_LIBRARY_ID}/${videoId}`}
+        src={`https://iframe.mediadelivery.net/embed/${process.env.NEXT_PUBLIC_LIBRARY_ID}/${bunnyVideoId}`}
         loading="lazy"
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
         allowFullScreen

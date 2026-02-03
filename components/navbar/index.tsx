@@ -18,7 +18,11 @@ import {
 } from '@/lib/queries/hooks';
 import MenuDropdown from './menu-dropdown';
 import AvatarCustom from '../ui/custom/avatar';
-import { Subscription, UserProfileType } from '@/lib/constants';
+import {
+  CurrentSubscription,
+  Subscription,
+  UserProfileType,
+} from '@/lib/constants';
 
 const Navbar = () => {
   const [mobileSearch, setMobileSearch] = useState(false);
@@ -31,7 +35,7 @@ const Navbar = () => {
   const { data: userData, isPending } = useGetUserProfile(token);
   const { data: subscriptionData } = useGetCurrentSubscription();
   const userProfile: UserProfileType = userData?.data.data;
-  const subscription: Subscription[] = subscriptionData?.data;
+  const subscription: CurrentSubscription[] = subscriptionData?.data;
 
   const handleSignUp = () => {
     setAuth('sign-up');
@@ -57,7 +61,13 @@ const Navbar = () => {
                 <p>Classes</p>
                 <ChevronDown />
               </ClassesHover>
-              <Activity mode={subscription?.length < 1 ? 'visible' : 'hidden'}>
+              <Activity
+                mode={
+                  subscription?.[0]?.status === 'CANCELLED'
+                    ? 'visible'
+                    : 'hidden'
+                }
+              >
                 <NavLink
                   href={'/pricing'}
                   className={cn(

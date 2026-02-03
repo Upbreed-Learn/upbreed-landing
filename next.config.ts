@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'upbreed-learn-dev.b-cdn.net',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

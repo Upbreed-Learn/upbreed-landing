@@ -78,7 +78,7 @@ const CourseList = () => {
                     .map((_, index) => <CourseCardLoading key={index} />)
                 ) : courses.length > 0 ? (
                   courses.map(course => (
-                    <CourseCard key={course.id} course={course} />
+                    <CourseCard key={course.id} course={course} page={1} />
                   ))
                 ) : (
                   <EmptyState

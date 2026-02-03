@@ -17,8 +17,12 @@ import { Subscription, UserProfileType } from '@/lib/constants';
 import useSendRequest, {
   errorToastClassName,
 } from '@/lib/hooks/useSendRequest';
-import { MUTATIONS, QUERIES } from '@/lib/queries';
-import { useGetSubscriptions, useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
+import { MUTATIONS } from '@/lib/queries';
+import {
+  useGetSubscriptions,
+  useGetToken,
+  useGetUserProfile,
+} from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -46,7 +50,7 @@ const ChooseYourPlan = () => {
           <CurrencyTabs />
         </div>
         <PlansDesktop tab={tab} level={subChoice} setLevel={setSubChoice} />
-        <PlansMobile tab={tab} level={subChoice} setLevel={setSubChoice} />
+        <PlansMobile level={subChoice} setLevel={setSubChoice} />
       </div>
     </section>
   );
@@ -84,7 +88,7 @@ const PlanTabs = () => {
       className={cn(isError && 'hidden')}
     >
       <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
-        {subscriptions?.slice(3, 5).map(subscription => (
+        {subscriptions?.slice(5, 7).map(subscription => (
           <TabsTrigger
             key={subscription.id}
             value={subscription.period}
@@ -169,11 +173,12 @@ const PlansDesktop = (props: {
         </>
       ) : (
         subscriptions
-          ?.slice(3, 5)
+          ?.slice(5, 7)
           .map((subscription, i) => (
             <PlanSpecCard
+              key={i}
               className={cn(i === 1 && 'right-20')}
-              plan={subscription.period}
+              plan={subscription}
               onClick={() => setLevel(subscription)}
               selected={level}
               device={`${subscription.noDevices} Device${subscription.noDevices > 1 ? 's' : ''}`}
@@ -195,11 +200,10 @@ const PlansDesktop = (props: {
 };
 
 const PlansMobile = (props: {
-  tab: string;
   level: Subscription | null;
   setLevel: Dispatch<SetStateAction<Subscription | null>>;
 }) => {
-  const { tab, level, setLevel } = props;
+  const { level, setLevel } = props;
   const [currency, __] = useQueryState('currency', {
     defaultValue: 'USD',
   });
@@ -212,14 +216,14 @@ const PlansMobile = (props: {
   return (
     <div className="flex w-full max-w-96 flex-col gap-12 lg:hidden">
       <div className="flex justify-between text-center">
-        {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+        {subscriptions?.slice(5, 7)?.map((subscription, i) => (
           <div key={i} className="flex flex-col gap-5">
             <div className="flex flex-col gap-4.5 text-white">
-              <p className="font-semibold capitalize">{subscription.period}</p>
+              <p className="font-semibold capitalize">{subscription.name}</p>
               <div
                 className={cn(
                   'flex flex-col gap-4',
-                  level?.period === subscription.period && 'text-[#D0EA50]',
+                  level?.id === subscription.id && 'text-[#D0EA50]',
                 )}
               >
                 <p className="text-sm/[100%] font-medium">
@@ -233,11 +237,11 @@ const PlansMobile = (props: {
               onClick={() => setLevel(subscription)}
               className={cn(
                 'w-24.25 border border-[#305B43] bg-transparent text-white',
-                level?.period === subscription.period &&
+                level?.id === subscription.id &&
                   'border-transparent bg-[#D0EA50] text-black',
               )}
             >
-              {level?.period === subscription.period ? 'Selected' : 'Select'}
+              {level?.id === subscription.id ? 'Selected' : 'Select'}
             </Button>
           </div>
         ))}
@@ -245,11 +249,11 @@ const PlansMobile = (props: {
       <div className="flex flex-col gap-4 text-sm/[100%] font-medium">
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
-            {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+            {subscriptions?.slice(5, 7)?.map((subscription, i) => (
               <p
                 key={i}
                 className={cn(
-                  level?.period === subscription.period && 'text-[#D0EA50]',
+                  level?.id === subscription.id && 'text-[#D0EA50]',
                 )}
               >
                 {currency === 'USD'
@@ -262,11 +266,11 @@ const PlansMobile = (props: {
         </div>
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
-            {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+            {subscriptions?.slice(5, 7)?.map((subscription, i) => (
               <p
                 key={i}
                 className={cn(
-                  level?.period === subscription.period && 'text-[#D0EA50]',
+                  level?.id === subscription.id && 'text-[#D0EA50]',
                 )}
               >
                 No
@@ -279,7 +283,7 @@ const PlansMobile = (props: {
           <div className="flex items-center justify-between px-8">
             <Check
               className={cn(
-                level?.period === subscriptions[0]?.period
+                level?.id === subscriptions[0]?.id
                   ? 'text-[#D0EA50]'
                   : 'text-white',
               )}
@@ -291,11 +295,11 @@ const PlansMobile = (props: {
         </div>
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
-            {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+            {subscriptions?.slice(5, 7)?.map((subscription, i) => (
               <Check
                 key={i}
                 className={cn(
-                  level?.period === subscription.period
+                  level?.id === subscription.id
                     ? 'text-[#D0EA50]'
                     : 'text-white',
                 )}
@@ -308,11 +312,11 @@ const PlansMobile = (props: {
         </div>
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
-            {subscriptions?.slice(3, 5)?.map((subscription, i) => (
+            {subscriptions?.slice(5, 7)?.map((subscription, i) => (
               <Check
                 key={i}
                 className={cn(
-                  level?.period === subscription.period
+                  level?.id === subscription.id
                     ? 'text-[#D0EA50]'
                     : 'text-white',
                 )}
@@ -331,7 +335,7 @@ const PlansMobile = (props: {
 
 const PlanSpecCard = (props: {
   className?: string;
-  plan: string;
+  plan: Subscription;
   device: string;
   offline: string;
   btnClassName?: string;
@@ -364,7 +368,7 @@ const PlanSpecCard = (props: {
         className,
       )}
     >
-      <li className="pb-4.5 font-semibold! capitalize">{plan}</li>
+      <li className="pb-4.5 font-semibold! capitalize">{plan.name}</li>
       <li className="pb-4">{device}</li>
       <li className="pb-5">{offline}</li>
       <li className="pb-12">
@@ -373,11 +377,11 @@ const PlanSpecCard = (props: {
           className={cn(
             'h-8.5 w-24.25 rounded border border-[#305B43] bg-transparent text-white group-hover:border-transparent hover:bg-[#D0EA50] hover:text-black',
             btnClassName,
-            selected?.period === plan.toLowerCase() &&
+            selected?.id === plan.id &&
               'border-transparent bg-[#D0EA50] text-black',
           )}
         >
-          {selected?.period === plan.toLowerCase() ? 'Selected' : 'Select'}
+          {selected?.id === plan.id ? 'Selected' : 'Select'}
         </Button>
       </li>
       <li className="pb-12 text-xl leading-[100%] font-semibold text-[#D0EA50] group-hover:text-white">
@@ -422,7 +426,23 @@ const SubscriptionNotice = (props: {
       email: string;
       callbackUrl: string;
     },
-    any
+    {
+      data: {
+        reference: string;
+        amount: string;
+        currency: string;
+        provider: string;
+        plan: {
+          id: number;
+          name: string;
+          period: string;
+          noDevices: number;
+          paystackPlanCode: string;
+        };
+        authorizationUrl: string;
+        accessCode: string;
+      };
+    }
   >({
     mutationFn: (data: {
       planId: number;
@@ -438,11 +458,14 @@ const SubscriptionNotice = (props: {
       title: 'Error',
       description: 'An unexpected error occurred. Please try again.',
     },
-    onSuccessCallback: () => {
+    onSuccessCallback: data => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.subscriptions.current(),
       });
-      router.push('/student/courses');
+      {
+        data?.data.authorizationUrl && router.push(data?.data.authorizationUrl);
+      }
+      setOpen(false);
     },
   });
 

@@ -73,6 +73,15 @@ export const MUTATIONS = {
   }) {
     return await https.post(`/payment/subscription/gift`, data);
   },
+  bookmarkCourse: async function (data: { courseId: number }) {
+    return await https.post(`/course/bookmarks`, data);
+  },
+  removeBookmark: async function (data: { courseId: number }) {
+    return await https.delete(`/course/bookmarks/${data.courseId}`);
+  },
+  cancelSubscription: async function () {
+    return await https.post(`/payment/subscription/disable`);
+  },
 };
 
 export const QUERIES = {

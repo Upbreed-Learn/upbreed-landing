@@ -87,6 +87,7 @@ export interface CourseData {
   instructor: Omit<Instructor, 'email' | 'isActive' | 'instructorProfile'>;
   categories: Category[];
   tags: Tag[];
+  isBookmark: boolean;
   preview: {
     lessonCount: number;
     durationInMinutes: number;
@@ -100,6 +101,7 @@ export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
     durationInSeconds: number;
     isTrailer: boolean;
     isPublic: boolean;
+    bunnyVideoId: string;
   }[];
   categories: Omit<
     Category['category'][],
@@ -152,4 +154,21 @@ export interface Subscription {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+}
+
+export interface CurrentSubscription {
+  id: number;
+  status: string;
+  expiresAt: string;
+  createdAt: string;
+  amountUsd: string;
+  amountNaira: string;
+  plan: {
+    id: number;
+    name: string;
+    period: string;
+    noDevices: number;
+    amountUsd: string;
+    amountNaira: string;
+  };
 }
