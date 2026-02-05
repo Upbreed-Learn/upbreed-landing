@@ -189,4 +189,19 @@ export const QUERIES = {
     const url = `/subscription/current`;
     return await https.get(url);
   },
+  getCoursesMe: async (
+    type?: 'inprogress' | 'completed' | 'bookmark',
+    page?: number,
+    limit?: number,
+  ) => {
+    const params = new URLSearchParams();
+    if (type) params.append('type', type);
+    if (page) params.append('page', page.toString());
+    if (limit) params.append('limit', limit.toString());
+
+    const queryString = params.toString();
+    const url = queryString ? `/course/me?${queryString}` : '/course/me';
+
+    return await https.get(url);
+  },
 };

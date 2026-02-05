@@ -46,6 +46,11 @@ export const queryKeys = {
       page,
       limit,
     ],
+    me: (
+      type?: 'inprogress' | 'completed' | 'bookmark',
+      page?: number,
+      limit?: number,
+    ) => [...queryKeys.courses.all, 'me', { type, page, limit }],
   },
   userProfile: {
     all: ['userProfile'],

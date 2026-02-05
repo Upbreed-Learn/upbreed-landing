@@ -4,42 +4,63 @@ import { useQueryState } from 'nuqs';
 import CourseCard, { CourseCardLoading } from '@/components/course-card';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useQueryClient } from '@tanstack/react-query';
-import { useGetCourses } from '@/lib/queries/hooks';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CourseData } from '@/lib/constants';
 import { queryKeys } from '@/lib/queries/query-keys';
 import EmptyState from '@/components/empty-state';
 import { useState } from 'react';
 import { Pagination } from '@/components/ui/custom/pagination';
 import ErrorCard from '@/components/error-card';
+import { QUERIES } from '@/lib/queries';
+
+const useGetCoursesMe = (
+  type?: 'inprogress' | 'completed' | 'bookmark',
+  page?: number,
+  limit?: number,
+) => {
+  return useQuery({
+    queryKey: queryKeys.courses.me(type, page, limit),
+    queryFn: () => QUERIES.getCoursesMe(type, page, limit),
+  });
+};
 
 const CourseList = () => {
   const [tab, _] = useQueryState('category', {
-    defaultValue: 'my-courses',
+    defaultValue: 'inprogress',
   });
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
 
-  const { data, isPending, isError } = useGetCourses(page, 10);
+  const { data, isPending, isError } = useGetCoursesMe(
+    tab as 'inprogress' | 'completed' | 'bookmark',
+    page,
+    10,
+  );
   const courses: CourseData[] = data?.data.data;
 
   const handleRetry = () => {
     queryClient.invalidateQueries({
-      queryKey: queryKeys.courses.paginated(page, 10),
+      queryKey: queryKeys.courses.me(
+        tab as 'inprogress' | 'completed' | 'bookmark',
+        page,
+        10,
+      ),
     });
   };
+
+  console.log(data);
 
   return (
     <section className="flex justify-center overflow-hidden bg-white pb-40">
       <div className="flex w-full max-w-7xl flex-col gap-5 px-9 pt-8 md:gap-10 md:px-12 md:pt-19.25 lg:px-18">
         <h2 className="text-sm/6 font-semibold">
-          {tab === 'my-courses'
+          {tab === 'inprogress'
             ? 'My Courses'
             : tab === 'saved'
               ? 'Saved Courses'
               : 'History'}
         </h2>
-        {tab === 'my-courses' && (
+        {tab === 'inprogress' && (
           <div className="-mx-40">
             <div className="w-full">
               {isError ? (
@@ -56,8 +77,8 @@ const CourseList = () => {
                     ))
                   ) : (
                     <EmptyState
-                      title="No Courses Found"
-                      description="When we have courses, it will be listed here."
+                      title="No Courses Yet"
+                      description="Begin your journey with Upbreed Learn by enrolling in a course."
                       className="col-span-full"
                     />
                   )}
@@ -66,7 +87,7 @@ const CourseList = () => {
             </div>
           </div>
         )}
-        {(tab === 'saved' || tab === 'history') &&
+        {(tab === 'bookmark' || tab === 'completed') &&
           (isError ? (
             <ErrorCard handleRetry={handleRetry} />
           ) : (
@@ -78,20 +99,25 @@ const CourseList = () => {
                     .map((_, index) => <CourseCardLoading key={index} />)
                 ) : courses.length > 0 ? (
                   courses.map(course => (
-                    <CourseCard key={course.id} course={course} page={1} />
+                    <CourseCard
+                      key={course.id}
+                      course={course}
+                      page={1}
+                      mePage
+                    />
                   ))
                 ) : (
                   <EmptyState
-                    title="No Courses Found"
-                    description="When we have courses, it will be listed here."
+                    title="No Courses Yet"
+                    description="Begin your journey with Upbreed Learn by enrolling in a course."
                     className="col-span-full"
                   />
                 )}
               </div>
-              {data && (
+              {data && data?.data.metaData?.lastPage > 1 && (
                 <Pagination
                   currentPage={page}
-                  totalPages={data?.data.metadata.total}
+                  totalPages={data?.data.metaData?.lastPage}
                   onPageChange={setPage}
                 />
               )}

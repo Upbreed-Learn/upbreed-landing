@@ -10,7 +10,6 @@ import { Category, CourseData } from '@/lib/constants';
 import useSendRequest from '@/lib/hooks/useSendRequest';
 import { MUTATIONS } from '@/lib/queries';
 import {
-  useGetBookmarkedCourses,
   useGetCategories,
   useGetCourses,
   useGetCoursesByCategory,

@@ -8,8 +8,12 @@ import useSendRequest from '@/lib/hooks/useSendRequest';
 import { MUTATIONS } from '@/lib/queries';
 import { queryKeys } from '@/lib/queries/query-keys';
 
-const CourseCard = (props: { course: CourseData; page: number }) => {
-  const { course, page } = props;
+const CourseCard = (props: {
+  course: CourseData;
+  page: number;
+  mePage?: boolean;
+}) => {
+  const { course, page, mePage } = props;
   const queryClient = useQueryClient();
 
   const { mutate: mutateRemoveBookmark, isPending: isPendingRemoveBookmark } =
@@ -77,17 +81,19 @@ const CourseCard = (props: { course: CourseData; page: number }) => {
     <div className="group relative overflow-hidden rounded-lg bg-[#F2F2F2]">
       <div className="relative h-46 md:h-38">
         <span className="custom-gradient absolute inset-0 md:hidden"></span>
-        <button
-          onClick={handleBookmark}
-          className="absolute top-4 right-5 z-10 cursor-pointer p-1 transition-transform active:scale-95 md:hidden"
-        >
-          <Bookmark
-            size={22}
-            className={
-              isPending || isPendingRemoveBookmark ? otherColor : currentColor
-            }
-          />
-        </button>
+        {!mePage && (
+          <button
+            onClick={handleBookmark}
+            className="absolute top-4 right-5 z-10 cursor-pointer p-1 transition-transform active:scale-95 md:hidden"
+          >
+            <Bookmark
+              size={22}
+              className={
+                isPending || isPendingRemoveBookmark ? otherColor : currentColor
+              }
+            />
+          </button>
+        )}
         <Image
           src={course.thumbnail}
           alt={course.title}
@@ -117,13 +123,13 @@ const CourseCard = (props: { course: CourseData; page: number }) => {
           </div>
           <div>
             <p className="text-xs/6 font-medium text-[#BEBEBE]">
-              {course.preview.lessonCount} Lessons
+              {course.preview?.lessonCount ?? course.totalVideos ?? 0} Lessons
             </p>
             <div className="flex items-center justify-between text-sm/6 font-medium text-white capitalize">
               <p>
                 {course.instructor.fname} {course.instructor.lname}
               </p>
-              <p>{formatMinutes(course.preview.durationInMinutes)}</p>
+              <p>{formatMinutes(course.preview?.durationInMinutes ?? 0)}</p>
             </div>
           </div>
         </div>
@@ -131,8 +137,10 @@ const CourseCard = (props: { course: CourseData; page: number }) => {
       <div className="flex flex-col gap-7 px-6 pt-2.5 pb-3.5 max-md:hidden">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-sm/6 font-medium text-[#34A853]">
-            <p>{course.preview.lessonCount} Lessons</p>
-            <p>{formatMinutes(course.preview.durationInMinutes)}</p>
+            <p>
+              {course.preview?.lessonCount ?? course.totalVideos ?? 0} Lessons
+            </p>
+            <p>{formatMinutes(course.preview?.durationInMinutes ?? 0)}</p>
           </div>
           <Link
             href={`/student/courses/${course.id}`}
@@ -146,18 +154,22 @@ const CourseCard = (props: { course: CourseData; page: number }) => {
           <p className="text-sm/6 font-medium text-[#6F6F6F] capitalize">
             {course.instructor.fname} {course.instructor.lname}
           </p>
-          <button
-            onClick={handleBookmark}
-            className="z-10 cursor-pointer p-1 transition-transform active:scale-95"
-          >
-            <Bookmark
-              size={24}
-              className="text-[#34A853]"
-              fill={
-                isPending || isPendingRemoveBookmark ? otherColor : currentColor
-              }
-            />
-          </button>
+          {!mePage && (
+            <button
+              onClick={handleBookmark}
+              className="z-10 cursor-pointer p-1 transition-transform active:scale-95"
+            >
+              <Bookmark
+                size={24}
+                className="text-[#34A853]"
+                fill={
+                  isPending || isPendingRemoveBookmark
+                    ? otherColor
+                    : currentColor
+                }
+              />
+            </button>
+          )}
         </div>
       </div>
     </div>

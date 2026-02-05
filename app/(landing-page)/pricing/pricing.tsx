@@ -33,7 +33,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { toast } from 'sonner';
 
 const ChooseYourPlan = () => {
-  const [tab, _] = useQueryState('plan', { defaultValue: 'annually' });
+  const [tab, _] = useQueryState('plan', { defaultValue: 'monthly' });
   const [subChoice, setSubChoice] = useState<Subscription | null>(null);
 
   return (
@@ -50,7 +50,7 @@ const ChooseYourPlan = () => {
           <CurrencyTabs />
         </div>
         <PlansDesktop tab={tab} level={subChoice} setLevel={setSubChoice} />
-        <PlansMobile level={subChoice} setLevel={setSubChoice} />
+        <PlansMobile tab={tab} level={subChoice} setLevel={setSubChoice} />
       </div>
     </section>
   );
@@ -59,50 +59,25 @@ const ChooseYourPlan = () => {
 export default ChooseYourPlan;
 
 const PlanTabs = () => {
-  const { data, isPending, isError } = useGetSubscriptions();
-  const subscriptions: Subscription[] = data?.data.data;
-
   const [tab, setTab] = useQueryState('plan', {
-    defaultValue: subscriptions?.[0]?.period,
+    defaultValue: 'montly',
   });
 
-  if (isPending)
-    return (
-      <div className="h-10 w-52 animate-pulse rounded-[30px] bg-white/40"></div>
-    );
-
-  if (isError)
-    return (
-      <div>
-        <p className="text-destructive">
-          Error fetching subscriptions. Please try again later.
-        </p>
-      </div>
-    );
-
   return (
-    <Tabs
-      value={tab}
-      defaultValue={tab}
-      onValueChange={setTab}
-      className={cn(isError && 'hidden')}
-    >
+    <Tabs value={tab} defaultValue={tab} onValueChange={setTab}>
       <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
-        {subscriptions?.slice(5, 7).map(subscription => (
-          <TabsTrigger
-            key={subscription.id}
-            value={subscription.period}
-            className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
-          >
-            {subscription.period}
-          </TabsTrigger>
-        ))}
-        {/* <TabsTrigger
-          value="annually"
-          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
+        <TabsTrigger
+          value={'montly'}
+          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
+        >
+          6-months
+        </TabsTrigger>
+        <TabsTrigger
+          value={'annually'}
+          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
         >
           Annually
-        </TabsTrigger> */}
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );
@@ -138,13 +113,21 @@ const PlansDesktop = (props: {
   level: Subscription | null;
   setLevel: Dispatch<SetStateAction<Subscription | null>>;
 }) => {
-  const { level, setLevel } = props;
+  const { level, setLevel, tab } = props;
   const [currency, __] = useQueryState('currency', {
     defaultValue: 'USD',
   });
   const { data: subscriptionData, isPending: isSubscriptionPending } =
     useGetSubscriptions();
   const subscriptions: Subscription[] = subscriptionData?.data.data;
+
+  const filterAvailablePlans = subscriptions?.filter(
+    plan => plan.paystackPlanCode,
+  );
+
+  const filterAvailablePlansByPeriod = filterAvailablePlans?.filter(
+    plan => plan.period === tab,
+  );
 
   return (
     <div className="relative flex flex-col gap-29.25 max-lg:hidden">
@@ -172,25 +155,23 @@ const PlansDesktop = (props: {
           ></div>
         </>
       ) : (
-        subscriptions
-          ?.slice(5, 7)
-          .map((subscription, i) => (
-            <PlanSpecCard
-              key={i}
-              className={cn(i === 1 && 'right-20')}
-              plan={subscription}
-              onClick={() => setLevel(subscription)}
-              selected={level}
-              device={`${subscription.noDevices} Device${subscription.noDevices > 1 ? 's' : ''}`}
-              offline="No Offline mode"
-              monthlyPrice={
-                currency === 'USD'
-                  ? `$${subscription.amountUsd}`
-                  : `₦${subscription.amountNaira}`
-              }
-              download="No"
-            />
-          ))
+        filterAvailablePlansByPeriod.map((subscription, i) => (
+          <PlanSpecCard
+            key={i}
+            className={cn(i === 1 && 'right-20')}
+            plan={subscription}
+            onClick={() => setLevel(subscription)}
+            selected={level}
+            device={`${subscription.noDevices} Device${subscription.noDevices > 1 ? 's' : ''}`}
+            offline="No Offline mode"
+            monthlyPrice={
+              currency === 'USD'
+                ? `$${subscription.amountUsd}`
+                : `₦${subscription.amountNaira}`
+            }
+            download="No"
+          />
+        ))
       )}
       <SubscriptionNotice level={level}>
         <Button className="w-3/5 self-center">Continue</Button>
@@ -200,10 +181,11 @@ const PlansDesktop = (props: {
 };
 
 const PlansMobile = (props: {
+  tab: string;
   level: Subscription | null;
   setLevel: Dispatch<SetStateAction<Subscription | null>>;
 }) => {
-  const { level, setLevel } = props;
+  const { level, setLevel, tab } = props;
   const [currency, __] = useQueryState('currency', {
     defaultValue: 'USD',
   });
@@ -211,12 +193,20 @@ const PlansMobile = (props: {
     useGetSubscriptions();
   const subscriptions: Subscription[] = subscriptionData?.data.data;
 
+  const filterAvailablePlans = subscriptions?.filter(
+    plan => plan.paystackPlanCode,
+  );
+
+  const filterAvailablePlansByPeriod = filterAvailablePlans?.filter(
+    plan => plan.period === tab,
+  );
+
   if (isSubscriptionPending) return <SubscriptionMobileLoading />;
 
   return (
     <div className="flex w-full max-w-96 flex-col gap-12 lg:hidden">
       <div className="flex justify-between text-center">
-        {subscriptions?.slice(5, 7)?.map((subscription, i) => (
+        {filterAvailablePlansByPeriod?.map((subscription, i) => (
           <div key={i} className="flex flex-col gap-5">
             <div className="flex flex-col gap-4.5 text-white">
               <p className="font-semibold capitalize">{subscription.name}</p>
@@ -249,7 +239,7 @@ const PlansMobile = (props: {
       <div className="flex flex-col gap-4 text-sm/[100%] font-medium">
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
-            {subscriptions?.slice(5, 7)?.map((subscription, i) => (
+            {filterAvailablePlansByPeriod?.map((subscription, i) => (
               <p
                 key={i}
                 className={cn(
@@ -266,7 +256,7 @@ const PlansMobile = (props: {
         </div>
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
-            {subscriptions?.slice(5, 7)?.map((subscription, i) => (
+            {filterAvailablePlansByPeriod?.map((subscription, i) => (
               <p
                 key={i}
                 className={cn(
@@ -295,7 +285,7 @@ const PlansMobile = (props: {
         </div>
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
-            {subscriptions?.slice(5, 7)?.map((subscription, i) => (
+            {filterAvailablePlansByPeriod?.map((subscription, i) => (
               <Check
                 key={i}
                 className={cn(
@@ -312,7 +302,7 @@ const PlansMobile = (props: {
         </div>
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
-            {subscriptions?.slice(5, 7)?.map((subscription, i) => (
+            {filterAvailablePlansByPeriod?.map((subscription, i) => (
               <Check
                 key={i}
                 className={cn(

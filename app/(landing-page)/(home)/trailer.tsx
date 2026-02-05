@@ -52,8 +52,8 @@ const Trailer = () => {
           <div className="_size-max relative h-max w-full">
             <div className="_lg:w-[calc(100vw-9rem)] _max-w-[66.38875rem] _w-[calc(100vw-4.5rem)] _md:w-[calc(100vw-6rem)] relative h-123 overflow-hidden rounded-2xl md:h-140 lg:w-full">
               <Image
-                src={courses[0].thumbnail}
-                alt={courses[0].title}
+                src={courses?.[0].thumbnail}
+                alt={courses?.[0].title}
                 fill
                 sizes="(max-width: 1200px) 100vw, 1200px"
                 className="size-full object-cover"
@@ -66,8 +66,8 @@ const Trailer = () => {
                     New
                   </span>
                   <p className="text-[2.666875rem]/[100%] font-extrabold text-white">
-                    {courses[0].instructor.fname} <br />{' '}
-                    {courses[0].instructor.lname}
+                    {courses?.[0].instructor.fname} <br />{' '}
+                    {courses?.[0].instructor.lname}
                   </p>
                 </div>
                 <Link
@@ -75,7 +75,7 @@ const Trailer = () => {
                   className="text-sm/[100%] font-bold text-[#D0EA50]"
                 >
                   <span className="absolute inset-0"></span>
-                  {courses[0].title}
+                  {courses?.[0].title}
                 </Link>
               </div>
               <button className="custom-gradient flex w-max cursor-pointer items-center gap-1 rounded-lg border-[1.78px] border-white px-3.5 py-2 text-sm/[100%] font-semibold text-white transition-transform active:scale-95">
