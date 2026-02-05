@@ -61,23 +61,15 @@ const Navbar = () => {
                 <p>Classes</p>
                 <ChevronDown />
               </ClassesHover>
-              <Activity
-                mode={
-                  subscription?.[0]?.status === 'CANCELLED'
-                    ? 'visible'
-                    : 'hidden'
-                }
+              <NavLink
+                href={'/pricing'}
+                className={cn(
+                  'hover:text-[#D0EA50]',
+                  pathname === '/pricing' && 'text-[#D0EA50]',
+                )}
               >
-                <NavLink
-                  href={'/pricing'}
-                  className={cn(
-                    'hover:text-[#D0EA50]',
-                    pathname === '/pricing' && 'text-[#D0EA50]',
-                  )}
-                >
-                  Pricing
-                </NavLink>
-              </Activity>
+                Pricing
+              </NavLink>
             </div>
             <div
               className={cn(
@@ -120,7 +112,11 @@ const Navbar = () => {
                     <AvatarCustom
                       src={userProfile?.avatarUrl}
                       alt="Avatar"
-                      fallback={`${userProfile?.fname[0]} ${userProfile?.lname[0]}`}
+                      fallback={
+                        userProfile
+                          ? `${userProfile?.fname[0]} ${userProfile?.lname[0]}`
+                          : 'A'
+                      }
                     />
                   )}
                 </div>

@@ -38,7 +38,7 @@ export default Hero;
 
 const CourseTab = () => {
   const [tab, setTab] = useQueryState('category', {
-    defaultValue: 'my-courses',
+    defaultValue: 'inprogress',
   });
 
   return (
@@ -50,19 +50,19 @@ const CourseTab = () => {
     >
       <TabsList className="h-auto gap-2 bg-transparent md:gap-8">
         <TabsTrigger
-          value="my-courses"
+          value="inprogress"
           className="cursor-pointer rounded-none border-x-0 border-t-0 border-b-[5px] border-transparent pb-3 text-white transition-colors data-[state=active]:border-[#D0EA50] data-[state=active]:bg-transparent"
         >
           My Courses
         </TabsTrigger>
         <TabsTrigger
-          value="saved"
+          value="bookmark"
           className="cursor-pointer rounded-none border-x-0 border-t-0 border-b-[5px] border-transparent pb-3 text-white transition-colors data-[state=active]:border-[#D0EA50] data-[state=active]:bg-transparent"
         >
           Saved Courses
         </TabsTrigger>
         <TabsTrigger
-          value="history"
+          value="completed"
           className="cursor-pointer rounded-none border-x-0 border-t-0 border-b-[5px] border-transparent pb-3 text-white transition-colors data-[state=active]:border-[#D0EA50] data-[state=active]:bg-transparent"
         >
           History

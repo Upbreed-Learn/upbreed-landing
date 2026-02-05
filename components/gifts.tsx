@@ -143,7 +143,7 @@ const Gifts = (props: { children?: React.ReactNode }) => {
   useEffect(() => {
     if (subscriptions?.length > 0) {
       messageField.setValue(
-        `I hope you enjoy your ${filterPlans(Number(subscriptions[3]?.id)).name} subscription at Upbreed Learn. This subscription gives you access for a period of 6 months. You have access to all our instructors, and what they teach. Happy Learning!`,
+        `I hope you enjoy your ${filterPlans(Number(subscriptions[3]?.id))?.name} subscription at Upbreed Learn. This subscription gives you access for a period of 6 months. You have access to all our instructors, and what they teach. Happy Learning!`,
       );
     }
   }, [subscriptions]);

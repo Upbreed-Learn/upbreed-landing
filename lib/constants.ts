@@ -92,6 +92,7 @@ export interface CourseData {
     lessonCount: number;
     durationInMinutes: number;
   };
+  totalVideos: number;
 }
 export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
   videos: {
