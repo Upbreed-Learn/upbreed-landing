@@ -8,10 +8,10 @@ import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { QUERIES } from '@/lib/queries';
-import { Category, Instructor } from '@/lib/constants';
+import { Category, CourseData, Instructor } from '@/lib/constants';
 import EmptyState from '@/components/empty-state';
-import { cn } from '@/lib/utils';
-import { useGetCategories } from '@/lib/queries/hooks';
+import { cn, formatDuration } from '@/lib/utils';
+import { useGetCategories, useGetCoursesBySearch } from '@/lib/queries/hooks';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/all';
@@ -19,28 +19,19 @@ import { ScrollTrigger } from 'gsap/all';
 gsap.registerPlugin(useGSAP);
 gsap.registerPlugin(ScrollTrigger);
 
-const useGetInstructors = () => {
-  return useQuery({
-    queryKey: queryKeys.instructors.all,
-    queryFn: () => QUERIES.getInstructors(),
-  });
-};
-
-const useGetCoursesBySearch = (page: number, limit: number, search: string) => {
-  return useQuery({
-    queryKey: queryKeys.courses.search(page, limit, search),
-    queryFn: () => QUERIES.getCoursesBySearch(page, limit, search),
-  });
-};
-
 const Elevate = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const revealRef = useRef<HTMLDivElement>(null);
 
-  const { data, isPending, isError } = useGetInstructors();
-  const { data: searchCourse } = useGetCoursesBySearch(1, 10, ' ');
+  const { data, isPending, isError } = useGetCoursesBySearch(
+    1,
+    5,
+    undefined,
+    'homepage',
+  );
 
-  console.log(searchCourse);
+  const homepageCourses: CourseData[] = data?.data.data;
+
   const {
     data: categoryData,
     isPending: categoryDataIsPending,
@@ -50,8 +41,6 @@ const Elevate = () => {
     Category['category'],
     'createdAt' | 'updatedAt' | 'deletedAt'
   >[] = categoryData?.data.data;
-
-  const instructors: Instructor[] = data?.data.data;
 
   useGSAP(() => {
     if (revealRef.current) {
@@ -112,7 +101,7 @@ const Elevate = () => {
         <div
           className={cn(
             'flex w-full flex-col gap-4 max-md:pt-14',
-            (isError || instructors?.length < 1) && 'hidden',
+            (isError || homepageCourses?.length < 1) && 'hidden',
           )}
         >
           <div className="flex items-center gap-2.5 px-9 text-sm/[100%] font-bold md:pl-12 lg:pl-18">
@@ -133,7 +122,7 @@ const Elevate = () => {
                 Array(5)
                   .fill(0)
                   .map((_, index) => <InstructorCardLoading key={index} />)
-              ) : instructors.length > 0 ? (
+              ) : homepageCourses.length > 0 ? (
                 <>
                   {/* <button
                     onClick={handleScrollLeft}
@@ -142,11 +131,8 @@ const Elevate = () => {
                     <ChevronLeftCircle className="size-10 text-[#FFFFFF]" />
                   </button> */}
                   <div className="grid-cols-5 gap-5 max-lg:flex lg:grid">
-                    {instructors.slice(0, 5).map(instructor => (
-                      <InstructorCard
-                        key={instructor.id}
-                        instructor={instructor}
-                      />
+                    {homepageCourses.slice(0, 5).map(course => (
+                      <InstructorCard key={course.id} course={course} />
                     ))}
                   </div>
                   {/* <button
@@ -172,16 +158,16 @@ const Elevate = () => {
 
 export default Elevate;
 
-const InstructorCard = (props: { instructor: Instructor }) => {
-  const { instructor } = props;
+const InstructorCard = (props: { course: CourseData }) => {
+  const { course } = props;
   return (
     <div className="relative size-max h-87.5 w-50 shrink-0 overflow-hidden rounded-lg ease-in-out hover:brightness-125">
       <span className="absolute top-4 right-5 z-10 rounded-lg border border-[#D0EA50] px-2 py-1 text-[8px]/[100%] font-semibold text-white">
         New
       </span>
       <Image
-        src={instructor.instructorProfile.profilePictureUrl}
-        alt={instructor.fname}
+        src={course.thumbnail}
+        alt={course.title}
         unoptimized
         fill
         sizes="(max-width: 1200px) 100vw, 1200px"
@@ -190,15 +176,15 @@ const InstructorCard = (props: { instructor: Instructor }) => {
       <div className="absolute bottom-5 left-1/2 flex w-11/12 -translate-x-1/2 flex-col gap-4">
         <div>
           <p className="text-[2rem]/[100%] font-extrabold text-white">
-            {instructor.fname} {instructor.lname}
+            {course.instructor.fname} {course.instructor.lname}
           </p>
           <p className="text-[10.67px]/[100%] text-[#D0EA50]">
-            {instructor.instructorProfile.title}
+            {course.instructor.fname}
           </p>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-[8px]/[100%] font-semibold text-white">
-            1H 32mins
+            {formatDuration(course.preview.durationInMinutes)}
           </p>
           <div className="flex items-center gap-0.5">
             <StarIcon fill="#FFC700" />

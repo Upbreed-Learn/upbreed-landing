@@ -132,12 +132,18 @@ export const QUERIES = {
 
     return await https.get(url);
   },
-  getCoursesBySearch: async (page: number, limit: number, search: string) => {
+  getCoursesBySearch: async (
+    page: number,
+    limit: number,
+    search: string,
+    type?: string,
+  ) => {
     const params = new URLSearchParams();
 
     if (page) params.append('page', page.toString());
     if (limit) params.append('limit', limit.toString());
     if (search) params.append('query', search);
+    if (type) params.append('type', type);
 
     const queryString = params.toString();
     const url = queryString && `/course/search?${queryString}`;
