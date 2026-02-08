@@ -103,3 +103,15 @@ export const useGetCurrentSubscription = () => {
     queryFn: () => QUERIES.getCurrentSubscription(),
   });
 };
+
+export const useGetCoursesBySearch = (
+  page: number,
+  limit: number,
+  search?: string,
+  type?: string,
+) => {
+  return useQuery({
+    queryKey: queryKeys.courses.search(page, limit, search!!, type),
+    queryFn: () => QUERIES.getCoursesBySearch(page, limit, search!!, type),
+  });
+};

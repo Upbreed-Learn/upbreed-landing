@@ -29,10 +29,10 @@ export const queryKeys = {
       page,
       limit,
     ],
-    search: (page: number, limit: number, search: string) => [
+    search: (page: number, limit: number, search: string, type?: string) => [
       ...queryKeys.courses.paginated(page, limit),
       'search',
-      { search },
+      { search: search === '' ? '+query=' : search, type },
     ],
     category: (page: number, limit: number, category: string) => [
       ...queryKeys.courses.paginated(page, limit),
