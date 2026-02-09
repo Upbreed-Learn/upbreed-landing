@@ -15,4 +15,6 @@ export async function deleteToken() {
   (await cookies()).delete({
     name: `rf`,
   });
+  localStorage.removeItem('userId');
+  localStorage.removeItem('userEmail');
 }
