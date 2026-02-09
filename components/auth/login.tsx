@@ -113,9 +113,11 @@ const LoginDialog = () => {
   const handleGoogleLogin = () => {
     // Generate or get device signature
     const deviceSignature = deviceFingerprint;
+    const redirectUrl = `${window.location.origin}/auth/callback`;
 
     // Redirect to Google OAuth
-    const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google?deviceSignature=${deviceSignature}`;
+    const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google?deviceSignature=${deviceSignature}&redirectUrl=${redirectUrl}`;
+
     window.location.href = googleAuthUrl;
   };
 
