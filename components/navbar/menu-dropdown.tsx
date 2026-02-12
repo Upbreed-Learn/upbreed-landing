@@ -23,6 +23,8 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
     await deleteToken();
     queryClient.invalidateQueries({ queryKey: queryKeys.token });
     router.push('/');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
   };
 
   return (
