@@ -72,7 +72,7 @@ const Trailer = () => {
         ) : (
           <div className="_size-max relative h-max w-full">
             <Activity mode={play ? 'hidden' : 'visible'}>
-              <div className="_lg:w-[calc(100vw-9rem)] _max-w-[66.38875rem] _w-[calc(100vw-4.5rem)] _md:w-[calc(100vw-6rem)] relative h-123 overflow-hidden rounded-2xl md:h-140 lg:w-full">
+              <div className="_lg:w-[calc(100vw-9rem)] _max-w-[66.38875rem] _w-[calc(100vw-4.5rem)] _md:w-[calc(100vw-6rem)] relative z-10 h-123 overflow-hidden rounded-2xl md:h-140 lg:w-full">
                 <Image
                   src={courses?.[0].thumbnail}
                   alt={courses?.[0].title}
@@ -81,7 +81,7 @@ const Trailer = () => {
                   className="size-full object-cover"
                 />
               </div>
-              <div className="absolute flex flex-col gap-4 max-md:bottom-9 max-md:left-9 md:top-1/2 md:right-22.5 md:-translate-y-1/2">
+              <div className="absolute z-20 flex flex-col gap-4 max-md:bottom-9 max-md:left-9 md:top-1/2 md:right-22.5 md:-translate-y-1/2">
                 <div>
                   <div className="flex flex-col gap-3">
                     <span className="w-max rounded-[8.89px] border-[1.78px] border-[#D0EA50] px-2 py-1.5 text-[8.89px]/[100%] font-semibold text-white">

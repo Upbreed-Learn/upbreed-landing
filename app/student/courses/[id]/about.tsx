@@ -182,6 +182,9 @@ const About = (props: { id: string }) => {
                           className={cn(
                             'flex cursor-pointer justify-between gap-3 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
                             activeVideoId === video.id && 'text-[#D0EA50]',
+                            (subscriptions.length === 0 ||
+                              subscriptions[0].status === 'CANCELLED') &&
+                              'cursor-not-allowed opacity-50',
                           )}
                         >
                           <p className="line-clamp-1 text-xs/6 font-semibold text-ellipsis">
