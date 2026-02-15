@@ -14,7 +14,7 @@ interface VideoProgressState {
   ws: WebSocket | null;
 
   // Actions
-  connect: (token: string) => void;
+  connect: (token: string, videoId: number) => void;
   disconnect: () => void;
   updateProgress: (videoId: number, position: number) => void;
   clearError: () => void;
@@ -29,7 +29,7 @@ export const useVideoProgressStore = create<VideoProgressState>()(
     currentToken: null,
     ws: null,
 
-    connect: (token: string) => {
+    connect: (token: string, videoId: number) => {
       const { isConnected, isConnecting } = get();
       // Don't connect if already connected or connecting
       if (isConnected || isConnecting) return;
@@ -39,8 +39,8 @@ export const useVideoProgressStore = create<VideoProgressState>()(
       // Determine WebSocket URL based on environment
       const isProduction = process.env.NODE_ENV === 'production';
       const wsUrl = isProduction
-        ? `${BASE_URL}?auth=${token}`
-        : `${BASE_URL}?auth=${token}`;
+        ? `${BASE_URL}?auth=${token}&videoId=${videoId}`
+        : `${BASE_URL}?auth=${token}&videoId=${videoId}`;
 
       const ws = new WebSocket(wsUrl);
 
@@ -139,8 +139,8 @@ export const useVideoProgressConnection = () =>
   }));
 
 // Action hooks that call store methods directly to avoid infinite loops
-const connectAction = (token: string) =>
-  useVideoProgressStore.getState().connect(token);
+const connectAction = (token: string, videoId: number) =>
+  useVideoProgressStore.getState().connect(token, videoId);
 const disconnectAction = () => useVideoProgressStore.getState().disconnect();
 const updateProgressAction = (videoId: number, position: number) =>
   useVideoProgressStore.getState().updateProgress(videoId, position);

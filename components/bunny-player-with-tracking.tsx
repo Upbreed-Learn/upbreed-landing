@@ -29,7 +29,7 @@ export const BunnyPlayerWithTracking = ({
   // Connect to WebSocket when component mounts
   useEffect(() => {
     if (token) {
-      useVideoProgressStore.getState().connect(token);
+      useVideoProgressStore.getState().connect(token, videoId);
     }
 
     return () => {
