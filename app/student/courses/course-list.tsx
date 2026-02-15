@@ -48,15 +48,13 @@ const CourseList = () => {
     });
   };
 
-  console.log(data);
-
   return (
     <section className="flex justify-center overflow-hidden bg-white pb-40">
       <div className="flex w-full max-w-7xl flex-col gap-5 px-9 pt-8 md:gap-10 md:px-12 md:pt-19.25 lg:px-18">
         <h2 className="text-sm/6 font-semibold">
           {tab === 'inprogress'
             ? 'My Courses'
-            : tab === 'saved'
+            : tab === 'bookmark'
               ? 'Saved Courses'
               : 'History'}
         </h2>
@@ -132,7 +130,6 @@ export default CourseList;
 
 const MyCoursesCard = (props: { course: CourseData }) => {
   const { course } = props;
-  const progressLevel = 50;
 
   return (
     <div className="relative flex flex-col gap-4 rounded-[10px] bg-[#305B43] p-8">
@@ -164,7 +161,7 @@ const MyCoursesCard = (props: { course: CourseData }) => {
       <span className="relative block h-3 w-full bg-[#D9D9D9]">
         <span
           style={{
-            width: `${progressLevel}%`,
+            width: `${course.percentageCompletion}%`,
           }}
           className="absolute top-0 left-0 h-full bg-[#34A853] transition-[width]"
         ></span>
