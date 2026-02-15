@@ -28,7 +28,7 @@ export const useVideoProgressTracking = ({
   // Connect to WebSocket when token is available and enabled
   useEffect(() => {
     if (enabled && token) {
-      connect(token);
+      connect(token, videoId);
     } else {
       disconnect();
     }
@@ -63,7 +63,7 @@ export const useVideoProgressTracking = ({
 
       reconnectTimeoutRef.current = setTimeout(() => {
         reconnectAttemptsRef.current += 1;
-        connect(token);
+        connect(token, videoId);
       }, delay);
     }
 
