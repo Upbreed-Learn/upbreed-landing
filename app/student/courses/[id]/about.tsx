@@ -180,17 +180,28 @@ const About = (props: { id: string }) => {
                           key={video.id}
                           onClick={() => handleSafePlayVideo(video.id)}
                           className={cn(
-                            'flex cursor-pointer justify-between gap-3 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
+                            'flex cursor-pointer flex-col rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
                             activeVideoId === video.id && 'text-[#D0EA50]',
-                            (subscriptions.length === 0 ||
-                              subscriptions[0].status === 'CANCELLED') &&
+                            (subscriptions?.length === 0 ||
+                              subscriptions?.[0]?.status === 'CANCELLED') &&
                               'cursor-not-allowed opacity-50',
                           )}
                         >
-                          <p className="line-clamp-1 text-xs/6 font-semibold text-ellipsis">
-                            {video.title}
-                          </p>
-                          <PlayIcon size={24} />
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="line-clamp-1 text-xs/6 font-semibold text-ellipsis">
+                              {video.title}
+                            </p>
+                            <PlayIcon size={24} />
+                          </div>
+                          {/* <span className="relative block h-3 w-full bg-[#D9D9D9]">
+                            <span
+                              style={{
+                                width: `${video.percentageCompletion}%`,
+                              }}
+                              className="absolute top-0 left-0 h-full bg-[#34A853] transition-[width]"
+                            ></span>
+                            <span className="sr-only">Progress Level</span>
+                          </span> */}
                         </button>
                       ))}
                     </div>
