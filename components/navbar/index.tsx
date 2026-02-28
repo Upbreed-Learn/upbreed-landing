@@ -114,7 +114,7 @@ const Navbar = () => {
                       alt="Avatar"
                       fallback={
                         userProfile
-                          ? `${userProfile?.fname[0]} ${userProfile?.lname[0]}`
+                          ? `${userProfile?.fname[0].toUpperCase()} ${userProfile?.lname[0].toUpperCase()}`
                           : 'A'
                       }
                     />
