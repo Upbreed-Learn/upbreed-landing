@@ -80,12 +80,15 @@ const About = (props: { id: string }) => {
 
   const activeVideoId = selectedVideoId ?? courseDetailsData?.videos[0]?.id;
 
-  const handleSafePlayVideo = (videoId: number) => {
+  const handleSafePlayVideo = (videoId: number, isPublic: boolean) => {
     if (!token) {
       setAuth('login');
       return;
     }
-    if (subscriptions.length === 0 || subscriptions[0].status === 'CANCELLED') {
+    if (
+      (subscriptions.length === 0 || subscriptions[0].status === 'CANCELLED') &&
+      !isPublic
+    ) {
       setOpen(true);
       return;
     }
@@ -178,12 +181,15 @@ const About = (props: { id: string }) => {
                       {courseDetailsData.videos.slice(1).map(video => (
                         <button
                           key={video.id}
-                          onClick={() => handleSafePlayVideo(video.id)}
+                          onClick={() =>
+                            handleSafePlayVideo(video.id, video.isPublic)
+                          }
                           className={cn(
                             'flex cursor-pointer flex-col rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
                             activeVideoId === video.id && 'text-[#D0EA50]',
                             (subscriptions?.length === 0 ||
                               subscriptions?.[0]?.status === 'CANCELLED') &&
+                              !video.isPublic &&
                               'cursor-not-allowed opacity-50',
                           )}
                         >

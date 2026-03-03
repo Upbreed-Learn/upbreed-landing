@@ -42,7 +42,7 @@ const LINKS = [
   },
   {
     name: 'Classes',
-    href: '#',
+    href: '/student/home',
   },
   {
     name: 'Pricing',
