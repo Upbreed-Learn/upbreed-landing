@@ -19,7 +19,6 @@ import { Activity, useEffect, useMemo, useRef, useState } from 'react';
 import { useGetCurrentSubscription, useGetToken } from '@/lib/queries/hooks';
 import { useQueryState } from 'nuqs';
 import SuspenseLoader from '@/components/suspense-loader';
-import ProgressTrackingVideoPlayer from '@/components/progress-tracking-video-player';
 import {
   Dialog,
   DialogClose,
@@ -28,14 +27,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
-const libraryId = process.env.NEXT_PUBLIC_LIBRARY_ID;
 const bunnyToken = process.env.NEXT_PUBLIC_BUNNY_TOKEN;
-const videoId = 'b42c8ac6-8576-49b6-a2f3-b0f13dcb3f95';
 const pullZone = 4672058;
 
 const About = (props: { id: string }) => {
@@ -166,15 +162,26 @@ const About = (props: { id: string }) => {
                           setSelectedVideoId(courseDetailsData.videos[0]?.id)
                         )}
                         className={cn(
-                          'flex cursor-pointer items-center justify-between rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
+                          'flex cursor-pointer flex-col gap-2 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
                           activeVideoId === courseDetailsData.videos[0]?.id &&
                             'text-[#D0EA50]',
                         )}
                       >
-                        <p className="text-xs/6 font-semibold">
-                          {courseDetailsData.videos[0]?.title}
-                        </p>
-                        <PlayIcon size={24} />
+                        <span className="flex items-center justify-between">
+                          <p className="text-xs/6 font-semibold">
+                            {courseDetailsData.videos[0]?.title}
+                          </p>
+                          <PlayIcon size={24} />
+                        </span>
+                        <span className="relative block h-1.5 w-full bg-[#D9D9D9]">
+                          <span
+                            style={{
+                              width: `${courseDetailsData?.percentageCompletion}%`,
+                            }}
+                            className="absolute top-0 left-0 h-full bg-[#34A853] transition-[width]"
+                          ></span>
+                          <span className="sr-only">Progress Level</span>
+                        </span>
                       </button>
                     </div>
                     <div className="flex flex-col gap-4">
@@ -185,7 +192,7 @@ const About = (props: { id: string }) => {
                             handleSafePlayVideo(video.id, video.isPublic)
                           }
                           className={cn(
-                            'flex cursor-pointer flex-col rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
+                            'flex cursor-pointer flex-col gap-2 rounded-[10px] bg-[#305B43] px-9 py-3.5 text-start text-white',
                             activeVideoId === video.id && 'text-[#D0EA50]',
                             (subscriptions?.length === 0 ||
                               subscriptions?.[0]?.status === 'CANCELLED') &&
@@ -193,21 +200,21 @@ const About = (props: { id: string }) => {
                               'cursor-not-allowed opacity-50',
                           )}
                         >
-                          <div className="flex items-center justify-between gap-3">
+                          <span className="flex items-center justify-between gap-3">
                             <p className="line-clamp-1 text-xs/6 font-semibold text-ellipsis">
                               {video.title}
                             </p>
                             <PlayIcon size={24} />
-                          </div>
-                          {/* <span className="relative block h-3 w-full bg-[#D9D9D9]">
+                          </span>
+                          <span className="relative block h-1.5 w-full bg-[#D9D9D9]">
                             <span
                               style={{
-                                width: `${video.percentageCompletion}%`,
+                                width: `${courseDetailsData?.percentageCompletion}%`,
                               }}
                               className="absolute top-0 left-0 h-full bg-[#34A853] transition-[width]"
                             ></span>
                             <span className="sr-only">Progress Level</span>
-                          </span> */}
+                          </span>
                         </button>
                       ))}
                     </div>
