@@ -242,7 +242,7 @@ const LoginDialog = () => {
               alt="Google logo"
               className="h-4 w-4"
             />
-            Sign Up with Google
+            Login with Google
             <span className="sr-only">Sign up with Google</span>
           </button>
           <div className="flex items-center justify-center gap-2.5 text-sm text-[#00230F]">
