@@ -30,7 +30,7 @@ export const MUTATIONS = {
     password: string;
     deviceSignature: string;
   }) {
-    return await https.post(`/auth/login`, data);
+    return await https.post(`/auth/login?userType=USER`, data);
   },
   authPasswordReset: async function (data: {
     email: string;
