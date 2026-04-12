@@ -120,7 +120,10 @@ const About = (props: { id: string }) => {
                     </div>
                     <Activity mode={playVideo ? 'hidden' : 'visible'}>
                       <Image
-                        src={courseDetailsData.thumbnail}
+                        src={
+                          courseDetailsData.videos[0]?.thumbnailUrl ??
+                          courseDetailsData.thumbnail
+                        }
                         fill
                         sizes="(max-width: 1200px) 100vw, 1200px"
                         alt={courseDetailsData.title}

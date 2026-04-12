@@ -104,6 +104,7 @@ export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
     isTrailer: boolean;
     isPublic: boolean;
     bunnyVideoId: string;
+    thumbnailUrl: string;
   }[];
   categories: Omit<
     Category['category'][],
