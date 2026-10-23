@@ -71,12 +71,14 @@ export function Pagination({
   onPageChange,
   siblingCount = 1,
 }: PaginationProps) {
+  // One page (or none): no pagination at all.
+  if (!totalPages || totalPages <= 1) return null;
   const pages = generatePageNumbers(currentPage, totalPages, siblingCount);
 
   return (
     <ShadcnPagination>
       <PaginationContent>
-        <PaginationItem>
+        {currentPage > 1 && <PaginationItem>
           <PaginationPrevious
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             className={
@@ -85,7 +87,7 @@ export function Pagination({
                 : 'cursor-pointer bg-[#D0EA50] hover:bg-[#D0EA50]/80'
             }
           />
-        </PaginationItem>
+        </PaginationItem>}
 
         {pages.map((page, idx) =>
           page === '...' ? (
@@ -108,7 +110,7 @@ export function Pagination({
           ),
         )}
 
-        <PaginationItem>
+        {currentPage < totalPages && <PaginationItem>
           <PaginationNext
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             className={
@@ -117,7 +119,7 @@ export function Pagination({
                 : 'cursor-pointer bg-[#D0EA50] hover:bg-[#D0EA50]/80'
             }
           />
-        </PaginationItem>
+        </PaginationItem>}
       </PaginationContent>
     </ShadcnPagination>
   );

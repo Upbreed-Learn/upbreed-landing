@@ -70,7 +70,7 @@ const Navbar = () => {
               >
                 Pricing
               </NavLink>
-              <NavLink
+              {token && <NavLink
                 href={'/sessions'}
                 className={cn(
                   'hover:text-[#D0EA50]',
@@ -78,7 +78,7 @@ const Navbar = () => {
                 )}
               >
                 1-on-1
-              </NavLink>
+              </NavLink>}
             </div>
             <div
               className={cn(

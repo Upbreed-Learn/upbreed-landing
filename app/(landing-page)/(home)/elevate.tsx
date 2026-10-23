@@ -60,6 +60,14 @@ const Elevate = () => {
     }
   });
 
+  // Nothing to show yet (no categories or homepage courses): leave the section out entirely.
+  const nothingToShow =
+    !isPending &&
+    !categoryDataIsPending &&
+    !(homepageCourses?.length > 0) &&
+    !(categories?.length > 0);
+  if (nothingToShow) return null;
+
   return (
     <section className="flex h-[calc(100vh-89px)] justify-center px-8 md:py-7">
       <div

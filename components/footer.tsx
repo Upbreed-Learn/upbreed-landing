@@ -123,7 +123,7 @@ const Footer = () => {
             <Image src={logo} alt="upbreed logo" className="max-lg:hidden" />
             <div className="flex gap-35 text-sm/9 text-white">
               <ul>
-                {LINKS.slice(0, 6).map(link => (
+                {LINKS.filter(l => token || l.href !== '/sessions').slice(0, 6).map(link => (
                   <li key={link.name}>
                     <NavLink
                       href={link.href}
@@ -143,7 +143,7 @@ const Footer = () => {
                 ))}
               </ul>
               <ul>
-                {LINKS.slice(6).map(link => (
+                {LINKS.filter(l => token || l.href !== '/sessions').slice(6).map(link => (
                   <li key={link.name}>
                     {link.name.toLowerCase().includes('contact') ? (
                       <ContactUs>{link.name}</ContactUs>

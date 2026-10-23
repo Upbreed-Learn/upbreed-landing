@@ -14,7 +14,11 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 const BookSession = () => {
+  const { data: tokenData, isPending: tokenPending } = useGetToken();
+  const loggedIn = Boolean(tokenData?.data.token);
+  const [, setAuthQ] = useQueryState('auth');
   const instructors = useQuery({
+    enabled: loggedIn,
     queryKey: ['session-instructors'],
     queryFn: () => https.get('/sessions/instructors', { params: { limit: 50 } }).then(r => r.data.data as SessionInstructor[]),
   });
@@ -31,7 +35,12 @@ const BookSession = () => {
           </p>
         </div>
 
-        {instructors.isPending ? (
+        {!tokenPending && !loggedIn ? (
+          <div className="flex flex-col items-start gap-4">
+            <p className="text-white/80">Log in to see instructors and book a session.</p>
+            <Button onClick={() => setAuthQ('login')}>Log in</Button>
+          </div>
+        ) : instructors.isPending ? (
           <div className="grid gap-4 md:grid-cols-2">
             {[0, 1].map(i => (
               <div key={i} className="h-48 animate-pulse rounded-2xl bg-white/10" />
