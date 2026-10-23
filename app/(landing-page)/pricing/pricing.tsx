@@ -25,7 +25,7 @@ import {
 } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
-import { currencyChoices, formatPrice, pickPrice } from '@/lib/pricing';
+import { formatPrice, type Period } from '@/lib/pricing';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -34,7 +34,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import { toast } from 'sonner';
 
 const ChooseYourPlan = () => {
-  const [tab, _] = useQueryState('plan', { defaultValue: 'monthly' });
+  const [tab, _] = useQueryState('plan', { defaultValue: 'biannually' });
   const [subChoice, setSubChoice] = useState<Subscription | null>(null);
 
   return (
@@ -48,7 +48,6 @@ const ChooseYourPlan = () => {
             </p>
           </div>
           <PlanTabs />
-          <CurrencyTabs />
         </div>
         <PlansDesktop tab={tab} level={subChoice} setLevel={setSubChoice} />
         <PlansMobile tab={tab} level={subChoice} setLevel={setSubChoice} />
@@ -61,7 +60,7 @@ export default ChooseYourPlan;
 
 const PlanTabs = () => {
   const [tab, setTab] = useQueryState('plan', {
-    defaultValue: 'montly',
+    defaultValue: 'biannually',
   });
 
   return (
@@ -84,52 +83,25 @@ const PlanTabs = () => {
   );
 };
 
-const CurrencyTabs = () => {
-  const { data } = useGetSubscriptions();
-  const choices = currencyChoices(data?.data.data);
-  const [tab, setTab] = useQueryState('currency');
-
-  // Only one price available where the visitor is: nothing to choose.
-  if (choices.length < 2) return null;
-
-  return (
-    <Tabs value={tab && choices.includes(tab) ? tab : choices[0]} onValueChange={setTab}>
-      <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
-        {choices.map(c => (
-          <TabsTrigger
-            key={c}
-            value={c}
-            className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
-          >
-            {c}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-    </Tabs>
-  );
-};
-
 const PlansDesktop = (props: {
   tab: string;
   level: Subscription | null;
   setLevel: Dispatch<SetStateAction<Subscription | null>>;
 }) => {
   const { level, setLevel, tab } = props;
-  const [currency, __] = useQueryState('currency');
   const { data: subscriptionData, isPending: isSubscriptionPending } =
     useGetSubscriptions();
   const subscriptions: Subscription[] = subscriptionData?.data.data;
 
-  const filterAvailablePlans = subscriptions?.filter(plan => plan.price);
-
-  const filterAvailablePlansByPeriod = filterAvailablePlans?.filter(
-    plan => plan.period === tab,
+  // Every plan can be bought for 6 months or a year; show those with a price for the chosen period.
+  const filterAvailablePlansByPeriod = subscriptions?.filter(
+    plan => plan.periods?.[tab as Period],
   );
 
   return (
     <div className="relative flex flex-col gap-29.25 max-lg:hidden">
       <ul className="text-xs/[100%] font-medium [&>li]:border-b [&>li]:border-[#305B43] [&>li]:py-7 [&>li]:pl-13.5 [&>li]:last:border-none">
-        <li>Monthly Price ( billed half-year and annually)</li>
+        <li>Price (billed every 6 months or yearly)</li>
         <li>Download for Offline viewing</li>
         <li>All 200+ classes acrross 11 categories</li>
         <li>
@@ -161,7 +133,7 @@ const PlansDesktop = (props: {
             selected={level}
             device={`${subscription.noDevices} Device${subscription.noDevices > 1 ? 's' : ''}`}
             offline="No Offline mode"
-            monthlyPrice={formatPrice(pickPrice(subscription, currency))}
+            monthlyPrice={formatPrice(subscription.periods?.[tab as Period])}
             download="No"
           />
         ))
@@ -179,15 +151,13 @@ const PlansMobile = (props: {
   setLevel: Dispatch<SetStateAction<Subscription | null>>;
 }) => {
   const { level, setLevel, tab } = props;
-  const [currency, __] = useQueryState('currency');
   const { data: subscriptionData, isPending: isSubscriptionPending } =
     useGetSubscriptions();
   const subscriptions: Subscription[] = subscriptionData?.data.data;
 
-  const filterAvailablePlans = subscriptions?.filter(plan => plan.price);
-
-  const filterAvailablePlansByPeriod = filterAvailablePlans?.filter(
-    plan => plan.period === tab,
+  // Every plan can be bought for 6 months or a year; show those with a price for the chosen period.
+  const filterAvailablePlansByPeriod = subscriptions?.filter(
+    plan => plan.periods?.[tab as Period],
   );
 
   if (isSubscriptionPending) return <SubscriptionMobileLoading />;
@@ -235,11 +205,11 @@ const PlansMobile = (props: {
                   level?.id === subscription.id && 'text-[#D0EA50]',
                 )}
               >
-                {formatPrice(pickPrice(subscription, currency))}
+                {formatPrice(subscription.periods?.[tab as Period])}
               </p>
             ))}
           </div>
-          <p className="text-center text-xs">Monthly Price (billed annually)</p>
+          <p className="text-center text-xs">Price (billed every 6 months or yearly)</p>
         </div>
         <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
           <div className="flex items-center justify-between px-8">
@@ -383,10 +353,10 @@ const SubscriptionNotice = (props: {
   level: Subscription | null;
 }) => {
   const { children, level } = props;
+  const [period] = useQueryState('plan', { defaultValue: 'biannually' });
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [_, setAuth] = useQueryState('auth');
-  const [currency, __] = useQueryState('currency');
   const { data: tokenData } = useGetToken();
   const token = tokenData?.data.token;
   const { data } = useGetUserProfile(token);
@@ -397,7 +367,7 @@ const SubscriptionNotice = (props: {
   const { mutate, isPending } = useSendRequest<
     {
       planId: number;
-      currency: string;
+      period: string;
       email: string;
       callbackUrl: string;
     },
@@ -421,7 +391,7 @@ const SubscriptionNotice = (props: {
   >({
     mutationFn: (data: {
       planId: number;
-      currency: string;
+      period: string;
       email: string;
       callbackUrl: string;
     }) => MUTATIONS.initiateSubscription(data),
@@ -458,7 +428,7 @@ const SubscriptionNotice = (props: {
     } else {
       mutate({
         planId: level?.id!!,
-        currency: pickPrice(level, currency)?.currency ?? '',
+        period,
         email: userProfile.email,
         callbackUrl: `${rootUrl}/student/courses`,
       });

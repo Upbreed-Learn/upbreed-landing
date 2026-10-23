@@ -29,19 +29,16 @@ import z from 'zod';
 import { Skeleton } from './ui/custom/skeleton';
 import { MUTATIONS } from '@/lib/queries';
 import useSendRequest from '@/lib/hooks/useSendRequest';
-import { currencyChoices, formatPrice, pickPrice } from '@/lib/pricing';
+import { formatPrice, type Period } from '@/lib/pricing';
 import { useRouter } from 'next/navigation';
 
-const plans = [
-  {
-    id: '1',
-    title: '6 Months',
-  },
-  {
-    id: '2',
-    title: '1 Year',
-  },
-];
+const GIFT_PERIODS = [
+  { id: 'biannually', title: '6 Months' },
+  { id: 'annually', title: '1 Year' },
+] as const;
+
+const giftMessage = (period: string) =>
+  `I hope you enjoy your ${period === 'annually' ? '1-year' : '6-month'} subscription at Upbreed Learn. It gives you access to all our instructors and what they teach for ${period === 'annually' ? 'a whole year' : '6 months'}. Happy Learning!`;
 
 const formSchema = z.object({
   recipientName: z.string().min(2, { message: 'First name is required' }),
@@ -56,7 +53,7 @@ const formSchema = z.object({
     .string()
     .min(10, { message: 'Message should be at least 10 characters' }),
   plan: z.string().min(1, 'You must select a subscription plan to continue.'),
-  currency: z.string().min(1, 'You must select a currency to continue.'),
+  currency: z.string().optional(),
 });
 
 const Gifts = (props: { children?: React.ReactNode }) => {
@@ -73,7 +70,8 @@ const Gifts = (props: { children?: React.ReactNode }) => {
       recipientName: string;
       recipientEmail: string;
       planId: string;
-      currency: string;
+      period?: string;
+      currency?: string;
       callbackUrl: string;
     },
     {
@@ -98,7 +96,8 @@ const Gifts = (props: { children?: React.ReactNode }) => {
       recipientName: string;
       recipientEmail: string;
       planId: string;
-      currency: string;
+      period?: string;
+      currency?: string;
       callbackUrl: string;
     }) => MUTATIONS.giftSubscription(data),
     successToast: {
@@ -124,7 +123,7 @@ const Gifts = (props: { children?: React.ReactNode }) => {
       yourName: '',
       yourEmail: '',
       message: '',
-      plan: subscriptions ? `${subscriptions[3]?.id}` : '',
+      plan: 'biannually',
       currency: '',
     } as const as z.infer<typeof formSchema>,
     validators: {
@@ -134,8 +133,8 @@ const Gifts = (props: { children?: React.ReactNode }) => {
       mutate({
         recipientName: value.recipientName,
         recipientEmail: value.recipientEmail,
-        planId: value.plan,
-        currency: value.currency,
+        planId: `${giftPlan?.id ?? ''}`,
+        period: value.plan,
         callbackUrl: `${rootUrl}`,
       });
     },
@@ -144,15 +143,10 @@ const Gifts = (props: { children?: React.ReactNode }) => {
   useEffect(() => {
     if (subscriptions?.length > 0) {
       messageField.setValue(
-        `I hope you enjoy your ${filterPlans(Number(subscriptions[3]?.id))?.name} subscription at Upbreed Learn. This subscription gives you access for a period of 6 months. You have access to all our instructors, and what they teach. Happy Learning!`,
+        giftMessage('biannually'),
       );
     }
   }, [subscriptions]);
-
-  const currencyField = useField({
-    form,
-    name: 'currency',
-  });
 
   const planField = useField({
     form,
@@ -164,10 +158,8 @@ const Gifts = (props: { children?: React.ReactNode }) => {
     name: 'message',
   });
 
-  const filterPlans = (planId: number) => {
-    const filteredPlans = subscriptions.filter(plan => plan.id === planId);
-    return filteredPlans[0];
-  };
+  // Gifts are a 6-month or 1-year subscription of the first plan on sale, priced for the gifter's region.
+  const giftPlan = subscriptions?.find(plan => plan.periods?.biannually || plan.periods?.annually);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -194,15 +186,9 @@ const Gifts = (props: { children?: React.ReactNode }) => {
               <FieldLegend className="text-xl font-semibold text-[#305B43]">
                 UPBREED LEARN
               </FieldLegend>
-              {currencyField.state.value !== '' && (
+              {giftPlan?.periods?.[planField.state.value as Period] && (
                 <FieldDescription className="text-sm/6 font-medium">
-                  Total Billed :{' '}
-                  {formatPrice(
-                    pickPrice(
-                      filterPlans(Number(planField.state.value)),
-                      currencyField.state.value,
-                    ),
-                  )}
+                  Total Billed : {formatPrice(giftPlan.periods[planField.state.value as Period])}
                 </FieldDescription>
               )}
             </FieldSet>
@@ -355,13 +341,11 @@ const Gifts = (props: { children?: React.ReactNode }) => {
                             value={field.state.value}
                             onValueChange={value => {
                               (field.handleChange(value),
-                                messageField.setValue(
-                                  `I hope you enjoy your ${filterPlans(Number(value)).period} subscription at Upbreed Learn. This subscription gives you access for a period of 6 months. You have access to all our instructors, and what they teach. Happy Learning!`,
-                                ));
+                                messageField.setValue(giftMessage(value)));
                             }}
                             className="flex items-center justify-end"
                           >
-                            {subscriptions.slice(3, 5).map(plan => (
+                            {GIFT_PERIODS.filter(p => giftPlan?.periods?.[p.id]).map(plan => (
                               <FieldLabel
                                 key={plan.id}
                                 htmlFor={`form-tanstack-radiogroup-${plan.id}`}
@@ -374,57 +358,12 @@ const Gifts = (props: { children?: React.ReactNode }) => {
                                 >
                                   <FieldContent>
                                     <FieldTitle className="capitalize">
-                                      {plan.period}
+                                      {plan.title}
                                     </FieldTitle>
                                   </FieldContent>
                                   <RadioGroupItem
                                     value={`${plan.id}`}
                                     id={`form-tanstack-radiogroup-${plan.id}`}
-                                    aria-invalid={isInvalid}
-                                  />
-                                </Field>
-                              </FieldLabel>
-                            ))}
-                          </RadioGroup>
-                          {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
-                          )}
-                        </FieldSet>
-                      );
-                    }}
-                  />
-                  <form.Field
-                    name="currency"
-                    children={field => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <FieldSet>
-                          <RadioGroup
-                            name={field.name}
-                            value={field.state.value}
-                            onValueChange={field.handleChange}
-                            className="flex items-center justify-end"
-                          >
-                            {currencyChoices(subscriptions).map((currency, id) => ({ id, currency })).map(plan => (
-                              <FieldLabel
-                                key={plan.id}
-                                htmlFor={`currency-${plan.id}`}
-                                className="h-auto w-max! border-none bg-transparent! p-0!"
-                              >
-                                <Field
-                                  orientation="horizontal"
-                                  data-invalid={isInvalid}
-                                  className="w-max flex-row-reverse"
-                                >
-                                  <FieldContent>
-                                    <FieldTitle className="capitalize">
-                                      {plan.currency}
-                                    </FieldTitle>
-                                  </FieldContent>
-                                  <RadioGroupItem
-                                    value={`${plan.currency}`}
-                                    id={`currency-${plan.id}`}
                                     aria-invalid={isInvalid}
                                   />
                                 </Field>

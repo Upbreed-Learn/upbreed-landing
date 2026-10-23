@@ -159,6 +159,8 @@ export interface Subscription {
   price?: PlanPrice | null;
   /** Prices the visitor may choose from: their country's and the default. */
   prices?: PlanPrice[];
+  /** The visitor's price for each billing cycle (full amount charged for that period). */
+  periods?: Partial<Record<'monthly' | 'biannually' | 'annually', (PlanPrice & { months: number; perMonth: number }) | null>>;
   name: string;
   period: string;
   paystackPlanCode: string | null;

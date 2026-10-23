@@ -1,5 +1,7 @@
 import type { PlanPrice, Subscription } from './constants';
 
+export type Period = 'monthly' | 'biannually' | 'annually';
+
 /** "₦15,000", "GH₵120", "$10" — in the visitor's locale. */
 export function formatPrice(price: Pick<PlanPrice, 'currency' | 'amount'> | null | undefined) {
   if (!price) return '—';

@@ -59,7 +59,8 @@ export const MUTATIONS = {
   initiateSubscription: async function (data: {
     email: string;
     planId: number;
-    currency: string;
+    period?: string;
+    currency?: string;
     callbackUrl: string;
   }) {
     return await https.post(`/payment/subscription/initiate`, data);
@@ -68,7 +69,8 @@ export const MUTATIONS = {
     recipientName: string;
     recipientEmail: string;
     planId: string;
-    currency: string;
+    period?: string;
+    currency?: string;
     callbackUrl: string;
   }) {
     return await https.post(`/payment/subscription/gift`, data);

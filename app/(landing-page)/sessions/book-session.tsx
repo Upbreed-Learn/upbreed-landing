@@ -144,19 +144,6 @@ function PickTime({ instructor, type, onBack }: { instructor: SessionInstructor;
           with {instructor.name} · {type.durationMinutes} min · {formatPrice(price)}
         </p>
         {type.description && <p className="mt-2 max-w-2xl text-sm text-white/80">{type.description}</p>}
-        {type.prices.length > 1 && (
-          <div className="mt-3 flex gap-2 text-xs">
-            {type.prices.map(p => (
-              <button
-                key={p.currency}
-                onClick={() => setCurrency(p.currency)}
-                className={cn('cursor-pointer rounded-full px-3 py-1', currency === p.currency ? 'bg-[#D0EA50] text-black' : 'bg-white/10')}
-              >
-                Pay in {p.currency}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {slots.isPending ? (
