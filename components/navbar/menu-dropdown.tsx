@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { Headset, Info, LogOutIcon, Settings, ShieldAlert } from 'lucide-react';
+import { CalendarDays, Headset, Info, LogOutIcon, Settings, ShieldAlert } from 'lucide-react';
 import CashOutline from '../jsx-icons/cash-outline';
 import { deleteToken } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
@@ -59,6 +59,15 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
           >
             Privacy
             <ShieldAlert className="text-white group-hover:text-black" />
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link
+            href="/student/sessions"
+            className="group flex w-full cursor-pointer items-center justify-end gap-3"
+          >
+            My 1-on-1 sessions
+            <CalendarDays className="text-white group-hover:text-black" />
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

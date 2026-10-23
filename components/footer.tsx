@@ -49,6 +49,10 @@ const LINKS = [
     href: '/pricing',
   },
   {
+    name: '1-on-1 Sessions',
+    href: '/sessions',
+  },
+  {
     name: 'Press',
     href: '/press',
   },

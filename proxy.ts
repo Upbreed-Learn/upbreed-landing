@@ -6,6 +6,7 @@ export function proxy(request: NextRequest) {
   // Check if the request is for protected routes
   if (
     pathname.startsWith('/student/settings') ||
+    pathname.startsWith('/student/sessions') ||
     pathname === '/student/courses'
   ) {
     // Check if authentication cookie is present
@@ -25,5 +26,6 @@ export const config = {
     '/student/settings',
     '/student/courses',
     '/student/settings/:path*',
+    '/student/sessions',
   ],
 };

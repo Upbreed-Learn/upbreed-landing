@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const OneOnOne = () => {
   return (
@@ -35,7 +36,9 @@ const OneOnOne = () => {
             </li>
           </ul>
         </div>
-        <Button className="w-max">Get Started</Button>
+        <Button asChild className="w-max">
+          <Link href="/sessions">Get Started</Link>
+        </Button>
       </div>
     </section>
   );

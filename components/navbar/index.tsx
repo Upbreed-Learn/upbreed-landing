@@ -70,6 +70,15 @@ const Navbar = () => {
               >
                 Pricing
               </NavLink>
+              <NavLink
+                href={'/sessions'}
+                className={cn(
+                  'hover:text-[#D0EA50]',
+                  pathname === '/sessions' && 'text-[#D0EA50]',
+                )}
+              >
+                1-on-1
+              </NavLink>
             </div>
             <div
               className={cn(
