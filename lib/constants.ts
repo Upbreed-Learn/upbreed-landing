@@ -144,8 +144,21 @@ export interface UserProfileType {
   role: Role[];
 }
 
+export interface PlanPrice {
+  id: number;
+  /** 2-letter country code, or DEFAULT */
+  region: string;
+  currency: string;
+  amount: number;
+  provider: 'PAYSTACK' | 'STRIPE';
+}
+
 export interface Subscription {
   id: number;
+  /** Price for the visitor's country (or the default price). */
+  price?: PlanPrice | null;
+  /** Prices the visitor may choose from: their country's and the default. */
+  prices?: PlanPrice[];
   name: string;
   period: string;
   paystackPlanCode: string | null;

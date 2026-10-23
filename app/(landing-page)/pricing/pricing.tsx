@@ -25,6 +25,7 @@ import {
 } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
+import { currencyChoices, formatPrice, pickPrice } from '@/lib/pricing';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -67,7 +68,7 @@ const PlanTabs = () => {
     <Tabs value={tab} defaultValue={tab} onValueChange={setTab}>
       <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
         <TabsTrigger
-          value={'montly'}
+          value={'biannually'}
           className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
         >
           6-months
@@ -84,25 +85,25 @@ const PlanTabs = () => {
 };
 
 const CurrencyTabs = () => {
-  const [tab, setTab] = useQueryState('currency', {
-    defaultValue: 'USD',
-  });
+  const { data } = useGetSubscriptions();
+  const choices = currencyChoices(data?.data.data);
+  const [tab, setTab] = useQueryState('currency');
+
+  // Only one price available where the visitor is: nothing to choose.
+  if (choices.length < 2) return null;
 
   return (
-    <Tabs value={tab} defaultValue={tab} onValueChange={setTab}>
+    <Tabs value={tab && choices.includes(tab) ? tab : choices[0]} onValueChange={setTab}>
       <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
-        <TabsTrigger
-          value={'USD'}
-          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
-        >
-          USD
-        </TabsTrigger>
-        <TabsTrigger
-          value={'NGN'}
-          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
-        >
-          NGN
-        </TabsTrigger>
+        {choices.map(c => (
+          <TabsTrigger
+            key={c}
+            value={c}
+            className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
+          >
+            {c}
+          </TabsTrigger>
+        ))}
       </TabsList>
     </Tabs>
   );
@@ -114,16 +115,12 @@ const PlansDesktop = (props: {
   setLevel: Dispatch<SetStateAction<Subscription | null>>;
 }) => {
   const { level, setLevel, tab } = props;
-  const [currency, __] = useQueryState('currency', {
-    defaultValue: 'USD',
-  });
+  const [currency, __] = useQueryState('currency');
   const { data: subscriptionData, isPending: isSubscriptionPending } =
     useGetSubscriptions();
   const subscriptions: Subscription[] = subscriptionData?.data.data;
 
-  const filterAvailablePlans = subscriptions?.filter(
-    plan => plan.paystackPlanCode,
-  );
+  const filterAvailablePlans = subscriptions?.filter(plan => plan.price);
 
   const filterAvailablePlansByPeriod = filterAvailablePlans?.filter(
     plan => plan.period === tab,
@@ -164,11 +161,7 @@ const PlansDesktop = (props: {
             selected={level}
             device={`${subscription.noDevices} Device${subscription.noDevices > 1 ? 's' : ''}`}
             offline="No Offline mode"
-            monthlyPrice={
-              currency === 'USD'
-                ? `$${subscription.amountUsd}`
-                : `₦${subscription.amountNaira}`
-            }
+            monthlyPrice={formatPrice(pickPrice(subscription, currency))}
             download="No"
           />
         ))
@@ -186,16 +179,12 @@ const PlansMobile = (props: {
   setLevel: Dispatch<SetStateAction<Subscription | null>>;
 }) => {
   const { level, setLevel, tab } = props;
-  const [currency, __] = useQueryState('currency', {
-    defaultValue: 'USD',
-  });
+  const [currency, __] = useQueryState('currency');
   const { data: subscriptionData, isPending: isSubscriptionPending } =
     useGetSubscriptions();
   const subscriptions: Subscription[] = subscriptionData?.data.data;
 
-  const filterAvailablePlans = subscriptions?.filter(
-    plan => plan.paystackPlanCode,
-  );
+  const filterAvailablePlans = subscriptions?.filter(plan => plan.price);
 
   const filterAvailablePlansByPeriod = filterAvailablePlans?.filter(
     plan => plan.period === tab,
@@ -246,9 +235,7 @@ const PlansMobile = (props: {
                   level?.id === subscription.id && 'text-[#D0EA50]',
                 )}
               >
-                {currency === 'USD'
-                  ? `$${Number(subscription.amountUsd).toLocaleString()}`
-                  : `₦${Number(subscription.amountNaira).toLocaleString()}`}
+                {formatPrice(pickPrice(subscription, currency))}
               </p>
             ))}
           </div>
@@ -399,9 +386,7 @@ const SubscriptionNotice = (props: {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [_, setAuth] = useQueryState('auth');
-  const [currency, __] = useQueryState('currency', {
-    defaultValue: 'USD',
-  });
+  const [currency, __] = useQueryState('currency');
   const { data: tokenData } = useGetToken();
   const token = tokenData?.data.token;
   const { data } = useGetUserProfile(token);
@@ -473,7 +458,7 @@ const SubscriptionNotice = (props: {
     } else {
       mutate({
         planId: level?.id!!,
-        currency: currency,
+        currency: pickPrice(level, currency)?.currency ?? '',
         email: userProfile.email,
         callbackUrl: `${rootUrl}/student/courses`,
       });

@@ -29,6 +29,7 @@ import z from 'zod';
 import { Skeleton } from './ui/custom/skeleton';
 import { MUTATIONS } from '@/lib/queries';
 import useSendRequest from '@/lib/hooks/useSendRequest';
+import { currencyChoices, formatPrice, pickPrice } from '@/lib/pricing';
 import { useRouter } from 'next/navigation';
 
 const plans = [
@@ -196,9 +197,12 @@ const Gifts = (props: { children?: React.ReactNode }) => {
               {currencyField.state.value !== '' && (
                 <FieldDescription className="text-sm/6 font-medium">
                   Total Billed :{' '}
-                  {currencyField.state.value === 'USD'
-                    ? `$${Number(filterPlans(Number(planField.state.value)).amountUsd).toLocaleString()}`
-                    : `₦${Number(filterPlans(Number(planField.state.value)).amountNaira).toLocaleString()}`}
+                  {formatPrice(
+                    pickPrice(
+                      filterPlans(Number(planField.state.value)),
+                      currencyField.state.value,
+                    ),
+                  )}
                 </FieldDescription>
               )}
             </FieldSet>
@@ -402,10 +406,7 @@ const Gifts = (props: { children?: React.ReactNode }) => {
                             onValueChange={field.handleChange}
                             className="flex items-center justify-end"
                           >
-                            {[
-                              { id: 1, currency: 'USD' },
-                              { id: 2, currency: 'NGN' },
-                            ].map(plan => (
+                            {currencyChoices(subscriptions).map((currency, id) => ({ id, currency })).map(plan => (
                               <FieldLabel
                                 key={plan.id}
                                 htmlFor={`currency-${plan.id}`}
