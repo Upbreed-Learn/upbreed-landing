@@ -36,7 +36,7 @@ const Subscription = () => {
         <div className="flex h-66 flex-col items-center justify-center gap-5 bg-[#D9D9D9]">
           <Activity
             mode={
-              subscriptions?.[0].status !== 'CANCELLED' ? 'visible' : 'hidden'
+              subscriptions?.[0]?.status !== 'CANCELLED' ? 'visible' : 'hidden'
             }
           >
             <p className="text-sm font-semibold">
@@ -52,7 +52,7 @@ const Subscription = () => {
           </Activity>
           <Activity
             mode={
-              subscriptions?.[0].status === 'CANCELLED' ? 'visible' : 'hidden'
+              subscriptions?.[0]?.status === 'CANCELLED' ? 'visible' : 'hidden'
             }
           >
             <p className="text-xs font-semibold text-[#949494]">
@@ -62,7 +62,7 @@ const Subscription = () => {
         </div>
         <Activity
           mode={
-            subscriptions?.[0].status !== 'CANCELLED' ? 'visible' : 'hidden'
+            subscriptions?.[0]?.status !== 'CANCELLED' ? 'visible' : 'hidden'
           }
         >
           <div className="flex justify-end gap-4">

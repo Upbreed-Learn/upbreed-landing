@@ -16,7 +16,7 @@ const Others = (props: { id: string }) => {
   const { data, isPending, isError } = useGetCoursesByCategory(
     1,
     10,
-    `${courseDetailsData?.categories[0].id}`,
+    `${courseDetailsData?.categories?.[0]?.id}`,
   );
   const courseList: CourseData[] = data?.data.data;
   const courses = courseList?.filter(course => course.id.toString() !== id);

@@ -82,7 +82,7 @@ const About = (props: { id: string }) => {
       return;
     }
     if (
-      (subscriptions.length === 0 || subscriptions[0].status === 'CANCELLED') &&
+      (subscriptions.length === 0 || subscriptions[0]?.status === 'CANCELLED') &&
       !isPublic
     ) {
       setOpen(true);

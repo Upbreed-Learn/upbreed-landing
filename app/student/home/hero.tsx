@@ -57,7 +57,7 @@ const Hero = () => {
         </div>
         {isPending ? (
           <HeroLoader />
-        ) : (
+        ) : !courses?.[0] ? null : (
           <div className="flex items-center gap-6">
             <div className="relative h-41.5 w-76.5 overflow-hidden rounded-l-lg">
               <Image
@@ -140,7 +140,7 @@ export const MobileHero = () => {
         </p>
         {isPending ? (
           <MobileLoader />
-        ) : (
+        ) : !courses?.[0] ? null : (
           <div
             className={cn(
               'flex justify-center bg-[#305B43] px-9 py-6',

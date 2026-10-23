@@ -69,7 +69,7 @@ const Trailer = () => {
       <div className="reveal flex w-full max-w-7xl translate-y-240 items-center justify-center px-9 py-7 opacity-0 md:px-12 md:py-10 lg:px-18">
         {isPending ? (
           <TrailerLoading />
-        ) : (
+        ) : !courses?.[0] ? null : (
           <div className="_size-max relative h-max w-full">
             <Activity mode={play ? 'hidden' : 'visible'}>
               <div className="_lg:w-[calc(100vw-9rem)] _max-w-[66.38875rem] _w-[calc(100vw-4.5rem)] _md:w-[calc(100vw-6rem)] relative z-10 h-123 overflow-hidden rounded-2xl md:h-140 lg:w-full">
