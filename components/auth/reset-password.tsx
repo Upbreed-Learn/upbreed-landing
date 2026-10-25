@@ -26,6 +26,7 @@ import useSendRequest from '@/lib/hooks/useSendRequest';
 import { MUTATIONS } from '@/lib/queries';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { cn } from '@/lib/utils';
+import PasswordHints from './password-hints';
 import { useUserEmailStore } from '@/store/useUserEmailStore';
 import { useForm } from '@tanstack/react-form';
 import { useQueryClient } from '@tanstack/react-query';
@@ -80,33 +81,6 @@ export const passwordViewReducer = (
   };
 };
 
-const checks = [
-  {
-    key: 'length',
-    label: 'At least 8 characters',
-    ok: (pw: string) => (pw || '').length >= 8,
-  },
-  {
-    key: 'upper',
-    label: 'At least 1 uppercase letter',
-    ok: (pw: string) => /[A-Z]/.test(pw || ''),
-  },
-  {
-    key: 'lower',
-    label: 'At least 1 lowercase letter',
-    ok: (pw: string) => /[a-z]/.test(pw || ''),
-  },
-  {
-    key: 'number',
-    label: 'At least 1 number',
-    ok: (pw: string) => /\d/.test(pw || ''),
-  },
-  {
-    key: 'special',
-    label: 'At least 1 special character',
-    ok: (pw: string) => /[^A-Za-z0-9]/.test(pw || ''),
-  },
-];
 
 const ResetPassword = (props: {
   onStartTimer: () => void;
@@ -267,37 +241,7 @@ const ResetPassword = (props: {
                           </span>
                         </button>
                       </FieldSet>
-                      <ul
-                        className="mt-1 flex flex-col gap-1 text-sm/5"
-                        aria-live="polite"
-                        role="list"
-                      >
-                        {checks.map(c => {
-                          const passed = c.ok(field.state.value || '');
-                          return (
-                            <li key={c.key} className="flex items-center gap-2">
-                              <span
-                                className={cn(
-                                  'inline-flex h-4 w-4 items-center justify-center rounded-full text-xs',
-                                  passed
-                                    ? 'bg-[#083226] text-[#D0EA50]'
-                                    : 'bg-[#1F2933] text-[#8996A9]',
-                                )}
-                                aria-hidden
-                              >
-                                {passed ? '✓' : '•'}
-                              </span>
-                              <span
-                                className={
-                                  passed ? 'text-black' : 'text-[#8996A9]'
-                                }
-                              >
-                                {c.label}
-                              </span>
-                            </li>
-                          );
-                        })}
-                      </ul>
+                      <PasswordHints value={field.state.value || ''} />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}

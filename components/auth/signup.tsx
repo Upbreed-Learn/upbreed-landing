@@ -24,6 +24,7 @@ import 'react-phone-input-2/lib/style.css';
 import { Eye, EyeOff, LoaderPinwheelIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import PasswordHints from './password-hints';
 import useSendRequest, {
   successToastClassName,
 } from '@/lib/hooks/useSendRequest';
@@ -85,33 +86,6 @@ export const passwordViewReducer = (
   };
 };
 
-const checks = [
-  {
-    key: 'length',
-    label: 'At least 8 characters',
-    ok: (pw: string) => (pw || '').length >= 8,
-  },
-  {
-    key: 'upper',
-    label: 'At least 1 uppercase letter',
-    ok: (pw: string) => /[A-Z]/.test(pw || ''),
-  },
-  {
-    key: 'lower',
-    label: 'At least 1 lowercase letter',
-    ok: (pw: string) => /[a-z]/.test(pw || ''),
-  },
-  {
-    key: 'number',
-    label: 'At least 1 number',
-    ok: (pw: string) => /\d/.test(pw || ''),
-  },
-  {
-    key: 'special',
-    label: 'At least 1 special character',
-    ok: (pw: string) => /[^A-Za-z0-9]/.test(pw || ''),
-  },
-];
 
 const SignupDialog = (props: { onStartTimer: () => void }) => {
   const [auth, setAuth] = useQueryState('auth');
@@ -223,7 +197,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
 
   return (
     <Dialog open={auth === 'sign-up'} onOpenChange={handleOpenChange}>
-      <DialogContent className="custom-font z-999 max-h-160 gap-6 overflow-auto px-6 py-9 sm:w-max md:px-16">
+      <DialogContent className="custom-font z-999 max-h-[calc(100dvh/var(--site-zoom,1)-2rem)] gap-4 overflow-auto px-6 py-7 sm:w-max md:px-14">
         <DialogHeader className="sr-only">
           <DialogTitle>Sign Up</DialogTitle>
           <DialogDescription>
@@ -236,7 +210,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="flex w-full flex-col gap-6 text-black md:w-62.5"
+          className="flex w-full flex-col gap-4 text-black md:w-72"
         >
           <FieldSet>
             <FieldLegend className="text-[10px]/[100%] font-semibold text-[#9B9B9B]">
@@ -245,7 +219,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
             <FieldDescription className="text-[10px]/[100%] font-semibold text-[#00230F]">
               Create an Account
             </FieldDescription>
-            <FieldGroup>
+            <FieldGroup className="gap-3">
               <form.Field
                 name="firstName"
                 children={field => {
@@ -390,40 +364,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
                           </span>
                         </button>
                       </FieldSet>
-                      <ul
-                        className="mt-1 flex flex-col gap-1 text-sm/5"
-                        aria-live="polite"
-                        role="list"
-                      >
-                        {checks.map(c => {
-                          const passed = c.ok(field.state.value || '');
-                          return (
-                            <li
-                              key={c.key}
-                              className="custom-font flex items-center gap-2"
-                            >
-                              <span
-                                className={cn(
-                                  'inline-flex h-4 w-4 items-center justify-center rounded-full text-xs',
-                                  passed
-                                    ? 'bg-[#083226] text-[#D0EA50]'
-                                    : 'bg-[#1F2933] text-[#8996A9]',
-                                )}
-                                aria-hidden
-                              >
-                                {passed ? '✓' : '•'}
-                              </span>
-                              <span
-                                className={
-                                  passed ? 'text-black' : 'text-[#8996A9]'
-                                }
-                              >
-                                {c.label}
-                              </span>
-                            </li>
-                          );
-                        })}
-                      </ul>
+                      <PasswordHints value={field.state.value || ''} />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
@@ -490,7 +431,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
             </FieldGroup>
           </FieldSet>
         </form>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center gap-6">
             <hr className="flex-1 border border-[#737373]" />
             <span className="custom-font-semibold text-sm/[100%] text-[#949494]">
@@ -501,7 +442,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="custom-font-semibold flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-[#9B9B9B] px-4 py-3 text-sm text-[#9C9C9C] transition-transform active:scale-95"
+            className="custom-font-semibold flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-[#9B9B9B] px-4 py-2.5 text-sm text-[#9C9C9C] transition-transform active:scale-95"
           >
             <img
               src="/assets/google.svg"
