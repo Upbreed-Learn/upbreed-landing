@@ -48,13 +48,20 @@ const myFont = localFont({
   ],
 });
 
+const FIT_TO_DESIGN = `(function(){var d=document.documentElement;function f(){var w=window.innerWidth;d.style.zoom=w>=1024&&w<1280?String(w/1280):'';}f();window.addEventListener('resize',f);})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* The designs are drawn for a 1280px-wide screen. On smaller laptop screens (1024–1279px)
+            scale the whole site down so it looks like the design instead of oversized. */}
+        <script dangerouslySetInnerHTML={{ __html: FIT_TO_DESIGN }} />
+      </head>
       <body className={cn('bg-[#00230F]', myFont.className)}>
         <QueryProvider>
           <Suspense>
