@@ -10,6 +10,15 @@ import { queryKeys } from '@/lib/queries/query-keys';
 import { QUERIES } from '@/lib/queries';
 import { Category, CourseData, Instructor } from '@/lib/constants';
 import EmptyState from '@/components/empty-state';
+import Basketball from '@/components/jsx-icons/basketball';
+import Star1 from '@/components/jsx-icons/star-1';
+import TrendingUp from '@/components/jsx-icons/trending-up';
+import UsersMore from '@/components/jsx-icons/users-more';
+import ImageIcon from '@/components/jsx-icons/image';
+import Sound from '@/components/jsx-icons/sound';
+import Dna from '@/components/jsx-icons/dna';
+import Screen from '@/components/jsx-icons/screen';
+import Globe from '@/components/jsx-icons/globe';
 import { cn, formatDuration } from '@/lib/utils';
 import { useGetCategories, useGetCoursesBySearch } from '@/lib/queries/hooks';
 import gsap from 'gsap';
@@ -60,14 +69,6 @@ const Elevate = () => {
     }
   });
 
-  // Nothing to show yet (no categories or homepage courses): leave the section out entirely.
-  const nothingToShow =
-    !isPending &&
-    !categoryDataIsPending &&
-    !(homepageCourses?.length > 0) &&
-    !(categories?.length > 0);
-  if (nothingToShow) return null;
-
   return (
     <section className="flex h-[calc(100vh-89px)] justify-center px-8 md:py-7">
       <div
@@ -93,13 +94,15 @@ const Elevate = () => {
                   className="flex items-center gap-2"
                 >
                   {category.name}
-                  {category.icon && (
+                  {category.icon ? (
                     <Image
                       src={category.icon}
                       alt="icon"
                       width={16}
                       height={16}
                     />
+                  ) : (
+                    <CategoryIcon name={category.name} />
                   )}
                 </Link>
               </li>
@@ -165,6 +168,31 @@ const Elevate = () => {
 };
 
 export default Elevate;
+
+/** Default icons for the standard categories (used when no icon was uploaded in admin). */
+function CategoryIcon({ name }: { name: string }) {
+  const n = name.toLowerCase();
+  const Icon = n.includes('sport')
+    ? Basketball
+    : n.includes('trend')
+      ? Star1
+      : n.includes('business')
+        ? TrendingUp
+        : n.includes('community')
+          ? UsersMore
+          : n.includes('art')
+            ? ImageIcon
+            : n.includes('music')
+              ? Sound
+              : n.includes('health')
+                ? Dna
+                : n.includes('film')
+                  ? Screen
+                  : n.includes('science')
+                    ? Globe
+                    : null;
+  return Icon ? <Icon /> : null;
+}
 
 const InstructorCard = (props: { course: CourseData }) => {
   const { course } = props;
