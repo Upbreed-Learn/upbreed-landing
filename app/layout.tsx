@@ -48,8 +48,8 @@ const myFont = localFont({
   ],
 });
 
-// Desktop: show the site at 85% size, and shrink it further on screens narrower than the 1280px designs.
-const SITE_SCALE = 0.85;
+// Desktop: show the site at 90% size, and shrink it further on screens narrower than the 1280px designs.
+const SITE_SCALE = 0.9;
 const FIT_TO_DESIGN = `(function(){var d=document.documentElement;function f(){var w=window.innerWidth;var z=w>=1024?${SITE_SCALE}*Math.min(1,w/1280):1;d.style.zoom=z===1?'':String(z);d.style.setProperty('--site-zoom',String(z));}f();window.addEventListener('resize',f);})();`;
 
 export default function RootLayout({

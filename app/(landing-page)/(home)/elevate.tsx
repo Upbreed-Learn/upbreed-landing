@@ -4,12 +4,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import StarIcon from '@/components/jsx-icons/star';
 // import { ChevronLeftCircle, ChevronRightCircle } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { QUERIES } from '@/lib/queries';
 import { Category, CourseData, Instructor } from '@/lib/constants';
-import EmptyState from '@/components/empty-state';
 import Basketball from '@/components/jsx-icons/basketball';
 import Star1 from '@/components/jsx-icons/star-1';
 import TrendingUp from '@/components/jsx-icons/trending-up';
@@ -112,7 +111,7 @@ const Elevate = () => {
         <div
           className={cn(
             'flex w-full flex-col gap-4 max-md:pt-14',
-            (isError || homepageCourses?.length < 1) && 'hidden',
+            isError && 'hidden',
           )}
         >
           <div className="flex items-center gap-2.5 px-9 text-sm/[100%] font-bold md:pl-12 lg:pl-18">
@@ -154,10 +153,11 @@ const Elevate = () => {
                   </button> */}
                 </>
               ) : (
-                <EmptyState
-                  title="No Active Instructors Found"
-                  description="When we have instructors, it will be listed here."
-                />
+                <div className="grid-cols-5 gap-5 max-lg:flex lg:grid">
+                  {SAMPLE_CARDS.map(card => (
+                    <SampleCard key={card.name} {...card} />
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -192,6 +192,52 @@ function CategoryIcon({ name }: { name: string }) {
                     ? Globe
                     : null;
   return Icon ? <Icon /> : null;
+}
+
+/**
+ * Sample cards from the design, shown until real courses are set to "show on homepage" in admin.
+ * Photos live in public/img/featured/ (missing ones show a dark card with the name).
+ */
+const SAMPLE_CARDS = [
+  { name: 'TUBO BERENI', tagline: 'Selling to the world', duration: '1H 32mins', photo: '/img/featured/tubo.jpg' },
+  { name: 'CHEF FREGZ', tagline: 'Cooking for stars', duration: '1H 32mins', photo: '/img/featured/fregz.jpg', isNew: true },
+  { name: 'DJ SPINALL', tagline: 'Spinning around the world', duration: '52mins', photo: '/img/featured/spinall.jpg' },
+  { name: 'TOPE ADENOLA', tagline: 'How I Photographed all the presidents', duration: '1H 32mins', photo: '/img/featured/tope.jpg' },
+  { name: 'JENNIFER OKHORI', tagline: 'Selling anything, anytime anywhere', duration: '1H 32mins', photo: '/img/featured/jennifer.jpg' },
+];
+
+function SampleCard(props: (typeof SAMPLE_CARDS)[number] & { isNew?: boolean }) {
+  const [broken, setBroken] = useState(false);
+  return (
+    <div className="relative h-79 w-50.5 shrink-0 overflow-hidden rounded-lg bg-[#303030] ease-in-out hover:brightness-125">
+      {props.isNew && (
+        <span className="absolute top-4 right-4 z-10 rounded-lg border border-[#D0EA50] px-2 py-1 text-[8px]/[100%] font-semibold text-white">
+          New
+        </span>
+      )}
+      {!broken && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={props.photo} alt={props.name} onError={() => setBroken(true)} className="absolute inset-0 size-full object-cover" />
+      )}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+      <div className="absolute bottom-5 left-1/2 flex w-[85%] -translate-x-1/2 flex-col gap-4">
+        <div>
+          <p className="text-[2rem]/[100%] font-extrabold text-white">{props.name}</p>
+          <p className="pt-1 text-[10.67px]/[110%] text-[#D0EA50]">{props.tagline}</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-[8px]/[100%] font-semibold text-white">{props.duration}</p>
+          <div className="flex items-center gap-0.5">
+            <StarIcon fill="#FFC700" />
+            <StarIcon fill="#FFC700" />
+            <StarIcon fill="#FFC700" />
+            <StarIcon fill="#FFC700" />
+            <StarIcon />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const InstructorCard = (props: { course: CourseData }) => {

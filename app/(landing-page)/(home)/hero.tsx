@@ -32,7 +32,7 @@ const Hero = () => {
   });
 
   return (
-    <section ref={revealRef} className="flex justify-center bg-[#00230F]">
+    <section ref={revealRef} className="flex items-center justify-center bg-[#00230F] lg:min-h-[calc(100vh/var(--site-zoom,1)-89px)]">
       <div className="flex w-full max-w-7xl items-center px-9 py-14 max-lg:flex-col max-lg:gap-7 md:justify-between md:px-12 md:py-21.5 lg:px-18">
         <div className="reveal flex -translate-x-96 flex-col gap-23.5 opacity-0">
           <h1 className="text-4xl leading-[100%] font-extrabold text-[#D0EA50] max-lg:text-center lg:text-[3.555625rem]">
