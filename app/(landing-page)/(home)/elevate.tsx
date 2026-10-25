@@ -70,7 +70,7 @@ const Elevate = () => {
   });
 
   return (
-    <section className="flex h-[calc(100vh-89px)] justify-center px-8 md:py-7">
+    <section className="flex min-h-[calc((100vh-89px)/var(--site-zoom,1))] justify-center px-8 md:py-7">
       <div
         ref={revealRef}
         className="flex w-full max-w-7xl flex-col items-center gap-6 pt-11 pb-8 md:gap-10"

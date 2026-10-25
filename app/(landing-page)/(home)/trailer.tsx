@@ -62,7 +62,7 @@ const Trailer = () => {
     <section
       ref={revealRef}
       className={cn(
-        'flex h-[calc(100vh-89px)] justify-center',
+        'flex min-h-[calc((100vh-89px)/var(--site-zoom,1))] justify-center',
         (isError || courses?.length < 1) && 'hidden',
       )}
     >

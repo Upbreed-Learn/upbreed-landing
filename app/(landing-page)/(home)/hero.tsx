@@ -39,7 +39,7 @@ const Hero = () => {
             Learn from{' '}
             <span className="block text-white">The {`Industry’s`}</span> Best
           </h1>
-          <ul className="list-inside list-disc leading-[100%] font-extrabold text-white max-lg:hidden">
+          <ul className="flex list-inside list-disc flex-col gap-3 text-base leading-[100%] font-medium text-white max-lg:hidden">
             <li>Learn anywhere</li>
             <li>Anytime</li>
             <li>At your own convenience</li>
@@ -52,7 +52,7 @@ const Hero = () => {
           height={538.56}
           className="reveal translate-x-96 opacity-0"
         />
-        <ul className="list-inside list-disc text-center leading-[100%] font-extrabold text-white lg:hidden">
+        <ul className="flex list-inside list-disc flex-col gap-3 text-center leading-[100%] font-medium text-white lg:hidden">
           <li>Learn anywhere</li>
           <li>At your own convenience</li>
           <li>Anytime</li>

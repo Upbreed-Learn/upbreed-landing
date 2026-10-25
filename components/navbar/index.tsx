@@ -56,7 +56,7 @@ const Navbar = () => {
           )}
           {/* {!pathname.includes('news') && !pathname.includes('press') ? ( */}
           <>
-            <div className="flex items-center gap-6 max-lg:hidden">
+            <div className="flex items-center gap-8 text-[13px] font-medium max-lg:hidden">
               <ClassesHover>
                 <p>Classes</p>
                 <ChevronDown />

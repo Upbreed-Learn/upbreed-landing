@@ -18,7 +18,7 @@ const AuthBanner = (props: { className?: string }) => {
       )}
     >
       <div className="flex w-full max-w-7xl items-center justify-end gap-4 px-9 py-3.5 md:px-12 md:py-5 lg:px-18">
-        <p className="text-end text-xs/[100%] font-semibold text-white">
+        <p className="text-end text-sm/[100%] font-normal text-white md:text-[15px]/[100%]">
           classes start at <s className="text-[#FFFFFF3B]">$10</s> $5 per month{' '}
           <span className="max-md:block">(billed 6 months/annually)</span>
         </p>

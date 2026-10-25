@@ -122,7 +122,7 @@ const Footer = () => {
         <div className="flex w-full max-w-[1280px] gap-10 self-center px-9 pb-8 max-md:flex-col md:items-start md:justify-between md:px-12 lg:px-[72px] lg:pb-[50px]">
           <div className="flex items-end gap-[91px] lg:self-stretch">
             <Image src={footerLogo} alt="upbreed logo" width={152} height={98} className="max-lg:hidden" />
-            <div className="flex gap-16 text-[13px]/[35px] font-semibold text-white lg:gap-[125px]">
+            <div className="flex gap-16 text-[13px]/[35px] font-normal text-white lg:gap-[125px]">
               <ul>
                 {LINKS.filter(l => token || l.href !== '/sessions').slice(0, 6).map(link => (
                   <li key={link.name}>
@@ -227,7 +227,7 @@ const Footer = () => {
                       <Field data-invalid={isInvalid} className="w-full gap-3">
                         <FieldLabel
                           htmlFor={field.name}
-                          className="w-max pl-1 text-[13px]/[100%] font-semibold text-white"
+                          className="w-max pl-1 text-[13px]/[100%] font-normal text-white"
                         >
                           Get the latest coolest new from UPBREED
                         </FieldLabel>
@@ -243,7 +243,7 @@ const Footer = () => {
                             placeholder="Email"
                             className="h-full flex-1 rounded-none border-0 bg-transparent text-[13px] text-white shadow-none placeholder:text-[#9B9B9B] focus-visible:ring-0"
                           />
-                          <Button className="h-full w-[158px] shrink-0 rounded-none border-l-2 border-[#305B43] bg-transparent text-[15px] font-semibold text-[#D0EA50] hover:bg-[#305B43]/40">
+                          <Button className="h-full w-[158px] shrink-0 rounded-none border-l-2 border-[#305B43] bg-transparent text-[15px] font-normal text-[#D0EA50] hover:bg-[#305B43]/40">
                             Subscribe
                           </Button>
                         </FieldSet>
@@ -273,7 +273,7 @@ const Footer = () => {
                           />
                           <FieldLabel
                             htmlFor={field.name}
-                            className="w-full text-[12px] leading-[100%] font-semibold text-white md:text-[13px] xl:text-nowrap"
+                            className="w-full text-[12px] leading-[100%] font-normal text-white md:text-[13px] xl:text-nowrap"
                           >
                             <span className="text-[#FF0000]">*</span> By
                             clicking here, I agree to share my information
@@ -294,7 +294,7 @@ const Footer = () => {
           <Image src={logo} alt="upbreed logo" width={150} className="h-auto w-[150px] lg:hidden" />
         </div>
         <div className="flex justify-center border-t-2 border-[#305B43] py-4">
-          <div className="flex w-full max-w-[1280px] items-center gap-12 px-9 text-[13px] leading-[100%] font-semibold text-white md:gap-[100px] md:px-12 lg:px-[95px]">
+          <div className="flex w-full max-w-[1280px] items-center gap-12 px-9 text-[13px] leading-[100%] font-normal text-white md:gap-[100px] md:px-12 lg:px-[95px]">
             <p>(c) {year} upbreed </p>
             <div className="flex items-center gap-2">
               <LockIcon />
