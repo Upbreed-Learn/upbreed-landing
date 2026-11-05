@@ -197,7 +197,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
 
   return (
     <Dialog open={auth === 'sign-up'} onOpenChange={handleOpenChange}>
-      <DialogContent className="custom-font z-999 max-h-[calc(100dvh/var(--site-zoom,1)-2rem)] gap-4 overflow-auto px-6 py-7 sm:w-max md:px-14">
+      <DialogContent className="custom-font z-999 max-h-[calc(100dvh/var(--site-zoom,1)-2rem)] gap-4 overflow-auto px-6 py-8 sm:w-max md:px-16">
         <DialogHeader className="sr-only">
           <DialogTitle>Sign Up</DialogTitle>
           <DialogDescription>
@@ -210,16 +210,16 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="flex w-full flex-col gap-4 text-black md:w-72"
+          className="flex w-full flex-col gap-4 text-black md:w-80"
         >
           <FieldSet>
-            <FieldLegend className="text-[10px]/[100%] font-semibold text-[#9B9B9B]">
+            <FieldLegend className="text-[11px]/[100%] font-semibold text-[#9B9B9B]">
               {`LET’S`} GET YOU STARTED
             </FieldLegend>
-            <FieldDescription className="text-[10px]/[100%] font-semibold text-[#00230F]">
+            <FieldDescription className="text-[13px]/[100%] font-semibold text-[#00230F]">
               Create an Account
             </FieldDescription>
-            <FieldGroup className="gap-3">
+            <FieldGroup className="gap-3.5">
               <form.Field
                 name="firstName"
                 children={field => {
@@ -235,7 +235,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
                         onChange={e => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         placeholder="First Name"
-                        className="h-9 rounded-lg border-[#9B9B9B] bg-[#47474700] placeholder:text-[#9B9B9B]"
+                        className="h-10 rounded-lg border-[#9B9B9B] bg-[#47474700] text-[15px] placeholder:text-[#9B9B9B]"
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
@@ -259,7 +259,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
                         onChange={e => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         placeholder="Last Name"
-                        className="h-9 rounded-lg border-[#9B9B9B] bg-[#47474700] placeholder:text-[#9B9B9B]"
+                        className="h-10 rounded-lg border-[#9B9B9B] bg-[#47474700] text-[15px] placeholder:text-[#9B9B9B]"
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
@@ -281,7 +281,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
                         onChange={e => field.handleChange(e)}
                         aria-invalid={isInvalid}
                         placeholder="Phone Number"
-                        inputClass="!h-9 !border-[#9B9B9B] !rounded-lg !bg-[#47474700] !pl-12 !w-full"
+                        inputClass="!h-10 !border-[#9B9B9B] !rounded-lg !bg-[#47474700] !pl-12 !w-full !text-[15px]"
                         dropdownClass="text-black!"
                         buttonClass="!border-[#9B9B9B] !rounded-l-lg"
                         country={'ng'}
@@ -317,7 +317,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
                         aria-invalid={isInvalid}
                         type="email"
                         placeholder="Email"
-                        className="h-9 rounded-lg border-[#9B9B9B] bg-[#47474700] placeholder:text-[#9B9B9B]"
+                        className="h-10 rounded-lg border-[#9B9B9B] bg-[#47474700] text-[15px] placeholder:text-[#9B9B9B]"
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
@@ -344,7 +344,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
                           type={passwordView.password}
                           placeholder="Password"
                           autoComplete="off"
-                          className="h-9 rounded-lg border-[#9B9B9B] bg-[#47474700] placeholder:text-[#9B9B9B]"
+                          className="h-10 rounded-lg border-[#9B9B9B] bg-[#47474700] text-[15px] placeholder:text-[#9B9B9B]"
                         />
                         <button
                           onClick={() => dispatch({ type: 'password' })}
@@ -390,7 +390,7 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
                           type={passwordView.confirmPassword}
                           placeholder="Confirm Password"
                           autoComplete="off"
-                          className="h-9 rounded-lg border-[#9B9B9B] bg-[#47474700] placeholder:text-[#9B9B9B]"
+                          className="h-10 rounded-lg border-[#9B9B9B] bg-[#47474700] text-[15px] placeholder:text-[#9B9B9B]"
                         />
                         <button
                           onClick={() => dispatch({ type: 'confirmPassword' })}

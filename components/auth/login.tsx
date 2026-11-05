@@ -123,7 +123,7 @@ const LoginDialog = () => {
 
   return (
     <Dialog open={auth === 'login'} onOpenChange={handleOpenChange}>
-      <DialogContent className="custom-font max-h-160 gap-6 overflow-auto px-6 py-9 sm:w-max md:px-16">
+      <DialogContent className="custom-font max-h-[calc(100dvh/var(--site-zoom,1)-2rem)] gap-6 overflow-auto px-6 py-10 sm:w-max md:px-18">
         <DialogHeader className="sr-only">
           <DialogTitle>Login</DialogTitle>
           <DialogDescription>
@@ -136,13 +136,13 @@ const LoginDialog = () => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="flex w-full flex-col gap-6 text-black md:w-62.5"
+          className="flex w-full flex-col gap-6 text-black md:w-80"
         >
           <FieldSet>
-            <FieldLegend className="text-[10px]/[100%] font-semibold text-[#9B9B9B]">
+            <FieldLegend className="text-[11px]/[100%] font-semibold text-[#9B9B9B]">
               WELCOME BACK
             </FieldLegend>
-            <FieldDescription className="text-[10px]/[100%] font-semibold text-[#00230F]">
+            <FieldDescription className="text-[13px]/[100%] font-semibold text-[#00230F]">
               Login to Continue
             </FieldDescription>
             <FieldGroup>
@@ -162,7 +162,7 @@ const LoginDialog = () => {
                         aria-invalid={isInvalid}
                         type="email"
                         placeholder="Email"
-                        className="h-9 rounded-lg border-[#9B9B9B] bg-[#47474700] placeholder:text-[#9B9B9B]"
+                        className="h-10 rounded-lg border-[#9B9B9B] bg-[#47474700] text-[15px] placeholder:text-[#9B9B9B]"
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
@@ -189,7 +189,7 @@ const LoginDialog = () => {
                           type={viewPassword ? 'text' : 'password'}
                           placeholder="Password"
                           autoComplete="off"
-                          className="h-9 rounded-lg border-[#9B9B9B] bg-[#47474700] placeholder:text-[#9B9B9B]"
+                          className="h-10 rounded-lg border-[#9B9B9B] bg-[#47474700] text-[15px] placeholder:text-[#9B9B9B]"
                         />
                         <button
                           onClick={handleTogglePassword}
