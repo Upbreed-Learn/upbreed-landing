@@ -88,6 +88,8 @@ export interface CourseData {
   categories: Category[];
   tags: Tag[];
   isBookmark: boolean;
+  /** Landscape card image: the first lesson's thumbnail, else the course image. */
+  coverUrl?: string;
   preview: {
     lessonCount: number;
     durationInMinutes: number;

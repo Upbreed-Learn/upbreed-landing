@@ -79,8 +79,10 @@ const Hero = (props: { id: string }) => {
   const name = data
     ? `${data.fname} ${data.lname}`.trim()
     : `${courseDetailsData?.instructor?.fname ?? ''} ${courseDetailsData?.instructor?.lname ?? ''}`.trim();
+  // The portrait uploaded with the course (next to the instructor's name in the admin), else their profile photo.
   const photo =
-    data?.instructorProfile?.profilePictureUrl ??
+    courseDetailsData?.thumbnail ||
+    data?.instructorProfile?.profilePictureUrl ||
     (courseDetailsData?.instructor as { profilePictureUrl?: string } | undefined)?.profilePictureUrl;
   const bio = data?.instructorProfile?.description || data?.instructorProfile?.about;
 
@@ -116,7 +118,7 @@ const Hero = (props: { id: string }) => {
               {bio && (
                 <div className="flex flex-col gap-1.5 max-md:items-center">
                   <p
-                    className={`w-full max-w-218.25 text-sm/6 whitespace-pre-line text-white/90 ${expanded ? '' : 'line-clamp-5'}`}
+                    className={`w-full max-w-218.25 text-sm/6 break-words whitespace-pre-line text-white/90 [overflow-wrap:anywhere] ${expanded ? '' : 'line-clamp-5'}`}
                   >
                     {bio}
                   </p>

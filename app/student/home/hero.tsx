@@ -1,5 +1,7 @@
 'use client';
 
+import { courseCover } from '@/lib/utils';
+
 import { useRecentCourses } from '@/components/navbar/my-courses-hover';
 import { Button } from '@/components/ui/button';
 import { UserProfileType } from '@/lib/constants';
@@ -42,9 +44,9 @@ const Hero = () => {
             <div className="h-36 animate-pulse rounded bg-[#F2F2F2]" />
           ) : course ? (
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7">
-              <Link href={`/student/courses/${course.id}`} className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg bg-[#305B43] sm:w-72">
+              <Link href={`/student/courses/${course.id}?play=1`} className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg bg-[#305B43] sm:w-72">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {course.thumbnail && <img src={course.thumbnail} alt={course.title} className="size-full object-cover" />}
+                {courseCover(course) && <img src={courseCover(course)} alt={course.title} className="size-full object-cover" />}
               </Link>
               <div className="flex min-w-0 flex-1 flex-col gap-5">
                 <div className="flex flex-col gap-1.5">
@@ -62,7 +64,7 @@ const Hero = () => {
                   <p className="text-[11px] text-[#949494]">{course.percentageCompletion}% complete</p>
                 </div>
                 <Button asChild className="w-max">
-                  <Link href={`/student/courses/${course.id}`}>
+                  <Link href={`/student/courses/${course.id}?play=1`}>
                     {course.percentageCompletion >= 100 ? 'Watch again' : 'Continue'} <ChevronRight />
                   </Link>
                 </Button>

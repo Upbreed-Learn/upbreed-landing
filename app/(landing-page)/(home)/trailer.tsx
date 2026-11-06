@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Play } from 'lucide-react';
 import { CourseData } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { cn, courseCover } from '@/lib/utils';
 import Link from 'next/link';
 import { useGetCourses, useGetCoursesBySearch } from '@/lib/queries/hooks';
 import gsap from 'gsap';
@@ -74,7 +74,7 @@ const Trailer = () => {
             <Activity mode={play ? 'hidden' : 'visible'}>
               <div className="_lg:w-[calc(100vw-9rem)] _max-w-[66.38875rem] _w-[calc(100vw-4.5rem)] _md:w-[calc(100vw-6rem)] relative z-10 h-123 overflow-hidden rounded-2xl md:h-140 lg:w-full">
                 <Image
-                  src={courses?.[0].thumbnail}
+                  src={courseCover(courses?.[0])}
                   alt={courses?.[0].title}
                   fill
                   sizes="(max-width: 1200px) 100vw, 1200px"

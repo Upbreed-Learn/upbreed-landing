@@ -1,5 +1,6 @@
 'use client';
 
+import { courseCover } from '@/lib/utils';
 import { useQueryState } from 'nuqs';
 import CourseCard, { CourseCardLoading } from '@/components/course-card';
 import Image from 'next/image';
@@ -136,7 +137,7 @@ const MyCoursesCard = (props: { course: CourseData }) => {
       <div className="flex items-center gap-3.5">
         <div className="relative h-23.5 w-35.75">
           <Image
-            src={course.thumbnail}
+            src={courseCover(course)}
             fill
             sizes="(max-width: 1200px) 100vw, 1200px"
             alt={course.title}
@@ -152,7 +153,7 @@ const MyCoursesCard = (props: { course: CourseData }) => {
               MD/CEO UBA Africa
             </p>
           </div>
-          <Link href={`/student/courses/${course.id}`} className="font-medium">
+          <Link href={`/student/courses/${course.id}?play=1`} className="font-medium">
             <span className="absolute inset-0"></span>
             {course.title}
           </Link>

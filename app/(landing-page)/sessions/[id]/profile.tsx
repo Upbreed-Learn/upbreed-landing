@@ -6,7 +6,7 @@ import { https } from '@/lib/https';
 import { formatPrice } from '@/lib/pricing';
 import { useGetToken } from '@/lib/queries/hooks';
 import { SessionInstructor, initials, priceLabel } from '@/lib/sessions';
-import { formatMinutes } from '@/lib/utils';
+import { courseCover, courseSeconds, formatHMS } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { Star } from 'lucide-react';
 import Link from 'next/link';
@@ -96,9 +96,9 @@ const InstructorProfile = ({ id }: { id: number }) => {
                     return (
                       <Link key={c.id} href={`/student/courses/${c.id}`} className="group flex flex-col overflow-hidden rounded-2xl bg-[#0B3A20]">
                         <div className="relative aspect-video bg-[#305B43]">
-                          {c.thumbnail && (
+                          {courseCover(c) && (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={c.thumbnail} alt="" className="size-full object-cover transition-transform group-hover:scale-105" />
+                            <img src={courseCover(c)} alt="" className="size-full object-cover transition-transform group-hover:scale-105" />
                           )}
                           {isNew && <span className="absolute top-3 left-3 rounded bg-[#D0EA50] px-1.5 py-0.5 text-[10px] font-bold text-[#00230F]">NEW</span>}
                         </div>
@@ -106,7 +106,7 @@ const InstructorProfile = ({ id }: { id: number }) => {
                           <p className="text-xs text-white/60">{ins.name}</p>
                           <p className="line-clamp-2 text-sm font-semibold">{c.title}</p>
                           <p className="flex gap-3 text-xs text-white/60">
-                            {c.preview?.durationInMinutes ? <span>{formatMinutes(c.preview.durationInMinutes)}</span> : null}
+                            {courseSeconds(c) ? <span>{formatHMS(courseSeconds(c))}</span> : null}
                             {c.preview?.lessonCount ? <span>{c.preview.lessonCount} Lessons</span> : null}
                           </p>
                         </div>

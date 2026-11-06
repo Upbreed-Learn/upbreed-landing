@@ -15,7 +15,7 @@ import {
   useGetCoursesByCategory,
 } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
-import { cn, formatMinutes } from '@/lib/utils';
+import { cn, courseCover, courseSeconds, formatHMS } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bookmark, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
@@ -149,7 +149,7 @@ const CourseBundles = () => {
           <>
             <div className="relative h-43.25 w-68 overflow-hidden rounded-l-lg">
               <Image
-                src={courses[0].thumbnail}
+                src={courseCover(courses[0])}
                 alt={courses[0].title}
                 fill
                 sizes="(max-width: 1200px) 100vw, 1200px"
@@ -164,7 +164,7 @@ const CourseBundles = () => {
                   </p>
                   <div className="flex flex-col gap-1">
                     <Link
-                      href={`/student/courses/${courses[0].id}`}
+                      href={`/student/courses/${courses[0].id}?play=1`}
                       className="w-full max-w-66 leading-5 font-extrabold text-white"
                     >
                       <span className="absolute inset-0"></span>
@@ -173,7 +173,7 @@ const CourseBundles = () => {
                     <div className="flex items-center gap-9 text-xs/6 font-medium text-[#BEBEBE]">
                       <p>{courses[0].preview.lessonCount} Lessons</p>
                       <p>
-                        {formatMinutes(courses[0].preview.durationInMinutes)}
+                        {formatHMS(courseSeconds(courses[0]))}
                       </p>
                     </div>
                   </div>

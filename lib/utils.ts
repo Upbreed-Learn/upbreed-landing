@@ -90,3 +90,16 @@ export function formatClock(totalSeconds = 0): string {
   const ss = String(s % 60).padStart(2, '0');
   return h ? `${h}:${String(mm).padStart(2, '0')}:${ss}` : `${mm}:${ss}`;
 }
+
+/** Always H:MM:SS, e.g. 78 → "0:01:18", 5525 → "1:32:05". */
+export function formatHMS(totalSeconds = 0): string {
+  const s = Math.max(0, Math.round(totalSeconds));
+  return `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+/** Exact length of a course in seconds (older API responses only had minutes). */
+export const courseSeconds = (c?: { preview?: { durationInSeconds?: number; durationInMinutes?: number } }) =>
+  c?.preview?.durationInSeconds ?? (c?.preview?.durationInMinutes ?? 0) * 60;
+
+/** Image for a course card: the trailer's thumbnail when there is one. */
+export const courseCover = (c?: { coverUrl?: string | null; thumbnail?: string | null }) => c?.coverUrl || c?.thumbnail || '';

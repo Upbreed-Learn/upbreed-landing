@@ -18,7 +18,7 @@ import Sound from '@/components/jsx-icons/sound';
 import Dna from '@/components/jsx-icons/dna';
 import Screen from '@/components/jsx-icons/screen';
 import Globe from '@/components/jsx-icons/globe';
-import { cn, formatDuration } from '@/lib/utils';
+import { cn, formatHMS, courseSeconds } from '@/lib/utils';
 import { useGetCategories, useGetCoursesBySearch } from '@/lib/queries/hooks';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -266,7 +266,7 @@ const InstructorCard = (props: { course: CourseData }) => {
         </div>
         <div className="flex items-center justify-between">
           <p className="text-[8px]/[100%] font-semibold text-white">
-            {formatDuration(course.preview.durationInMinutes)}
+            {formatHMS(courseSeconds(course))}
           </p>
           <div className="flex items-center gap-0.5">
             <StarIcon fill="#FFC700" />

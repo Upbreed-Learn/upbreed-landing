@@ -9,9 +9,9 @@ import { useGetCourseAndInstructor } from './hero';
 import { CourseDetailsData, Instructor } from '@/lib/constants';
 import { queryKeys } from '@/lib/queries/query-keys';
 import ErrorCard from '@/components/error-card';
-import { cn, formatClock, formatLength } from '@/lib/utils';
+import { cn, formatHMS } from '@/lib/utils';
 import BunnyPlayerWithTracking from '@/components/bunny-player-with-tracking';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGetToken } from '@/lib/queries/hooks';
 import { useQueryState } from 'nuqs';
 import {
@@ -33,6 +33,7 @@ const About = (props: { id: string }) => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const [, setAuth] = useQueryState('auth');
+  const [autoPlay, setAutoPlay] = useQueryState('play');
   const [notice, setNotice] = useState(false);
   const queryClient = useQueryClient();
   const { data: tokenData } = useGetToken();
@@ -50,6 +51,18 @@ const About = (props: { id: string }) => {
     videos.reduce((sum, v) => sum + (v.durationInSeconds || 0), 0);
   const categories = details?.categories?.map(c => c?.name).filter(Boolean).join(', ');
   const rating = Math.round(Number((details as { avgRatings?: number } | undefined)?.avgRatings ?? 0));
+
+  // Opened from a course card: start the next lesson they haven't finished (or the first free one).
+  useEffect(() => {
+    if (autoPlay !== '1' || !details) return;
+    const playable = videos.filter(v => v.embedUrl);
+    const next = playable.find(v => (v.percentageCompleted ?? 0) < 90) ?? playable[0];
+    if (next) {
+      setSelectedId(next.id);
+      setPlaying(true);
+    }
+    setAutoPlay(null);
+  }, [autoPlay, details]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRetry = () => {
     queryClient.invalidateQueries({ queryKey: queryKeys.courses.byId(id) });
@@ -78,7 +91,8 @@ const About = (props: { id: string }) => {
             <AboutLoader />
           ) : (
             <>
-              <div className="grid overflow-hidden bg-[#00230F] max-lg:rounded-[10px] lg:grid-cols-[minmax(0,1fr)_20rem]">
+              {/* Runs from the left edge of the screen to the content's right edge, as in the design. */}
+              <div className="-mx-6 grid overflow-hidden bg-[#00230F] md:-mr-0 md:-ml-12 lg:ml-[calc(50%-50vw/var(--site-zoom,1))] lg:grid-cols-[minmax(0,1fr)_20rem]">
                 {/* Player */}
                 <div className="relative aspect-video w-full bg-black">
                   {playing && active?.embedUrl ? (
@@ -134,7 +148,7 @@ const About = (props: { id: string }) => {
                                 {i === 0 && v.isTrailer ? 'Trailer' : v.title}
                               </span>
                               <span className="flex shrink-0 items-center gap-2 text-[11px] font-medium text-white/70">
-                                {v.durationInSeconds > 0 && formatClock(v.durationInSeconds)}
+                                {v.durationInSeconds > 0 && <span className="tabular-nums">{formatHMS(v.durationInSeconds)}</span>}
                                 {locked ? <Lock size={18} /> : <PlayIcon size={20} />}
                               </span>
                             </span>
@@ -155,6 +169,17 @@ const About = (props: { id: string }) => {
                 </div>
               </div>
 
+              {!!token && (
+                <div className="flex max-w-md flex-col gap-1.5">
+                  <div className="flex justify-between text-xs font-semibold text-[#3A3A3A]">
+                    <span>Your progress</span>
+                    <span>{details.percentageCompleted ?? 0}% watched</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-[#E5E5E5]">
+                    <div className="h-full rounded-full bg-[#34A853] transition-[width]" style={{ width: `${details.percentageCompleted ?? 0}%` }} />
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col gap-6 md:gap-8">
                 {details.description && (
                   <p className="w-full max-w-201.75 text-sm/6 whitespace-pre-line text-black">
@@ -173,7 +198,7 @@ const About = (props: { id: string }) => {
                     <li>
                       Class Length:{' '}
                       <span>
-                        {videos.length} Video Lesson{videos.length === 1 ? '' : 's'} ({formatLength(totalSeconds)})
+                        {videos.length} Video Lesson{videos.length === 1 ? '' : 's'} ({formatHMS(totalSeconds)})
                       </span>
                     </li>
                     {categories && (

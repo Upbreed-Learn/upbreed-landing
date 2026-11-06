@@ -1,7 +1,7 @@
 'use client';
 
 import { https } from '@/lib/https';
-import { cn } from '@/lib/utils';
+import { cn, courseCover } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -56,10 +56,10 @@ const MyCoursesHover = () => {
         ) : (
           <div className="flex flex-col gap-1">
             {courses.data.map(c => (
-              <Link key={c.id} href={`/student/courses/${c.id}`} className="flex gap-4 rounded p-3 transition-colors hover:bg-[#E2E2E2]">
+              <Link key={c.id} href={`/student/courses/${c.id}?play=1`} className="flex gap-4 rounded p-3 transition-colors hover:bg-[#E2E2E2]">
                 <div className="h-16 w-28 shrink-0 overflow-hidden bg-[#305B43]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {c.thumbnail && <img src={c.thumbnail} alt="" className="size-full object-cover" />}
+                  {courseCover(c) && <img src={courseCover(c)} alt="" className="size-full object-cover" />}
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
                   <p className="truncate text-sm font-semibold text-black">

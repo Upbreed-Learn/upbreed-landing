@@ -12,7 +12,7 @@ import { CourseData } from '@/lib/constants';
 import ErrorCard from '../error-card';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn, courseCover } from '@/lib/utils';
 import useIsMobile from '@/lib/hooks/useIsMobile';
 
 const useGetSearchCourses = (search: string) => {
@@ -127,7 +127,7 @@ function SearchInput(props: {
                 >
                   <div className="relative h-15.25 w-27.25 bg-[#34A853]">
                     <Image
-                      src={result.thumbnail}
+                      src={courseCover(result)}
                       alt={result.title}
                       fill
                       sizes="(max-width: 1200px) 100vw, 1200px"

@@ -2,7 +2,7 @@ import { Bookmark, Play } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CourseData } from '@/lib/constants';
-import { formatMinutes } from '@/lib/utils';
+import { courseCover, courseSeconds, formatHMS } from '@/lib/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import useSendRequest from '@/lib/hooks/useSendRequest';
 import { MUTATIONS } from '@/lib/queries';
@@ -77,14 +77,14 @@ const CourseCard = (props: {
 
   const busy = isPending || isPendingRemoveBookmark;
   const marked = busy ? !course.isBookmark : course.isBookmark;
-  const minutes = course.preview?.durationInMinutes ?? 0;
+  const seconds = courseSeconds(course);
   const lessons = course.preview?.lessonCount ?? course.totalVideos ?? 0;
 
   return (
     <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-black text-white">
-      {course.thumbnail && (
+      {courseCover(course) && (
         <Image
-          src={course.thumbnail}
+          src={courseCover(course)}
           alt={course.title}
           fill
           sizes="(max-width: 768px) 100vw, 400px"
@@ -92,9 +92,11 @@ const CourseCard = (props: {
         />
       )}
       <span className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+      {/* The whole card opens the class and starts playing. */}
+      <Link href={`/student/courses/${course.id}?play=1`} aria-label={`Play ${course.title}`} className="absolute inset-0 z-[1]" />
       <Play
         size={40}
-        className="absolute top-1/2 left-1/2 -translate-1/2 text-white opacity-0 transition-opacity group-hover:opacity-100"
+        className="pointer-events-none absolute top-1/2 left-1/2 -translate-1/2 text-white opacity-0 transition-opacity group-hover:opacity-100"
       />
       {!mePage && (
         <button
@@ -105,18 +107,15 @@ const CourseCard = (props: {
           <Bookmark size={22} className={marked ? 'text-[#A855F7]' : 'text-white'} fill={marked ? '#A855F7' : 'transparent'} />
         </button>
       )}
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 px-5 pb-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 px-5 pb-4">
         <div className="flex min-w-0 flex-col gap-1">
-          <Link href={`/student/courses/${course.id}`} className="line-clamp-3 text-lg/[1.05] font-extrabold uppercase md:text-xl/[1.05]">
-            <span className="absolute inset-0" />
-            {course.title}
-          </Link>
+          <p className="line-clamp-3 text-lg/[1.05] font-extrabold uppercase md:text-xl/[1.05]">{course.title}</p>
           <p className="truncate text-xs text-[#D0EA50] capitalize">
             {course.instructor?.fname} {course.instructor?.lname}
           </p>
           <p className="text-xs text-white/90">{lessons} Lessons</p>
         </div>
-        {minutes > 0 && <p className="shrink-0 text-xs font-medium uppercase">{formatMinutes(minutes)}</p>}
+        {seconds > 0 && <p className="shrink-0 text-xs font-medium tabular-nums">{formatHMS(seconds)}</p>}
       </div>
     </div>
   );
