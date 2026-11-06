@@ -1,3 +1,4 @@
+import { https } from '@/lib/https';
 import {
   Dialog,
   DialogContent,
@@ -77,7 +78,14 @@ const LoginDialog = () => {
     },
     onSuccessCallback: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.token });
-      router.push('/student/home');
+      // Members who have paid go to their dashboard; everyone else sees the welcome page with plans.
+      https
+        .get('/subscription/current')
+        .then(r => {
+          const paid = (r.data as { expiresAt: string }[]).some(s => new Date(s.expiresAt).getTime() > Date.now());
+          router.push(paid ? '/student/home' : '/student');
+        })
+        .catch(() => router.push('/student/home'));
     },
   });
 

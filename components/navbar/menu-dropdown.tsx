@@ -66,7 +66,7 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
             href="/student/sessions"
             className="group flex w-full cursor-pointer items-center justify-end gap-3"
           >
-            My 1-on-1 sessions
+            My Sessions
             <CalendarDays className="text-white group-hover:text-black" />
           </Link>
         </DropdownMenuItem>

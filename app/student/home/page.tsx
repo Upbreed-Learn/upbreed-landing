@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Courses from './courses';
-import Hero, { MobileHero } from './hero';
+import Hero from './hero';
 
 export const metadata: Metadata = {
   title: 'Upbreed Learn | Student Dashboard',
@@ -12,7 +12,6 @@ const Home = () => {
   return (
     <>
       <Hero />
-      <MobileHero />
       <Courses />
     </>
   );

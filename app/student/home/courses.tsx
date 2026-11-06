@@ -25,7 +25,7 @@ import { Suspense, useState } from 'react';
 
 const Courses = () => {
   return (
-    <section className="flex justify-center bg-white pt-5 pb-49.5 md:pt-12 lg:pt-20">
+    <section id="courses" className="flex scroll-mt-24 justify-center bg-white pt-5 pb-24 md:pt-12 lg:pt-20">
       <div className="flex w-full max-w-7xl flex-col gap-7 px-9 md:px-12 lg:px-18">
         <Suspense>
           <CourseBundles />

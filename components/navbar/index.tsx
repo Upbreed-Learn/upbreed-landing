@@ -17,6 +17,8 @@ import {
   useGetUserProfile,
 } from '@/lib/queries/hooks';
 import MenuDropdown from './menu-dropdown';
+import MyCoursesHover from './my-courses-hover';
+import ContactUs from '../contact-us';
 import AvatarCustom from '../ui/custom/avatar';
 import {
   CurrentSubscription,
@@ -70,15 +72,7 @@ const Navbar = () => {
               >
                 Pricing
               </NavLink>
-              {token && <NavLink
-                href={'/sessions'}
-                className={cn(
-                  'hover:text-[#D0EA50]',
-                  pathname.startsWith('/sessions') && 'text-[#D0EA50]',
-                )}
-              >
-                1-on-1
-              </NavLink>}
+
             </div>
             <div
               className={cn(
@@ -86,7 +80,12 @@ const Navbar = () => {
                 mobileSearch && 'w-full',
               )}
             >
-              <CircleQuestionMark className="max-lg:hidden" />
+              <span className="flex max-lg:hidden" title="Help centre">
+                <ContactUs>
+                  <CircleQuestionMark />
+                  <span className="sr-only">Help centre</span>
+                </ContactUs>
+              </span>
               <SearchInput
                 mobileSearch={mobileSearch}
                 setMobileSearch={setMobileSearch}
@@ -109,11 +108,11 @@ const Navbar = () => {
                   {/* <NavLink href="/1-on-1">1 - on - 1</NavLink> */}
                   <NavLink
                     href="/student/sessions"
-                    className={cn('hover:text-[#D0EA50]', pathname.startsWith('/student/sessions') && 'text-[#D0EA50]')}
+                    className={cn('hover:text-[#D0EA50]', (pathname.startsWith('/student/sessions') || pathname.startsWith('/sessions')) && 'text-[#D0EA50]')}
                   >
                     My Sessions
                   </NavLink>
-                  <NavLink href="/student/courses">My Courses</NavLink>
+                  <MyCoursesHover />
                 </div>
                 <div className="flex items-center gap-7 max-lg:hidden">
                   <Suspense>

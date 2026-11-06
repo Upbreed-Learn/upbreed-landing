@@ -16,66 +16,58 @@ import { useGetCurrentSubscription } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Activity, useState } from 'react';
+import { useState } from 'react';
+
+const fmtDate = (iso: string) => new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(iso));
 
 const Subscription = () => {
-  const { data } = useGetCurrentSubscription();
-  const subscriptions: CurrentSubscription[] = data?.data;
+  const { data, isPending } = useGetCurrentSubscription();
+  const subscriptions: CurrentSubscription[] = data?.data ?? [];
   const router = useRouter();
+  const current = subscriptions[0];
+  const active = current?.status === 'ACTIVE';
+  const cancelled = current?.status === 'CANCELLED';
 
   return (
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-5">
-        <h1 className="text-xl font-bold">Subscriptions</h1>
-        <p className="text-sm font-semibold">
-          Manage your Upbreed Learn Subscription{' '}
-        </p>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-xl font-bold">Subscription</h1>
+        <p className="text-sm text-[#737373]">Manage your Upbreed Learn membership.</p>
       </div>
-      <div className="flex flex-col gap-8">
-        <h2 className="text-sm font-extrabold text-black">Active plans</h2>
-        <div className="flex h-66 flex-col items-center justify-center gap-5 bg-[#D9D9D9]">
-          <Activity
-            mode={
-              subscriptions?.[0]?.status !== 'CANCELLED' ? 'visible' : 'hidden'
-            }
-          >
-            <p className="text-sm font-semibold">
-              You are currently on{' '}
-              <span className="font-extrabold">
-                {subscriptions?.[0]?.plan.name}
-              </span>{' '}
-              plan
-            </p>
-            <p className="text-xs font-semibold text-[#949494]">
-              Click on Upgrade plan below to change plan
-            </p>
-          </Activity>
-          <Activity
-            mode={
-              subscriptions?.[0]?.status === 'CANCELLED' ? 'visible' : 'hidden'
-            }
-          >
-            <p className="text-xs font-semibold text-[#949494]">
-              You don’t have any active subscriptions
-            </p>
-          </Activity>
-        </div>
-        <Activity
-          mode={
-            subscriptions?.[0]?.status !== 'CANCELLED' ? 'visible' : 'hidden'
-          }
-        >
-          <div className="flex justify-end gap-4">
-            <Button
-              onClick={() => router.push('/pricing')}
-              className="w-max self-end"
-            >
-              Upgrade plan
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-[#F2F2F2] px-6 py-12 text-center">
+        {isPending ? (
+          <p className="text-sm text-[#949494]">Loading…</p>
+        ) : !current ? (
+          <>
+            <p className="text-sm font-semibold">You don&apos;t have a membership yet</p>
+            <p className="text-xs text-[#949494]">Subscribe to watch every class.</p>
+            <Button className="mt-2" onClick={() => router.push('/pricing')}>
+              See plans
             </Button>
-            <CancelSubscriptionDialog />
-          </div>
-        </Activity>
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-semibold">
+              You are on the <span className="font-extrabold">{current.plan.name}</span> plan
+            </p>
+            <p className="text-xs text-[#737373]">
+              {active
+                ? `Renews on ${fmtDate(current.expiresAt)}`
+                : cancelled
+                  ? `Cancelled — you can still watch until ${fmtDate(current.expiresAt)}`
+                  : `Access until ${fmtDate(current.expiresAt)}`}
+            </p>
+          </>
+        )}
       </div>
+      {current && (
+        <div className="flex flex-wrap justify-end gap-4">
+          <Button onClick={() => router.push('/pricing')} className="w-max">
+            {cancelled ? 'Resubscribe' : 'Change plan'}
+          </Button>
+          {active && <CancelSubscriptionDialog />}
+        </div>
+      )}
     </div>
   );
 };
@@ -112,22 +104,21 @@ const CancelSubscriptionDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={'destructive'} className="w-max self-end">
-          Cancel subscriptions
+          Cancel subscription
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Cancel Subscriptions</DialogTitle>
+          <DialogTitle>Cancel subscription?</DialogTitle>
           <DialogDescription>
-            You're about to cancel your subscriptions. This action cannot be
-            undone. You will be unable to access your content until you
-            resubscribe.
+            Auto-renewal will stop. You can keep watching until the end of the
+            period you have paid for.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
             <Button variant={'outline'} className="w-max self-end">
-              Cancel
+              Keep it
             </Button>
           </DialogClose>
           <Button
@@ -136,7 +127,7 @@ const CancelSubscriptionDialog = () => {
             disabled={isPending}
             onClick={handleCancel}
           >
-            {isPending ? 'Loading...' : 'Cancel Subscriptions'}
+            {isPending ? 'Loading...' : 'Cancel subscription'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,526 +1,274 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/custom/skeleton';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Subscription, UserProfileType } from '@/lib/constants';
-import useSendRequest, {
-  errorToastClassName,
-} from '@/lib/hooks/useSendRequest';
-import { MUTATIONS } from '@/lib/queries';
-import {
-  useGetSubscriptions,
-  useGetToken,
-  useGetUserProfile,
-} from '@/lib/queries/hooks';
-import { queryKeys } from '@/lib/queries/query-keys';
-import { cn } from '@/lib/utils';
-import { formatPrice, type Period } from '@/lib/pricing';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useQueryState } from 'nuqs';
-import { Dispatch, SetStateAction, useState } from 'react';
-import { toast } from 'sonner';
 import { PaymentAssurance, PaymentMethod } from '@/components/how-to-pay';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Subscription, UserProfileType } from '@/lib/constants';
+import { https } from '@/lib/https';
+import { formatPrice, type Period } from '@/lib/pricing';
+import { useGetSubscriptions, useGetToken, useGetUserProfile } from '@/lib/queries/hooks';
+import { queryKeys } from '@/lib/queries/query-keys';
+import { apiError } from '@/lib/sessions';
+import { cn } from '@/lib/utils';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Check, Minus } from 'lucide-react';
+import Link from 'next/link';
+import { useQueryState } from 'nuqs';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
-const PERIOD_TEXT: Record<Period, string> = { monthly: 'Monthly', biannually: '6 months', annually: '1 year' };
+type Tab = Extract<Period, 'biannually' | 'annually'>;
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'biannually', label: '6 Months' },
+  { id: 'annually', label: 'Annually' },
+];
+const PERIOD_TEXT: Record<Tab, string> = { biannually: 'every 6 months', annually: 'every year' };
 
-const ChooseYourPlan = () => {
-  const [tab, _] = useQueryState('plan', { defaultValue: 'biannually' });
-  const [subChoice, setSubChoice] = useState<Subscription | null>(null);
+type Row = { label: React.ReactNode; value: (p: Subscription, tab: Tab) => React.ReactNode };
+const ROWS: Row[] = [
+  {
+    label: 'Monthly Price ( billed half-year and annually)',
+    value: (p, tab) => {
+      const price = p.periods?.[tab];
+      if (!price) return '—';
+      return (
+        <span className="flex flex-col items-center gap-1">
+          <span className="text-base font-semibold">{formatPrice({ currency: price.currency, amount: price.perMonth })}</span>
+          <span className="text-[10px] font-normal opacity-70">
+            {formatPrice(price)} {PERIOD_TEXT[tab]}
+          </span>
+        </span>
+      );
+    },
+  },
+  { label: 'Download for Offline viewing', value: p => (p.offline ? 'Yes' : 'No') },
+  { label: 'All 200+ classes across 11 categories', value: () => <Check className="size-4" /> },
+  {
+    label: (
+      <>
+        Access to Sessions by UPBREED
+        <br />
+        Learn by doing in just 30 days.
+      </>
+    ),
+    value: () => <Check className="size-4" />,
+  },
+  { label: 'Watch on your computer, TV, Phone or tablet', value: () => <Check className="size-4" /> },
+  { label: 'Bonus class guides & content', value: p => (p.offline ? <Check className="size-4" /> : <Minus className="size-4 opacity-40" />) },
+];
+
+/** "Choose your plan": used on /pricing and on the welcome page after sign-in. */
+const ChooseYourPlan = ({ skipHref }: { skipHref?: string }) => {
+  const [tab, setTab] = useQueryState('plan', { defaultValue: 'biannually' });
+  const period: Tab = tab === 'annually' ? 'annually' : 'biannually';
+  const { data, isPending, isError } = useGetSubscriptions();
+  const plans: Subscription[] = (data?.data.data ?? []).filter((p: Subscription) => p.periods?.[period]);
+  const [selected, setSelected] = useState<Subscription | null>(null);
+  const [confirm, setConfirm] = useState(false);
+  useEffect(() => {
+    if (!selected && plans.length) setSelected(plans[0]);
+  }, [plans, selected]);
 
   return (
-    <section className="flex justify-center bg-[#00230F] pb-6">
-      <div className="_max-w-7xl flex w-full flex-col gap-7 px-9 pt-12 text-white max-lg:items-center lg:gap-16 lg:px-18 xl:px-36.25">
-        <div className="flex flex-col gap-6 max-lg:items-center max-lg:text-center xl:ml-13.5">
+    <section className="flex justify-center bg-[#00230F] pb-16 text-white">
+      <div className="flex w-full max-w-5xl flex-col gap-10 px-6 pt-12 sm:px-9">
+        <div className="flex flex-col gap-6 max-md:items-center max-md:text-center">
           <div className="flex flex-col gap-3">
-            <h2 className="text-2xl/[100%] font-medium">Choose your plan</h2>
-            <p className="text-xs/[100%] font-medium">
-              All membership plans come with a 30 day satisfaction guarantee
-            </p>
+            <h2 className="text-2xl font-medium text-white/50 md:text-[28px]">Choose your plan</h2>
+            <p className="text-xs font-medium">All membership plans come with a 30 day satisfaction guarantee</p>
           </div>
-          <PlanTabs />
+          <div className="flex w-max rounded-full bg-[#305B43] p-0.5">
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={cn(
+                  'h-9 cursor-pointer rounded-full px-7 text-xs font-medium transition-colors',
+                  period === t.id ? 'bg-[#D0EA50] text-[#00230F]' : 'text-white',
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <PlansDesktop tab={tab} level={subChoice} setLevel={setSubChoice} />
-        <PlansMobile tab={tab} level={subChoice} setLevel={setSubChoice} />
+
+        {isPending ? (
+          <div className="h-96 animate-pulse rounded-lg bg-white/5" />
+        ) : isError || !plans.length ? (
+          <p className="text-sm text-white/70">Plans are not available right now. Please refresh the page.</p>
+        ) : (
+          <>
+            {/* Desktop: feature rows on the left, one column per plan */}
+            <div className="hidden md:block">
+              <div className="grid" style={{ gridTemplateColumns: `minmax(0,1fr) repeat(${plans.length}, 12rem)` }}>
+                <div />
+                {plans.map(p => (
+                  <PlanHead key={p.id} plan={p} active={selected?.id === p.id} onSelect={() => setSelected(p)} />
+                ))}
+                {ROWS.map((row, i) => (
+                  <div key={i} className="contents">
+                    <div className={cn('flex items-center border-b border-[#305B43] py-5 pl-14 text-xs font-medium', i === ROWS.length - 1 && 'border-none')}>
+                      {row.label}
+                    </div>
+                    {plans.map(p => (
+                      <div
+                        key={p.id}
+                        className={cn(
+                          'flex items-center justify-center border-b border-[#305B43] py-5 text-xs transition-colors',
+                          selected?.id === p.id && 'border-[#4A7259] bg-[#305B43]',
+                          i === ROWS.length - 1 && 'border-none pb-10',
+                        )}
+                      >
+                        {row.value(p, period)}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile: one card per plan */}
+            <div className="flex flex-col gap-4 md:hidden">
+              {plans.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => setSelected(p)}
+                  className={cn(
+                    'flex cursor-pointer flex-col gap-4 rounded-xl border p-5 text-left transition-colors',
+                    selected?.id === p.id ? 'border-[#D0EA50] bg-[#305B43]' : 'border-[#305B43]',
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-base font-semibold">{p.name}</p>
+                      <p className="text-xs opacity-70">
+                        {p.noDevices} Device{p.noDevices > 1 ? 's' : ''} · {p.offline ? 'Offline mode' : 'No Offline mode'}
+                      </p>
+                    </div>
+                    <div className="text-right text-[#D0EA50]">{ROWS[0].value(p, period)}</div>
+                  </div>
+                  <ul className="flex flex-col gap-2 text-xs">
+                    {ROWS.slice(1).map((row, i) => (
+                      <li key={i} className="flex items-center justify-between gap-3 border-t border-white/10 pt-2">
+                        <span className="opacity-80">{row.label}</span>
+                        <span className="shrink-0">{row.value(p, period)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-center gap-10 md:gap-20">
+              {skipHref && (
+                <Link href={skipHref} className="p-2 text-xs font-semibold underline">
+                  Skip
+                </Link>
+              )}
+              <Button className="w-full max-w-72 rounded" disabled={!selected} onClick={() => setConfirm(true)}>
+                Continue
+              </Button>
+            </div>
+          </>
+        )}
       </div>
+      <ConfirmPayment plan={selected} period={period} open={confirm} onOpenChange={setConfirm} />
     </section>
   );
 };
 
 export default ChooseYourPlan;
 
-const PlanTabs = () => {
-  const [tab, setTab] = useQueryState('plan', {
-    defaultValue: 'biannually',
-  });
-
+function PlanHead({ plan, active, onSelect }: { plan: Subscription; active: boolean; onSelect: () => void }) {
   return (
-    <Tabs value={tab} defaultValue={tab} onValueChange={setTab}>
-      <TabsList className="h-10 rounded-[30px] bg-[#D0EA50] p-0">
-        <TabsTrigger
-          value={'biannually'}
-          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
-        >
-          6-months
-        </TabsTrigger>
-        <TabsTrigger
-          value={'annually'}
-          className="h-full rounded-[30px] px-7 text-xs/[100%] font-medium capitalize data-[state=active]:bg-[#305B43] data-[state=active]:text-white"
-        >
-          Annually
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
-  );
-};
-
-const PlansDesktop = (props: {
-  tab: string;
-  level: Subscription | null;
-  setLevel: Dispatch<SetStateAction<Subscription | null>>;
-}) => {
-  const { level, setLevel, tab } = props;
-  const { data: subscriptionData, isPending: isSubscriptionPending } =
-    useGetSubscriptions();
-  const subscriptions: Subscription[] = subscriptionData?.data.data;
-
-  // Every plan can be bought for 6 months or a year; show those with a price for the chosen period.
-  const filterAvailablePlansByPeriod = subscriptions?.filter(
-    plan => plan.periods?.[tab as Period],
-  );
-
-  return (
-    <div className="relative flex flex-col gap-29.25 max-lg:hidden">
-      <ul className="text-xs/[100%] font-medium [&>li]:border-b [&>li]:border-[#305B43] [&>li]:py-7 [&>li]:pl-13.5 [&>li]:last:border-none">
-        <li>Price (billed every 6 months or yearly)</li>
-        <li>Download for Offline viewing</li>
-        <li>All 200+ classes acrross 11 categories</li>
-        <li>
-          Access to Sessions by UPBREED <br /> Learn by doing in just 30 days.
-        </li>
-        <li>Watch on your computer, TV, Phone or tablet</li>
-        <li>Bonus class guides & content</li>
-      </ul>
-      {isSubscriptionPending ? (
-        <>
-          <div
-            className={cn(
-              'group absolute -top-40 right-80 flex h-151 w-44.25 animate-pulse flex-col items-center bg-white/40 px-10 pt-4 pb-18 text-xs/[100%] font-semibold transition-colors',
-            )}
-          ></div>
-          <div
-            className={cn(
-              'group absolute -top-40 right-20 flex h-151 w-44.25 animate-pulse flex-col items-center bg-white/40 px-10 pt-4 pb-18 text-xs/[100%] font-semibold transition-colors',
-            )}
-          ></div>
-        </>
-      ) : (
-        filterAvailablePlansByPeriod.map((subscription, i) => (
-          <PlanSpecCard
-            key={i}
-            className={cn(i === 1 && 'right-20')}
-            plan={subscription}
-            onClick={() => setLevel(subscription)}
-            selected={level}
-            device={`${subscription.noDevices} Device${subscription.noDevices > 1 ? 's' : ''}`}
-            offline="No Offline mode"
-            monthlyPrice={formatPrice(subscription.periods?.[tab as Period])}
-            download="No"
-          />
-        ))
-      )}
-      <SubscriptionNotice level={level}>
-        <Button className="w-3/5 self-center">Continue</Button>
-      </SubscriptionNotice>
+    <div className={cn('flex flex-col items-center gap-3 rounded-t-sm px-4 pt-5 pb-8 text-center text-xs transition-colors', active && 'bg-[#305B43]')}>
+      <p className="font-semibold capitalize">{plan.name}</p>
+      <div className="flex flex-col gap-1">
+        <p>
+          {plan.noDevices} Device{plan.noDevices > 1 ? 's' : ''}
+        </p>
+        <p className="text-[10px] opacity-80">{plan.offline ? 'Offline mode' : 'No Offline mode'}</p>
+      </div>
+      <Button
+        onClick={onSelect}
+        className={cn(
+          'mt-2 h-9 w-26 rounded-sm text-xs',
+          active ? 'bg-[#D0EA50] text-black hover:bg-[#D0EA50]' : 'border border-white/60 bg-transparent text-white hover:bg-white/10',
+        )}
+      >
+        {active ? 'Selected' : 'Select'}
+      </Button>
     </div>
   );
-};
+}
 
-const PlansMobile = (props: {
-  tab: string;
-  level: Subscription | null;
-  setLevel: Dispatch<SetStateAction<Subscription | null>>;
-}) => {
-  const { level, setLevel, tab } = props;
-  const { data: subscriptionData, isPending: isSubscriptionPending } =
-    useGetSubscriptions();
-  const subscriptions: Subscription[] = subscriptionData?.data.data;
-
-  // Every plan can be bought for 6 months or a year; show those with a price for the chosen period.
-  const filterAvailablePlansByPeriod = subscriptions?.filter(
-    plan => plan.periods?.[tab as Period],
-  );
-
-  if (isSubscriptionPending) return <SubscriptionMobileLoading />;
-
-  return (
-    <div className="flex w-full max-w-96 flex-col gap-12 lg:hidden">
-      <div className="flex justify-between text-center">
-        {filterAvailablePlansByPeriod?.map((subscription, i) => (
-          <div key={i} className="flex flex-col gap-5">
-            <div className="flex flex-col gap-4.5 text-white">
-              <p className="font-semibold capitalize">{subscription.name}</p>
-              <div
-                className={cn(
-                  'flex flex-col gap-4',
-                  level?.id === subscription.id && 'text-[#D0EA50]',
-                )}
-              >
-                <p className="text-sm/[100%] font-medium">
-                  {subscription.noDevices} Device
-                  {subscription.noDevices > 1 ? 's' : ''}
-                </p>
-                <p className="text-xs/[100%] font-medium">No Offline mode</p>
-              </div>
-            </div>
-            <Button
-              onClick={() => setLevel(subscription)}
-              className={cn(
-                'w-24.25 border border-[#305B43] bg-transparent text-white',
-                level?.id === subscription.id &&
-                  'border-transparent bg-[#D0EA50] text-black',
-              )}
-            >
-              {level?.id === subscription.id ? 'Selected' : 'Select'}
-            </Button>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-col gap-4 text-sm/[100%] font-medium">
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            {filterAvailablePlansByPeriod?.map((subscription, i) => (
-              <p
-                key={i}
-                className={cn(
-                  level?.id === subscription.id && 'text-[#D0EA50]',
-                )}
-              >
-                {formatPrice(subscription.periods?.[tab as Period])}
-              </p>
-            ))}
-          </div>
-          <p className="text-center text-xs">Price (billed every 6 months or yearly)</p>
-        </div>
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            {filterAvailablePlansByPeriod?.map((subscription, i) => (
-              <p
-                key={i}
-                className={cn(
-                  level?.id === subscription.id && 'text-[#D0EA50]',
-                )}
-              >
-                No
-              </p>
-            ))}
-          </div>
-          <p className="text-center text-xs">Download for Offline viewing</p>
-        </div>
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            <Check
-              className={cn(
-                level?.id === subscriptions[0]?.id
-                  ? 'text-[#D0EA50]'
-                  : 'text-white',
-              )}
-            />
-          </div>
-          <p className="text-center text-xs">
-            All 200+ classes acrross 11 categories
-          </p>
-        </div>
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            {filterAvailablePlansByPeriod?.map((subscription, i) => (
-              <Check
-                key={i}
-                className={cn(
-                  level?.id === subscription.id
-                    ? 'text-[#D0EA50]'
-                    : 'text-white',
-                )}
-              />
-            ))}
-          </div>
-          <p className="text-center text-xs">
-            Watch on your computer, TV, Phone or tablet
-          </p>
-        </div>
-        <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-          <div className="flex items-center justify-between px-8">
-            {filterAvailablePlansByPeriod?.map((subscription, i) => (
-              <Check
-                key={i}
-                className={cn(
-                  level?.id === subscription.id
-                    ? 'text-[#D0EA50]'
-                    : 'text-white',
-                )}
-              />
-            ))}
-          </div>
-          <p className="text-center text-xs">Bonus class guides & content</p>
-        </div>
-        <SubscriptionNotice level={level}>
-          <Button>Continue</Button>
-        </SubscriptionNotice>
-      </div>
-    </div>
-  );
-};
-
-const PlanSpecCard = (props: {
-  className?: string;
-  plan: Subscription;
-  device: string;
-  offline: string;
-  btnClassName?: string;
-  monthlyPrice: string;
-  download: string;
-  allClasses?: string;
-  accessSessions?: string;
-  watch?: string;
-  onClick: () => void;
-  selected: Subscription | null;
-}) => {
-  const {
-    className,
-    plan,
-    device,
-    offline,
-    btnClassName,
-    monthlyPrice,
-    download,
-    allClasses,
-    accessSessions,
-    watch,
-    onClick,
-    selected,
-  } = props;
-  return (
-    <ul
-      className={cn(
-        'group absolute -top-40 right-80 flex flex-col items-center bg-transparent px-10 pt-4 pb-18 text-xs/[100%] font-semibold transition-colors hover:bg-[#305B43]',
-        className,
-      )}
-    >
-      <li className="pb-4.5 font-semibold! capitalize">{plan.name}</li>
-      <li className="pb-4">{device}</li>
-      <li className="pb-5">{offline}</li>
-      <li className="pb-12">
-        <Button
-          onClick={onClick}
-          className={cn(
-            'h-8.5 w-24.25 rounded border border-[#305B43] bg-transparent text-white group-hover:border-transparent hover:bg-[#D0EA50] hover:text-black',
-            btnClassName,
-            selected?.id === plan.id &&
-              'border-transparent bg-[#D0EA50] text-black',
-          )}
-        >
-          {selected?.id === plan.id ? 'Selected' : 'Select'}
-        </Button>
-      </li>
-      <li className="pb-12 text-xl leading-[100%] font-semibold text-[#D0EA50] group-hover:text-white">
-        {monthlyPrice}
-      </li>
-      <li className="pb-12">{download}</li>
-      <li className="pb-12">
-        <Check className={cn('text-white', allClasses)} />
-      </li>
-      <li className="pb-12">
-        <Check className={cn('text-white', accessSessions)} />
-      </li>
-      <li className="pb-12">
-        <Check className={cn('text-white', watch)} />
-      </li>
-    </ul>
-  );
-};
-
-const SubscriptionNotice = (props: {
-  children: React.ReactNode;
-  level: Subscription | null;
-}) => {
-  const { children, level } = props;
-  const [period] = useQueryState('plan', { defaultValue: 'biannually' });
-  const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [_, setAuth] = useQueryState('auth');
+function ConfirmPayment({ plan, period, open, onOpenChange }: { plan: Subscription | null; period: Tab; open: boolean; onOpenChange: (o: boolean) => void }) {
+  const qc = useQueryClient();
+  const [, setAuth] = useQueryState('auth');
   const { data: tokenData } = useGetToken();
   const token = tokenData?.data.token;
   const { data } = useGetUserProfile(token);
-  const userProfile: UserProfileType = data?.data.data;
-  const rootUrl = typeof window !== 'undefined' && window.location.origin;
-  const router = useRouter();
+  const me: UserProfileType | undefined = data?.data.data;
+  const price = plan?.periods?.[period];
 
-  const { mutate, isPending } = useSendRequest<
-    {
-      planId: number;
-      period: string;
-      email: string;
-      callbackUrl: string;
-    },
-    {
-      data: {
-        reference: string;
-        amount: string;
-        currency: string;
-        provider: string;
-        plan: {
-          id: number;
-          name: string;
-          period: string;
-          noDevices: number;
-          paystackPlanCode: string;
-        };
-        authorizationUrl: string;
-        accessCode: string;
-      };
-    }
-  >({
-    mutationFn: (data: {
-      planId: number;
-      period: string;
-      email: string;
-      callbackUrl: string;
-    }) => MUTATIONS.initiateSubscription(data),
-    successToast: {
-      title: 'Success',
-      description: 'Taking you to secure checkout…',
-    },
-    errorToast: {
-      title: 'Error',
-      description: 'An unexpected error occurred. Please try again.',
-    },
-    onSuccessCallback: data => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.subscriptions.current(),
-      });
-      {
-        data?.data.authorizationUrl && router.push(data?.data.authorizationUrl);
+  const pay = useMutation({
+    mutationFn: () =>
+      https
+        .post('/payment/subscription/initiate', {
+          planId: plan!.id,
+          period,
+          email: me?.email,
+          callbackUrl: `${window.location.origin}/payment?type=subscription`,
+        })
+        .then(r => r.data as { authorizationUrl: string | null; message?: string }),
+    onSuccess: r => {
+      qc.invalidateQueries({ queryKey: queryKeys.subscriptions.current() });
+      if (r.authorizationUrl) window.location.href = r.authorizationUrl;
+      else {
+        toast.success(r.message ?? 'Subscription updated');
+        onOpenChange(false);
       }
-      setOpen(false);
     },
+    onError: e => toast.error('Could not start payment', { description: apiError(e) }),
   });
 
-  const handleSubscription = () => {
-    if (!level) {
-      toast.error(`Cannot subscribe!`, {
-        description: 'Please select a plan.',
-        className: errorToastClassName,
-      });
-      return;
-    }
-    if (!token) {
-      setAuth('login');
-      return;
-    } else {
-      mutate({
-        planId: level?.id!!,
-        period,
-        email: userProfile.email,
-        callbackUrl: `${rootUrl}/payment?type=subscription`,
-      });
-    }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="custom-font max-h-[calc(100dvh/var(--site-zoom,1)-2rem)] gap-5 overflow-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-[#00230F]">Confirm your membership</DialogTitle>
           <DialogDescription>
-            {level ? (
+            {plan && price ? (
               <>
-                {level.name} · {PERIOD_TEXT[period as Period] ?? period} ·{' '}
-                <span className="font-semibold text-[#00230F]">{formatPrice(level.periods?.[period as Period])}</span>
+                {plan.name} · billed {PERIOD_TEXT[period]} · <span className="font-semibold text-[#00230F]">{formatPrice(price)}</span>
               </>
             ) : (
               'Choose a plan first.'
             )}
           </DialogDescription>
         </DialogHeader>
-        <PaymentMethod provider={level?.periods?.[period as Period]?.provider} />
+        <PaymentMethod provider={price?.provider} />
         <PaymentAssurance />
         <DialogFooter className="gap-2">
           <DialogClose asChild>
-            <Button variant={'outline'}>Cancel</Button>
+            <Button variant="outline">Cancel</Button>
           </DialogClose>
           <Button
-            className="disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={isPending}
-            onClick={handleSubscription}
+            disabled={!plan || pay.isPending}
+            onClick={() => {
+              if (!token) {
+                onOpenChange(false);
+                setAuth('login');
+                return;
+              }
+              pay.mutate();
+            }}
           >
-            {isPending ? 'Loading...' : 'Continue to payment'}
+            {pay.isPending ? 'Opening checkout…' : token ? 'Continue to payment' : 'Log in to continue'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-};
-
-const SubscriptionColumnSkeleton = () => {
-  return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-4.5">
-        <Skeleton className="mx-auto h-4 w-16" />
-        <div className="flex flex-col items-center gap-3">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-3 w-20" />
-        </div>
-      </div>
-      <Skeleton className="h-9 w-24.25 rounded-md" />
-    </div>
-  );
-};
-
-const FeatureRowSkeleton = () => {
-  return (
-    <div className="flex flex-col gap-6 border-b-[0.6px] border-[#FFFFFF1A] pb-3">
-      <div className="flex items-center justify-between px-8">
-        <Skeleton className="h-4 w-10" />
-        <Skeleton className="h-4 w-10" />
-      </div>
-      <Skeleton className="mx-auto h-3 w-48" />
-    </div>
-  );
-};
-
-const SubscriptionMobileLoading = () => {
-  return (
-    <div className="pointer-events-none flex w-full max-w-96 flex-col gap-12 lg:hidden">
-      {/* Top plans */}
-      <div className="flex justify-between text-center">
-        <SubscriptionColumnSkeleton />
-        <SubscriptionColumnSkeleton />
-      </div>
-
-      {/* Feature comparison */}
-      <div className="flex flex-col gap-4 text-sm/[100%] font-medium">
-        <FeatureRowSkeleton />
-        <FeatureRowSkeleton />
-        <FeatureRowSkeleton />
-        <FeatureRowSkeleton />
-        <FeatureRowSkeleton />
-
-        {/* Continue button */}
-        <Skeleton className="mt-2 h-10 w-full rounded-md" />
-      </div>
-    </div>
-  );
-};
+}

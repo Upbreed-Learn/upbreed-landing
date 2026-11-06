@@ -140,7 +140,15 @@ export interface UserProfileType {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
-  userProfile: null;
+  userProfile: {
+    country: string | null;
+    state: string | null;
+    websiteLink: string | null;
+    instagramLink: string | null;
+    tiktokLink: string | null;
+    xLink: string | null;
+    linkedinLink: string | null;
+  } | null;
   instructorProfile: InstructorProfile;
   role: Role[];
 }
@@ -161,6 +169,8 @@ export interface Subscription {
   /** Prices the visitor may choose from: their country's and the default. */
   prices?: PlanPrice[];
   /** The visitor's price for each billing cycle (full amount charged for that period). */
+  /** Premium: watch offline. */
+  offline?: boolean;
   periods?: Partial<Record<'monthly' | 'biannually' | 'annually', (PlanPrice & { months: number; perMonth: number }) | null>>;
   name: string;
   period: string;

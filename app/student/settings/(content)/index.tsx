@@ -12,9 +12,9 @@ const Content = () => {
   });
 
   return (
-    <section className="flex justify-center bg-white pt-11 pb-20 md:pt-22.25 md:pb-39.25">
-      <div className="flex w-full max-w-7xl px-9 md:px-12 lg:px-18">
-        <div className="w-full lg:max-w-[60.85rem] lg:px-45.25">
+    <section className="flex justify-center bg-white pt-8 pb-16 md:pt-10">
+      <div className="flex w-full max-w-7xl px-6 sm:px-9 md:px-12 lg:px-18">
+        <div className="w-full max-w-3xl lg:ml-34">
           {tab === 'profile' && <Profile />}
           {tab === 'subscription' && <Subscription />}
           {tab === 'privacy' && <Privacy />}

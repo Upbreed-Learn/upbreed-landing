@@ -12,8 +12,8 @@ const WhatToExpect = () => {
     <section className="flex justify-center bg-[#305B43]">
       <div className="flex w-full max-w-7xl justify-center gap-7 px-9 py-7 max-lg:flex-col-reverse md:px-12 lg:px-20 xl:px-50.75">
         <div className="flex flex-col gap-5 text-white sm:max-lg:self-center">
-          <h2 className="ml-7 text-2xl/6 font-extrabold">What to expect</h2>
-          <ul className="flex w-full flex-col gap-3 md:w-116 [&>li]:flex [&>li]:items-center [&>li]:gap-3">
+          <h2 className="ml-7 text-2xl/6 font-bold">What to Expect</h2>
+          <ul className="flex w-full flex-col gap-3 md:w-116 [&>li]:flex [&>li]:items-center [&>li]:gap-3 text-sm">
             <li>
               <DualDisplay />
               <span>All 10+ classes, sessions</span>
@@ -28,7 +28,7 @@ const WhatToExpect = () => {
             </li>
             <li>
               <DualDisplay />
-              <span>All 10+ classes, sessions</span>
+              <span>Watch on desktop, TV, or mobile devices</span>
             </li>
             <li>
               <Star />

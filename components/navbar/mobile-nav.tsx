@@ -135,15 +135,8 @@ const MobileNav = (props: { children: React.ReactNode }) => {
           >
             {token && (
               <li>
-                <Link onClick={() => setOpen(false)} href="/sessions">
-                  1-on-1 Sessions
-                </Link>
-              </li>
-            )}
-            {token && (
-              <li>
                 <Link onClick={() => setOpen(false)} href="/student/sessions">
-                  My sessions
+                  My Sessions
                 </Link>
               </li>
             )}

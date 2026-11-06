@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import ChooseYourPlan from './(welcome)/choose-your-plan';
+import ChooseYourPlan from '../(landing-page)/pricing/pricing';
 import Hero from './(welcome)/hero';
 import WhatToExpect from './(welcome)/what-to-expect';
 import { Suspense } from 'react';
@@ -14,10 +14,12 @@ export const metadata: Metadata = {
 const Welcome = () => {
   return (
     <>
-      <Hero />
+      <Suspense>
+        <Hero />
+      </Suspense>
       <WhatToExpect />
       <Suspense>
-        <ChooseYourPlan />
+        <ChooseYourPlan skipHref="/student/home" />
       </Suspense>
       <Faqs />
     </>
