@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { storeToken } from '@/lib/actions';
+import { resetTokenCache } from '@/lib/https';
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function AuthCallback() {
     if (token) {
       // Store authentication data
       await storeToken({ token: token });
+      resetTokenCache();
       localStorage.setItem('userId', userId || '');
       localStorage.setItem('userEmail', email || '');
 

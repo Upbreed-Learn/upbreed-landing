@@ -68,7 +68,7 @@ export const BunnyPlayerWithTracking = ({
         // Track progress updates using Player.js timeupdate event
         player.on('timeupdate', (data: any) => {
           if (data && typeof data.seconds === 'number') {
-            // Send progress update to WebSocket using string videoId
+            // Save progress (the store sends at most one request every 10 seconds)
             useVideoProgressStore
               .getState()
               .updateProgress(videoId, Math.floor(data.seconds));
@@ -84,7 +84,7 @@ export const BunnyPlayerWithTracking = ({
             playerRef.current.getCurrentTime((seconds: number) => {
               useVideoProgressStore
                 .getState()
-                .updateProgress(videoId, Math.floor(seconds));
+                .updateProgress(videoId, Math.floor(seconds), true);
             });
           }
         });
@@ -95,7 +95,7 @@ export const BunnyPlayerWithTracking = ({
             playerRef.current.getDuration((duration: number) => {
               useVideoProgressStore
                 .getState()
-                .updateProgress(videoId, Math.floor(duration));
+                .updateProgress(videoId, Math.floor(duration), true);
             });
           }
         });

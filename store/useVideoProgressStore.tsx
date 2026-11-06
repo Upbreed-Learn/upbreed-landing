@@ -1,136 +1,67 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/$/, '');
 
+/**
+ * Saves how far a student has watched a lesson.
+ * Sends a small request every few seconds (the player decides how often) instead of keeping a
+ * live WebSocket open, so it works on any host. Same shape as before so the players are unchanged.
+ */
 interface VideoProgressState {
-  // Connection state
   isConnected: boolean;
   error: string | null;
   isConnecting: boolean;
   currentToken: string | null;
-
-  // WebSocket instance (not persisted)
-  ws: WebSocket | null;
-
-  // Actions
   connect: (token: string, videoId: number) => void;
   disconnect: () => void;
-  updateProgress: (videoId: number, position: number) => void;
+  /** Saves at most every 10 seconds; pass `force` on pause/end to save straight away. */
+  updateProgress: (videoId: number | string, position: number, force?: boolean) => void;
   clearError: () => void;
 }
 
+const SAVE_EVERY_MS = 10_000;
+const lastSent = new Map<string, { at: number; position: number }>();
+
 export const useVideoProgressStore = create<VideoProgressState>()(
   subscribeWithSelector((set, get) => ({
-    // Initial state
     isConnected: false,
     error: null,
     isConnecting: false,
     currentToken: null,
-    ws: null,
 
-    connect: (token: string, videoId: number) => {
-      const { isConnected, isConnecting } = get();
-      // Don't connect if already connected or connecting
-      if (isConnected || isConnecting) return;
+    connect: (token: string) => set({ currentToken: token, isConnected: Boolean(token), isConnecting: false, error: null }),
 
-      set({ isConnecting: true, error: null, currentToken: token });
+    disconnect: () => set({ isConnected: false, currentToken: null }),
 
-      // Determine WebSocket URL based on environment
-      const isProduction = process.env.NODE_ENV === 'production';
-      const wsUrl = isProduction
-        ? `${BASE_URL}?auth=${token}&videoId=${videoId}`
-        : `${BASE_URL}?auth=${token}&videoId=${videoId}`;
-
-      const ws = new WebSocket(wsUrl);
-
-      ws.onopen = () => {
-        set({
-          isConnected: true,
-          isConnecting: false,
-          error: null,
-          ws,
-        });
-      };
-
-      ws.onmessage = event => {
-        try {
-          const message = JSON.parse(event.data);
-
-          if (message.event === 'progress_updated') {
-            // You can emit events or update local state here if needed
-          } else if (message.event === 'error') {
-            set({ error: message.data.message });
-          }
-        } catch (err) {
-          set({ error: 'Failed to parse server response' });
-        }
-      };
-
-      ws.onerror = error => {
-        console.error('WebSocket error:', error);
-        set({
-          error: 'WebSocket connection failed',
-          isConnecting: false,
-        });
-      };
-
-      ws.onclose = event => {
-        set({
-          isConnected: false,
-          isConnecting: false,
-          ws: null,
-        });
-        // Note: Automatic reconnection is handled by React components to avoid infinite loops
-      };
-
-      // Store the WebSocket instance
-      set({ ws });
-    },
-
-    disconnect: () => {
-      const { ws } = get();
-      if (ws) {
-        ws.close(1000, 'Client disconnecting');
-      }
-      set({
-        isConnected: false,
-        isConnecting: false,
-        ws: null,
-        error: null,
-        currentToken: null,
-      });
-    },
-
-    updateProgress: (videoId: string | number, position: number) => {
-      const { ws, isConnected } = get();
-
-      if (!isConnected || !ws || ws.readyState !== WebSocket.OPEN) {
-        console.warn('WebSocket not connected, cannot update progress');
-        return;
-      }
-
-      try {
-        ws.send(
-          JSON.stringify({
-            event: 'update_progress',
-            data: {
-              videoId,
-              position: Math.floor(position), // Ensure integer
-            },
-          }),
-        );
-      } catch (err) {
-        console.error('Failed to send progress update:', err);
-        set({ error: 'Failed to send progress update' });
-      }
+    updateProgress: (videoId, position, force = false) => {
+      const token = get().currentToken;
+      if (!token || !BASE_URL || !Number.isFinite(position)) return;
+      const key = String(videoId);
+      const now = Date.now();
+      const last = lastSent.get(key);
+      if (!force && last && now - last.at < SAVE_EVERY_MS) return;
+      if (last && Math.floor(position) === last.position) return;
+      lastSent.set(key, { at: now, position: Math.floor(position) });
+      fetch(`${BASE_URL}/course/video/${videoId}/progress`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ position: Math.max(0, Math.floor(position)) }),
+        keepalive: true, // still sent if the tab is closing
+      })
+        .then(async r => {
+          if (r.ok) return set({ error: null });
+          const body = await r.json().catch(() => null);
+          const msg = body?.message;
+          set({ error: (Array.isArray(msg) ? msg.join(', ') : msg) || 'Could not save your progress' });
+        })
+        .catch(() => set({ error: 'Could not save your progress' }));
     },
 
     clearError: () => set({ error: null }),
   })),
 );
 
-// Selectors for common use cases
 export const useVideoProgressConnection = () =>
   useVideoProgressStore(state => ({
     isConnected: state.isConnected,
@@ -138,12 +69,9 @@ export const useVideoProgressConnection = () =>
     error: state.error,
   }));
 
-// Action hooks that call store methods directly to avoid infinite loops
-const connectAction = (token: string, videoId: number) =>
-  useVideoProgressStore.getState().connect(token, videoId);
+const connectAction = (token: string, videoId: number) => useVideoProgressStore.getState().connect(token, videoId);
 const disconnectAction = () => useVideoProgressStore.getState().disconnect();
-const updateProgressAction = (videoId: number, position: number) =>
-  useVideoProgressStore.getState().updateProgress(videoId, position);
+const updateProgressAction = (videoId: number, position: number) => useVideoProgressStore.getState().updateProgress(videoId, position);
 const clearErrorAction = () => useVideoProgressStore.getState().clearError();
 
 export const useVideoProgressActions = () => ({

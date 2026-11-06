@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      // Course thumbnails, instructor photos and blog images (Bunny CDN).
+      { protocol: 'https', hostname: 'cdn.upbreedlearn.com', port: '', pathname: '/**' },
+      { protocol: 'https', hostname: '*.b-cdn.net', port: '', pathname: '/**' },
       {
         protocol: 'https',
         hostname: 'upbreed-learn-dev.b-cdn.net',

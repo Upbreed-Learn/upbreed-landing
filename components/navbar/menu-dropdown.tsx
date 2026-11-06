@@ -10,6 +10,7 @@ import {
 import { CalendarDays, Headset, Info, LogOutIcon, Settings, ShieldAlert } from 'lucide-react';
 import CashOutline from '../jsx-icons/cash-outline';
 import { deleteToken } from '@/lib/actions';
+import { resetTokenCache } from '@/lib/https';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queries/query-keys';
@@ -21,6 +22,7 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
 
   const handleLogout = async () => {
     await deleteToken();
+    resetTokenCache();
     queryClient.invalidateQueries({ queryKey: queryKeys.token });
     router.push('/');
     localStorage.removeItem('userId');

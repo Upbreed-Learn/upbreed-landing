@@ -1,3 +1,4 @@
+import { resetTokenCache } from '@/lib/https';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { storeToken } from '../actions';
@@ -30,6 +31,7 @@ const useSendRequest = <T, R>({
         const cookieValue = cookie.getValue(data);
         if (cookieValue) {
           await storeToken({ token: cookieValue });
+          resetTokenCache();
         }
       }
       if (successToast)

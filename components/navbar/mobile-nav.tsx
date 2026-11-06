@@ -22,6 +22,7 @@ import { CoursesLoading } from '.';
 import { COURSE_BUNDLES } from './classes-hover';
 import { cn } from '@/lib/utils';
 import { deleteToken } from '@/lib/actions';
+import { resetTokenCache } from '@/lib/https';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 
@@ -56,6 +57,7 @@ const MobileNav = (props: { children: React.ReactNode }) => {
 
   const handleLogout = async () => {
     await deleteToken();
+    resetTokenCache();
     queryClient.invalidateQueries({ queryKey: queryKeys.token });
     setOpen(false);
     router.push('/');
