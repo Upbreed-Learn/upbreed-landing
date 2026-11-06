@@ -51,7 +51,10 @@ const myFont = localFont({
 
 // Desktop: show the site at 90% size, and shrink it further on screens narrower than the 1280px designs.
 const SITE_SCALE = 0.9;
-const FIT_TO_DESIGN = `(function(){var d=document.documentElement;function f(){var w=window.innerWidth;var z=w>=1024?${SITE_SCALE}*Math.min(1,w/1280):1;d.style.zoom=z===1?'':String(z);d.style.setProperty('--site-zoom',String(z));}f();window.addEventListener('resize',f);})();`;
+// Zooms the page content only (not the whole document), so pop-up menus, dialogs and dropdowns,
+// which open outside the content, are positioned correctly under the button that opened them.
+// Runs from inside #site-zoom-root, before the page paints.
+const FIT_TO_DESIGN = `(function(){var d=document.currentScript.parentElement;function f(){var w=window.innerWidth;var z=w>=1024?${SITE_SCALE}*Math.min(1,w/1280):1;d.style.zoom=z===1?'':String(z);d.style.setProperty('--site-zoom',String(z));}f();window.addEventListener('resize',f);})();`;
 
 export default function RootLayout({
   children,
@@ -60,20 +63,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* The designs are drawn for a 1280px-wide screen. On smaller laptop screens (1024–1279px)
-            scale the whole site down so it looks like the design instead of oversized. */}
-        <script dangerouslySetInnerHTML={{ __html: FIT_TO_DESIGN }} />
-      </head>
+      <head />
       <body className={cn('bg-[#00230F]', myFont.className)}>
         <Splash />
         <QueryProvider>
           <Suspense>
             <NuqsAdapter>
               <AuthPages />
-              <Navbar />
-              <main className="pt-22.25">{children}</main>
-              <Footer />
+              {/* The designs are drawn for a 1280px-wide screen: on laptops, scale the content to 90%
+                  so it looks like the design instead of oversized. */}
+              <div id="site-zoom-root" suppressHydrationWarning>
+                <script dangerouslySetInnerHTML={{ __html: FIT_TO_DESIGN }} />
+                <Navbar />
+                <main className="pt-22.25">{children}</main>
+                <Footer />
+              </div>
               <ContactUs />
               <Gifts />
               <Toaster />

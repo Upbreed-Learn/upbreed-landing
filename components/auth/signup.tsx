@@ -452,6 +452,17 @@ const SignupDialog = (props: { onStartTimer: () => void }) => {
             Sign Up with Google
             <span className="sr-only">Sign up with Google</span>
           </button>
+          <p className="text-center text-[11px] leading-snug text-[#737373]">
+            By signing up you confirm you are 16 or older and agree to our{' '}
+            <a href="/terms" target="_blank" className="underline">
+              Terms
+            </a>{' '}
+            and{' '}
+            <a href="/privacy" target="_blank" className="underline">
+              Privacy Policy
+            </a>
+            .
+          </p>
           <div className="flex items-center justify-center gap-2.5 text-sm text-[#00230F]">
             <p>Already a member?</p>
             <button className="text-[#34A853]" onClick={handleLogin}>

@@ -34,7 +34,7 @@ const MenuDropdown = (props: { children: React.ReactNode }) => {
       <DropdownMenuTrigger className="cursor-pointer p-1">
         {children}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="z-100 flex min-w-35.75 flex-col items-end gap-2 border-none bg-[#305B43] px-3.5 py-5 text-white">
+      <DropdownMenuContent align="end" sideOffset={14} className="z-100 flex min-w-35.75 flex-col items-end gap-2 border-none bg-[#305B43] px-3.5 py-5 text-white">
         <DropdownMenuItem asChild>
           <Link
             href="/about"

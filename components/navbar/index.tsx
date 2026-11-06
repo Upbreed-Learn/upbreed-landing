@@ -49,7 +49,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed z-99 flex w-full justify-center bg-[#001C0C]">
+      <nav className="fixed z-99 flex w-[calc(100vw/var(--site-zoom,1))] justify-center bg-[#001C0C]">
         <div className="flex w-full max-w-7xl items-center justify-between px-9 py-7 text-white md:px-12 md:pt-7 md:pb-5 lg:px-18">
           {!mobileSearch && (
             <Link href="/">
@@ -123,15 +123,17 @@ const Navbar = () => {
                   {isPending ? (
                     <div className="size-9 animate-pulse rounded-full bg-gray-200"></div>
                   ) : (
-                    <AvatarCustom
-                      src={userProfile?.avatarUrl}
-                      alt="Avatar"
-                      fallback={
-                        userProfile
-                          ? `${userProfile?.fname[0].toUpperCase()} ${userProfile?.lname[0].toUpperCase()}`
-                          : 'A'
-                      }
-                    />
+                    <Link href="/student/settings" title="My profile" className="rounded-full transition-opacity hover:opacity-85">
+                      <AvatarCustom
+                        src={userProfile?.avatarUrl}
+                        alt="My profile"
+                        fallback={
+                          userProfile
+                            ? `${userProfile?.fname[0].toUpperCase()} ${userProfile?.lname[0].toUpperCase()}`
+                            : 'A'
+                        }
+                      />
+                    </Link>
                   )}
                 </div>
               </>
