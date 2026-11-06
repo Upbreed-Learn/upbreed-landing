@@ -13,7 +13,8 @@ import { queryKeys } from '@/lib/queries/query-keys';
 import { apiError } from '@/lib/sessions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Camera, LoaderCircle } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import PhotoCropper from '@/components/photo-cropper';
 import { toast } from 'sonner';
 
 const Hero = () => {
@@ -116,11 +117,12 @@ function PhotoPicker({ profile }: { profile?: UserProfileType }) {
     },
     onError: e => toast.error('Could not upload photo', { description: apiError(e) }),
   });
+  const [picked, setPicked] = useState<File | null>(null);
   const pick = (file?: File) => {
     if (!file) return;
     if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) return toast.error('Use a JPG, PNG, WEBP or GIF photo');
-    if (file.size > 5 * 1024 * 1024) return toast.error('Photo must be 5 MB or smaller');
-    upload.mutate(file);
+    if (file.size > 40 * 1024 * 1024) return toast.error('That photo is too large (over 40 MB)');
+    setPicked(file); // opens the cropper; the cropped, resized copy is what gets uploaded
   };
   return (
     <div className="relative shrink-0">
@@ -139,6 +141,14 @@ function PhotoPicker({ profile }: { profile?: UserProfileType }) {
       >
         {upload.isPending ? <LoaderCircle className="size-4 animate-spin" /> : <Camera className="size-4" />}
       </button>
+      <PhotoCropper
+        file={picked}
+        onCancel={() => setPicked(null)}
+        onDone={cropped => {
+          setPicked(null);
+          upload.mutate(cropped);
+        }}
+      />
       <input
         ref={input}
         type="file"
