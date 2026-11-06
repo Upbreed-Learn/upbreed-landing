@@ -5,7 +5,7 @@ import { CourseDetailsData, Instructor } from '@/lib/constants';
 import { QUERIES } from '@/lib/queries';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
-import Image from 'next/image';
+import { useState } from 'react';
 
 export const useGetCourseAndInstructor = (
   courseId?: number,
@@ -27,65 +27,109 @@ export const useGetCourseAndInstructor = (
   });
 };
 
+/** Instructor photo, or their initials on brand green when no photo has been added (or it fails to load). */
+export const InstructorPhoto = ({
+  src,
+  name,
+  className,
+}: {
+  src?: string | null;
+  name: string;
+  className?: string;
+}) => {
+  const [failed, setFailed] = useState(false);
+  const initials = name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0]?.toUpperCase())
+    .join('');
+  return (
+    <div className={`relative overflow-hidden bg-[#00230F] ${className ?? ''}`}>
+      {src && !failed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={name}
+          onError={() => setFailed(true)}
+          className="absolute inset-0 size-full object-cover"
+        />
+      ) : (
+        <span className="absolute inset-0 grid place-items-center text-4xl font-bold text-[#D0EA50]">
+          {initials}
+        </span>
+      )}
+    </div>
+  );
+};
+
 const Hero = (props: { id: string }) => {
   const { id } = props;
   const queryClient = useQueryClient();
+  const [expanded, setExpanded] = useState(false);
 
   const [course] = useGetCourseAndInstructor(Number(id));
   const courseDetailsData: CourseDetailsData = course?.data?.data.data;
 
-  const [_, instructor] = useGetCourseAndInstructor(
+  const [, instructor] = useGetCourseAndInstructor(
     undefined,
-    courseDetailsData?.instructor.id,
+    courseDetailsData?.instructor?.id,
   );
-  const instructorDetailsData: Instructor = instructor?.data?.data.data;
+  const data: Instructor | undefined = instructor?.data?.data.data;
+  const name = data
+    ? `${data.fname} ${data.lname}`.trim()
+    : `${courseDetailsData?.instructor?.fname ?? ''} ${courseDetailsData?.instructor?.lname ?? ''}`.trim();
+  const photo =
+    data?.instructorProfile?.profilePictureUrl ??
+    (courseDetailsData?.instructor as { profilePictureUrl?: string } | undefined)?.profilePictureUrl;
+  const bio = data?.instructorProfile?.description || data?.instructorProfile?.about;
 
   const handleRetry = () => {
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.courses.byId(id),
-    });
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.instructors.byId(`${instructorDetailsData?.id}`),
-    });
+    queryClient.invalidateQueries({ queryKey: queryKeys.courses.byId(id) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.instructors.byId(`${data?.id}`) });
   };
 
   return (
     <section className="flex justify-center bg-[#305B43]">
-      <div className="w-full max-w-7xl md:px-12 md:pt-21.75 md:pb-7 lg:pl-27.25">
-        {instructor.isError ? (
+      <div className="w-full max-w-7xl px-6 py-10 md:px-12 md:py-16 lg:px-27.25">
+        {course.isError || instructor.isError ? (
           <ErrorCard handleRetry={handleRetry} />
-        ) : instructor.isPending ? (
+        ) : course.isPending || (instructor.isPending && !!courseDetailsData?.instructor?.id) ? (
           <HeroLoader />
         ) : (
-          <div className="items-center gap-12 max-md:relative max-md:h-max md:flex">
-            <div className="relative h-123.75 w-full shrink-0 md:h-67.25 md:w-40.5 md:overflow-hidden md:rounded-[10px]">
-              <Image
-                src={instructorDetailsData.instructorProfile.profilePictureUrl}
-                fill
-                sizes="(max-width: 1200px) 100vw, 1200px"
-                unoptimized
-                alt={instructorDetailsData.fname}
-                className="size-full object-cover"
-              />
-            </div>
-            <div className="bottom-7 flex flex-col gap-4 text-white max-md:absolute max-md:w-full max-md:items-center max-md:text-center md:gap-9">
-              <h1 className="text-xl/6 font-semibold max-md:hidden">
-                About the Instructor
-              </h1>
-              <div className="flex flex-col gap-3 md:hidden">
-                <h1 className="text-[2.5rem]/9 font-semibold text-[#D0EA50] max-md:w-full max-md:max-w-42.75">
-                  {instructorDetailsData.fname} {instructorDetailsData.lname}
-                </h1>
-                <p className="leading-4 font-semibold">
-                  {instructorDetailsData.instructorProfile.expertise}
-                </p>
+          <div className="flex flex-col items-center gap-6 text-white md:flex-row md:items-start md:gap-10">
+            <InstructorPhoto
+              src={photo}
+              name={name}
+              className="h-60 w-44 shrink-0 rounded-[10px] md:h-67.25 md:w-40.5"
+            />
+            <div className="flex flex-col gap-4 max-md:items-center max-md:text-center md:pt-2">
+              <h1 className="text-xl/6 font-semibold">About the Instructor</h1>
+              <div className="flex flex-col gap-1">
+                <p className="text-2xl font-bold text-[#D0EA50]">{name}</p>
+                {(data?.instructorProfile?.title || data?.instructorProfile?.expertise) && (
+                  <p className="text-sm font-semibold text-[#E8F0E4]">
+                    {data?.instructorProfile?.title || data?.instructorProfile?.expertise}
+                  </p>
+                )}
               </div>
-              <div className="flex flex-col gap-1.5">
-                <p className="w-full max-w-79 leading-6 max-md:line-clamp-3 max-md:text-center max-md:text-[10px] max-md:leading-4 max-md:text-ellipsis md:max-w-218.25">
-                  {instructorDetailsData.instructorProfile.description}
-                </p>
-                <button className="text-[7px]/4 md:hidden">Read more...</button>
-              </div>
+              {bio && (
+                <div className="flex flex-col gap-1.5 max-md:items-center">
+                  <p
+                    className={`w-full max-w-218.25 text-sm/6 whitespace-pre-line text-white/90 ${expanded ? '' : 'line-clamp-5'}`}
+                  >
+                    {bio}
+                  </p>
+                  {bio.length > 400 && (
+                    <button
+                      onClick={() => setExpanded(e => !e)}
+                      className="w-max cursor-pointer text-xs font-semibold text-[#D0EA50] underline"
+                    >
+                      {expanded ? 'Show less' : 'Read more'}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -96,36 +140,15 @@ const Hero = (props: { id: string }) => {
 
 export default Hero;
 
-const HeroLoader = () => {
-  return (
-    <div className="w-full animate-pulse items-center gap-12 max-md:relative max-md:h-max md:flex">
-      {/* Image Skeleton */}
-      <div className="relative h-123.75 w-full shrink-0 md:h-67.25 md:w-40.5 md:overflow-hidden md:rounded-[10px]">
-        <div className="size-full bg-[#e5e5e5] md:rounded-[10px]"></div>
-      </div>
-
-      {/* Text Section */}
-      <div className="bottom-7 flex flex-1 flex-col gap-4 max-md:absolute max-md:w-full max-md:items-center max-md:text-center md:gap-9">
-        {/* Desktop Heading */}
-        <div className="hidden h-5 w-40 rounded bg-[#d1d1d1] md:block"></div>
-
-        {/* Mobile Name + Role */}
-        <div className="flex w-full max-w-42.75 flex-col gap-3 md:hidden">
-          <div className="h-7 w-full rounded bg-[#d1d1d1]"></div>
-          <div className="h-3 w-28 rounded bg-[#e0e0e0]"></div>
-        </div>
-
-        {/* Description Skeleton */}
-        <div className="flex w-full flex-col gap-1.5">
-          <div className="h-3 w-full max-w-79 rounded bg-[#d1d1d1] md:max-w-218.25"></div>
-          <div className="h-3 w-11/12 rounded bg-[#e0e0e0]"></div>
-          <div className="h-3 w-10/12 rounded bg-[#dcdcdc]"></div>
-          <div className="h-3 w-9/12 rounded bg-[#e5e5e5]"></div>
-
-          {/* Mobile Read More */}
-          <div className="h-2 w-12 rounded bg-[#e0e0e0] md:hidden"></div>
-        </div>
-      </div>
+const HeroLoader = () => (
+  <div className="flex w-full animate-pulse flex-col items-center gap-6 md:flex-row md:items-start md:gap-10">
+    <div className="h-60 w-44 shrink-0 rounded-[10px] bg-white/15 md:h-67.25 md:w-40.5" />
+    <div className="flex w-full flex-col gap-3 md:pt-2">
+      <div className="h-5 w-40 rounded bg-white/20" />
+      <div className="h-7 w-56 rounded bg-white/20" />
+      <div className="h-3 w-full max-w-218.25 rounded bg-white/15" />
+      <div className="h-3 w-11/12 rounded bg-white/15" />
+      <div className="h-3 w-10/12 rounded bg-white/15" />
     </div>
-  );
-};
+  </div>
+);

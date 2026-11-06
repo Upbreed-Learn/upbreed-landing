@@ -91,6 +91,8 @@ export interface CourseData {
   preview: {
     lessonCount: number;
     durationInMinutes: number;
+    /** Exact total length of all lessons. */
+    durationInSeconds?: number;
   };
   percentageCompletion: number;
   totalVideos: number;
@@ -104,9 +106,14 @@ export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
     durationInSeconds: number;
     isTrailer: boolean;
     isPublic: boolean;
-    bunnyVideoId: string;
+    bunnyVideoId?: string;
     thumbnailUrl: string;
+    description?: string | null;
+    /** Signed Bunny player link; only sent when this person may watch the lesson. */
+    embedUrl?: string;
+    percentageCompleted?: number;
   }[];
+  percentageCompleted?: number;
   categories: Omit<
     Category['category'][],
     'createdAt' | 'updatedAt' | 'deletedAt'

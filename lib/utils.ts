@@ -70,3 +70,23 @@ export function formatDuration(totalMinutes: number): string {
   }
   return `${minutes} ${minuteLabel}`;
 }
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+/** 5520 → "1 Hour 32 Mins"; 45 → "45 Secs". Uses the exact total, not a rounded one. */
+export function formatLength(totalSeconds = 0): string {
+  const s = Math.max(0, Math.round(totalSeconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (!h && !m) return plural(s % 60, 'Sec');
+  return [h && plural(h, 'Hour'), m && plural(m, 'Min')].filter(Boolean).join(' ');
+}
+
+/** 5525 → "1:32:05"; 225 → "3:45". */
+export function formatClock(totalSeconds = 0): string {
+  const s = Math.max(0, Math.round(totalSeconds));
+  const h = Math.floor(s / 3600);
+  const mm = Math.floor((s % 3600) / 60);
+  const ss = String(s % 60).padStart(2, '0');
+  return h ? `${h}:${String(mm).padStart(2, '0')}:${ss}` : `${mm}:${ss}`;
+}

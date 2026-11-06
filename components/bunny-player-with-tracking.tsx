@@ -12,16 +12,19 @@ declare global {
 
 interface BunnyPlayerWithTrackingProps {
   videoId: number;
+  /** Player link from the API (signed); the website never builds it itself. */
+  src: string;
   className?: string;
   token?: string;
-  bunnyVideoId?: string;
+  autoplay?: boolean;
 }
 
 export const BunnyPlayerWithTracking = ({
   videoId,
+  src,
   className,
   token,
-  bunnyVideoId,
+  autoplay = true,
 }: BunnyPlayerWithTrackingProps) => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const playerRef = useRef<any>(null);
@@ -112,7 +115,7 @@ export const BunnyPlayerWithTracking = ({
         playerRef.current = null;
       }
     };
-  }, [videoId]);
+  }, [videoId, src]);
 
   return (
     <div
@@ -123,8 +126,8 @@ export const BunnyPlayerWithTracking = ({
     >
       <iframe
         ref={iframeRef}
-        src={`https://iframe.mediadelivery.net/embed/${process.env.NEXT_PUBLIC_LIBRARY_ID}/${bunnyVideoId}`}
-        loading="lazy"
+        key={src}
+        src={`${src}${src.includes('?') ? '&' : '?'}autoplay=${autoplay}&preload=true&responsive=true`}
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
         allowFullScreen
         className="absolute inset-0 h-full w-full border-0"
