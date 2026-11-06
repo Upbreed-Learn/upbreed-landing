@@ -1,3 +1,4 @@
+import { PaymentAssurance } from '@/components/how-to-pay';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -135,7 +136,7 @@ const Gifts = (props: { children?: React.ReactNode }) => {
         recipientEmail: value.recipientEmail,
         planId: `${giftPlan?.id ?? ''}`,
         period: value.plan,
-        callbackUrl: `${rootUrl}`,
+        callbackUrl: `${rootUrl}/payment?type=gift`,
       });
     },
   });
@@ -381,6 +382,7 @@ const Gifts = (props: { children?: React.ReactNode }) => {
               )}
             </FieldGroup>
           </FieldGroup>
+          <PaymentAssurance guarantee={false} />
           <Button
             disabled={isPendingGift}
             className="h-12 rounded-lg disabled:opacity-50"

@@ -32,6 +32,9 @@ import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { toast } from 'sonner';
+import { PaymentAssurance, PaymentMethod } from '@/components/how-to-pay';
+
+const PERIOD_TEXT: Record<Period, string> = { monthly: 'Monthly', biannually: '6 months', annually: '1 year' };
 
 const ChooseYourPlan = () => {
   const [tab, _] = useQueryState('plan', { defaultValue: 'biannually' });
@@ -397,7 +400,7 @@ const SubscriptionNotice = (props: {
     }) => MUTATIONS.initiateSubscription(data),
     successToast: {
       title: 'Success',
-      description: 'Your subscription has been created successfully.',
+      description: 'Taking you to secure checkout…',
     },
     errorToast: {
       title: 'Error',
@@ -430,7 +433,7 @@ const SubscriptionNotice = (props: {
         planId: level?.id!!,
         period,
         email: userProfile.email,
-        callbackUrl: `${rootUrl}/student/courses`,
+        callbackUrl: `${rootUrl}/payment?type=subscription`,
       });
     }
   };
@@ -438,15 +441,23 @@ const SubscriptionNotice = (props: {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="custom-font max-h-[calc(100dvh/var(--site-zoom,1)-2rem)] gap-5 overflow-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogTitle className="text-[#00230F]">Confirm your membership</DialogTitle>
           <DialogDescription>
-            You are about to make payment for your subscription. This action
-            cannot be undone.
+            {level ? (
+              <>
+                {level.name} · {PERIOD_TEXT[period as Period] ?? period} ·{' '}
+                <span className="font-semibold text-[#00230F]">{formatPrice(level.periods?.[period as Period])}</span>
+              </>
+            ) : (
+              'Choose a plan first.'
+            )}
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
+        <PaymentMethod provider={level?.periods?.[period as Period]?.provider} />
+        <PaymentAssurance />
+        <DialogFooter className="gap-2">
           <DialogClose asChild>
             <Button variant={'outline'}>Cancel</Button>
           </DialogClose>
@@ -455,7 +466,7 @@ const SubscriptionNotice = (props: {
             disabled={isPending}
             onClick={handleSubscription}
           >
-            {isPending ? 'Loading...' : 'Subscribe'}
+            {isPending ? 'Loading...' : 'Continue to payment'}
           </Button>
         </DialogFooter>
       </DialogContent>

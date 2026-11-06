@@ -1,4 +1,5 @@
 'use client';
+import Splash from '@/components/splash';
 
 import localFont from 'next/font/local';
 import Footer from '@/components/footer';
@@ -65,6 +66,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: FIT_TO_DESIGN }} />
       </head>
       <body className={cn('bg-[#00230F]', myFont.className)}>
+        <Splash />
         <QueryProvider>
           <Suspense>
             <NuqsAdapter>

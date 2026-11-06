@@ -16,8 +16,12 @@ export type SessionInstructor = {
   title: string | null;
   expertise: string | null;
   profilePictureUrl: string | null;
+  about: string | null;
   rating: number | null;
   reviews: number;
+  /** First open start time (UTC ISO), or null when fully booked / no hours set. */
+  nextAvailable: string | null;
+  timezone: string;
   sessionTypes: SessionTypeView[];
 };
 
@@ -27,7 +31,7 @@ export type MyBooking = {
   startsAt: string;
   endsAt: string;
   sessionType: { name: string; durationMinutes: number } | null;
-  instructor: { id: number; name: string } | null;
+  instructor: { id: number; name: string; profilePictureUrl?: string | null } | null;
   note: string | null;
   declineReason: string | null;
   price: { amount: number; currency: string };
@@ -54,3 +58,28 @@ export const apiError = (e: any) => {
   const m = e?.response?.data?.message;
   return Array.isArray(m) ? m.join(', ') : m || 'Something went wrong. Please try again.';
 };
+
+/** "$600/30 Mins", "₦40,000/Hour" */
+export function priceLabel(t: Pick<SessionTypeView, 'price' | 'durationMinutes'> | undefined | null, format: (p: { currency: string; amount: number }) => string) {
+  if (!t?.price) return '—';
+  const per = t.durationMinutes === 60 ? 'Hour' : t.durationMinutes % 60 === 0 ? `${t.durationMinutes / 60} Hours` : `${t.durationMinutes} Mins`;
+  return `${format(t.price)}/${per}`;
+}
+
+/** Price for one hour of this type, for sorting. */
+export const hourlyRate = (t: Pick<SessionTypeView, 'price' | 'durationMinutes'>) => (t.price ? (Number(t.price.amount) / t.durationMinutes) * 60 : Infinity);
+
+/** True when the next open time is within the next 7 days. */
+export const availableSoon = (i: Pick<SessionInstructor, 'nextAvailable'>, days = 7) =>
+  Boolean(i.nextAvailable && new Date(i.nextAvailable).getTime() - Date.now() < days * 86_400_000);
+
+/** "26/01/2026" in the visitor's time zone. */
+export const shortDate = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(iso));
+
+export const initials = (name?: string | null) =>
+  (name ?? '?')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0]!.toUpperCase())
+    .join('');

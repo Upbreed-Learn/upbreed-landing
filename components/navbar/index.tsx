@@ -74,7 +74,7 @@ const Navbar = () => {
                 href={'/sessions'}
                 className={cn(
                   'hover:text-[#D0EA50]',
-                  pathname === '/sessions' && 'text-[#D0EA50]',
+                  pathname.startsWith('/sessions') && 'text-[#D0EA50]',
                 )}
               >
                 1-on-1
@@ -105,8 +105,14 @@ const Navbar = () => {
             </Activity>
             <Activity mode={token ? 'visible' : 'hidden'}>
               <>
-                <div className="flex items-center gap-9 max-lg:hidden">
+                <div className="flex items-center gap-7 text-[13px] font-medium max-lg:hidden">
                   {/* <NavLink href="/1-on-1">1 - on - 1</NavLink> */}
+                  <NavLink
+                    href="/student/sessions"
+                    className={cn('hover:text-[#D0EA50]', pathname.startsWith('/student/sessions') && 'text-[#D0EA50]')}
+                  >
+                    My Sessions
+                  </NavLink>
                   <NavLink href="/student/courses">My Courses</NavLink>
                 </div>
                 <div className="flex items-center gap-7 max-lg:hidden">

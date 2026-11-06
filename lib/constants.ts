@@ -94,6 +94,7 @@ export interface CourseData {
   };
   percentageCompletion: number;
   totalVideos: number;
+  createdAt?: string;
 }
 export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
   videos: {
