@@ -116,6 +116,10 @@ export interface CourseDetailsData extends Omit<CourseData, 'categories'> {
     percentageCompleted?: number;
   }[];
   percentageCompleted?: number;
+  myReview?: { id: number; rating: number; comment: string } | null;
+  reviewCount?: number;
+  canReview?: boolean;
+  avgRatings?: number | null;
   categories: Omit<
     Category['category'][],
     'createdAt' | 'updatedAt' | 'deletedAt'

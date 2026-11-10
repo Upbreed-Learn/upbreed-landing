@@ -1,10 +1,12 @@
 'use client';
 
 import play from '@/public/gifs/play.gif';
-import { Lock, PlayIcon } from 'lucide-react';
-import StarIcon from '@/components/jsx-icons/star';
+import { Lock, PlayIcon, Star } from 'lucide-react';
 import Image from 'next/image';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { https } from '@/lib/https';
+import { apiError } from '@/lib/sessions';
+import { toast } from 'sonner';
 import { useGetCourseAndInstructor } from './hero';
 import { CourseDetailsData, Instructor } from '@/lib/constants';
 import { queryKeys } from '@/lib/queries/query-keys';
@@ -208,13 +210,23 @@ const About = (props: { id: string }) => {
                     )}
                   </ul>
                   {rating > 0 && (
-                    <div className="flex items-center gap-0.5" aria-label={`Rated ${rating} out of 5`}>
-                      {[1, 2, 3, 4, 5].map(n => (
-                        <StarIcon key={n} fill={n <= rating ? '#FFC700' : undefined} />
-                      ))}
+                    <div className="flex items-center gap-2 text-xs text-[#6F6F6F]">
+                      <div className="flex items-center gap-0.5" aria-label={`Rated ${rating} out of 5`}>
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <Star key={n} className={cn('size-4', n <= rating ? 'fill-[#FFC700] text-[#FFC700]' : 'text-[#C8C8C8]')} />
+                        ))}
+                      </div>
+                      {Number(details.avgRatings).toFixed(1)} · {details.reviewCount ?? 0} rating{details.reviewCount === 1 ? '' : 's'}
                     </div>
                   )}
                 </div>
+                <RateCourse
+                  courseId={id}
+                  mine={details.myReview ?? null}
+                  signedIn={!!token}
+                  canReview={!!details.canReview}
+                  onLogin={() => setAuth('login')}
+                />
               </div>
             </>
           )}
@@ -225,6 +237,99 @@ const About = (props: { id: string }) => {
 };
 
 export default About;
+
+/** Rate this class out of five (and say why, if they like). Rating again changes their rating. */
+const RateCourse = (props: {
+  courseId: string;
+  mine: { rating: number; comment: string } | null;
+  signedIn: boolean;
+  canReview: boolean;
+  onLogin: () => void;
+}) => {
+  const { courseId, mine, signedIn, canReview, onLogin } = props;
+  const queryClient = useQueryClient();
+  const [hover, setHover] = useState(0);
+  const [picked, setPicked] = useState(0);
+  const [comment, setComment] = useState('');
+  const [editing, setEditing] = useState(false);
+  const rating = picked || mine?.rating || 0;
+
+  const save = useMutation({
+    mutationFn: () => https.post(`/course/${courseId}/review`, { rating, comment: comment.trim() || undefined }),
+    onSuccess: () => {
+      toast.success(mine ? 'Your rating was updated' : 'Thanks for rating this class');
+      setEditing(false);
+      setPicked(0);
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.byId(courseId) });
+    },
+    onError: e => toast.error('Could not save your rating', { description: apiError(e) }),
+  });
+
+  const pick = (n: number) => {
+    if (!signedIn) return onLogin();
+    if (!canReview) return toast('Watch some of this class first', { description: 'You can rate it once you have started a lesson.' });
+    setPicked(n);
+    setComment(mine?.comment ?? '');
+    setEditing(true);
+  };
+
+  return (
+    <div className="flex w-full max-w-md flex-col gap-3 rounded-xl border border-[#E5E5E5] p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-[#00230F]">{mine ? 'Your rating' : 'Rate this class'}</p>
+        <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
+          {[1, 2, 3, 4, 5].map(n => (
+            <button
+              key={n}
+              type="button"
+              aria-label={`${n} star${n > 1 ? 's' : ''}`}
+              onMouseEnter={() => setHover(n)}
+              onClick={() => pick(n)}
+              className="cursor-pointer p-0.5 transition-transform active:scale-90"
+            >
+              <Star className={cn('size-7', n <= (hover || rating) ? 'fill-[#FFC700] text-[#FFC700]' : 'text-[#C8C8C8]')} />
+            </button>
+          ))}
+        </div>
+      </div>
+      {editing ? (
+        <>
+          <textarea
+            value={comment}
+            onChange={e => setComment(e.target.value)}
+            maxLength={2000}
+            rows={3}
+            placeholder="What did you think? (optional)"
+            className="w-full rounded-lg border border-[#DADADA] p-3 text-sm outline-none focus:border-[#305B43]"
+          />
+          <div className="flex gap-2">
+            <Button size="sm" disabled={save.isPending} onClick={() => save.mutate()}>
+              {save.isPending ? 'Saving…' : mine ? 'Update rating' : 'Submit rating'}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setEditing(false);
+                setPicked(0);
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </>
+      ) : (
+        <p className="text-xs text-[#6F6F6F]">
+          {mine
+            ? mine.comment || 'Tap the stars to change your rating.'
+            : signedIn
+              ? 'Tap a star to rate. It helps other learners and the instructor.'
+              : 'Log in and watch a lesson to rate this class.'}
+        </p>
+      )}
+    </div>
+  );
+};
 
 const AboutLoader = () => (
   <div className="flex animate-pulse flex-col gap-6">

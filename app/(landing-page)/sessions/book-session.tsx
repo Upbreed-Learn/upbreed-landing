@@ -76,7 +76,7 @@ const BookSession = () => {
             <Button onClick={() => setAuthQ('login')}>Log in to book</Button>
           </div>
         ) : instructors.isPending ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
             {[0, 1, 2].map(i => (
               <div key={i} className="h-80 animate-pulse rounded-2xl bg-white/10" />
             ))}
@@ -126,7 +126,7 @@ const BookSession = () => {
               )}
             </div>
             {shown.length ? (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
                 {shown.map(ins => (
                   <InstructorCard key={ins.id} instructor={ins} onBook={() => setBooking(ins)} />
                 ))}

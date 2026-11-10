@@ -5,7 +5,7 @@ import { BlogDetailsData } from '@/lib/constants';
 import { useGetBlogById } from '@/lib/queries/hooks';
 import { queryKeys } from '@/lib/queries/query-keys';
 import { useQueryClient } from '@tanstack/react-query';
-import DOMPurify from 'dompurify';
+import BlogBody from '@/components/blog-body';
 
 const PressContent = (props: { id: string }) => {
   const queryClient = useQueryClient();
@@ -29,10 +29,7 @@ const PressContent = (props: { id: string }) => {
   }
 
   return (
-    <div
-      className="flex flex-col gap-9"
-      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
-    />
+    <BlogBody html={blog.content} />
   );
 };
 

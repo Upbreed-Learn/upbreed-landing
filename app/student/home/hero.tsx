@@ -19,6 +19,9 @@ const Hero = () => {
   const course = recent.data?.find(c => c.percentageCompletion < 100) ?? recent.data?.[0];
   const name = me ? `${me.fname} ${me.lname?.[0] ?? ''}`.trim() : '';
 
+  // Only for signed-in people who have started a class. Everyone else goes straight to the classes.
+  if (!token || (!recent.isPending && !course)) return null;
+
   return (
     <section className="flex justify-center bg-[#305B43]">
       <div className="flex w-full max-w-7xl flex-col items-stretch gap-6 pt-8 md:flex-row md:items-center md:gap-10 md:py-8">

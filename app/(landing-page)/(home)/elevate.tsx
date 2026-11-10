@@ -94,12 +94,9 @@ const Elevate = () => {
                 >
                   {category.name}
                   {category.icon ? (
-                    <Image
-                      src={category.icon}
-                      alt="icon"
-                      width={16}
-                      height={16}
-                    />
+                    // Uploaded icons (often black SVGs) are shown in white to match the built-in ones.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={category.icon} alt="" className="size-4 object-contain brightness-0 invert" />
                   ) : (
                     <CategoryIcon name={category.name} />
                   )}
@@ -240,44 +237,45 @@ function SampleCard(props: (typeof SAMPLE_CARDS)[number] & { isNew?: boolean }) 
   );
 }
 
+/** A real course on the homepage: same card as the design (portrait, name, what they teach, length, rating). */
 const InstructorCard = (props: { course: CourseData }) => {
   const { course } = props;
+  const created = (course as { createdAt?: string }).createdAt;
+  const isNew = Boolean(created) && Date.now() - new Date(created!).getTime() < 30 * 86_400_000;
+  const rating = Math.round(Number((course as { avgRatings?: number | null }).avgRatings ?? 0));
   return (
-    <div className="relative size-max h-87.5 w-50 shrink-0 overflow-hidden rounded-lg ease-in-out hover:brightness-125">
-      <span className="absolute top-4 right-5 z-10 rounded-lg border border-[#D0EA50] px-2 py-1 text-[8px]/[100%] font-semibold text-white">
-        New
-      </span>
-      <Image
-        src={course.thumbnail}
-        alt={course.title}
-        unoptimized
-        fill
-        sizes="(max-width: 1200px) 100vw, 1200px"
-        className="object-cover"
-      />
-      <div className="absolute bottom-5 left-1/2 flex w-11/12 -translate-x-1/2 flex-col gap-4">
+    <Link
+      href={`/student/courses/${course.id}`}
+      className="relative block h-79 w-50.5 shrink-0 overflow-hidden rounded-lg bg-[#303030] ease-in-out hover:brightness-125"
+    >
+      {isNew && (
+        <span className="absolute top-4 right-4 z-10 rounded-lg border border-[#D0EA50] px-2 py-1 text-[8px]/[100%] font-semibold text-white">
+          New
+        </span>
+      )}
+      {course.thumbnail && (
+        <Image src={course.thumbnail} alt={course.title} unoptimized fill sizes="(max-width: 1200px) 100vw, 1200px" className="object-cover object-top" />
+      )}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+      <div className="absolute bottom-5 left-1/2 flex w-[85%] -translate-x-1/2 flex-col gap-4">
         <div>
-          <p className="text-[2rem]/[100%] font-extrabold text-white">
+          <p className="text-[2rem]/[100%] font-extrabold break-words text-white uppercase">
             {course.instructor.fname} {course.instructor.lname}
           </p>
-          <p className="text-[10.67px]/[100%] text-[#D0EA50]">
-            {course.instructor.fname}
-          </p>
+          <p className="line-clamp-2 pt-1 text-[10.67px]/[110%] text-[#D0EA50]">{course.title}</p>
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-[8px]/[100%] font-semibold text-white">
-            {formatHMS(courseSeconds(course))}
-          </p>
-          <div className="flex items-center gap-0.5">
-            <StarIcon fill="#FFC700" />
-            <StarIcon fill="#FFC700" />
-            <StarIcon fill="#FFC700" />
-            <StarIcon fill="#FFC700" />
-            <StarIcon />
-          </div>
+          <p className="text-[8px]/[100%] font-semibold text-white tabular-nums">{formatHMS(courseSeconds(course))}</p>
+          {rating > 0 && (
+            <div className="flex items-center gap-0.5" aria-label={`Rated ${rating} out of 5`}>
+              {[1, 2, 3, 4, 5].map(n => (
+                <StarIcon key={n} fill={n <= rating ? '#FFC700' : undefined} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

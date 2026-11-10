@@ -83,10 +83,10 @@ export function InstructorCard({ instructor, onBook }: { instructor: SessionInst
   const open = Boolean(instructor.nextAvailable);
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl bg-[#0B3A20]">
-      <Link href={`/sessions/${instructor.id}`} className="relative block aspect-[4/3] bg-[#305B43]">
+      <Link href={`/sessions/${instructor.id}`} className="relative block aspect-[3/4] bg-[#305B43]">
         {instructor.profilePictureUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={instructor.profilePictureUrl} alt={instructor.name} className="size-full object-cover" />
+          <img src={instructor.profilePictureUrl} alt={instructor.name} className="size-full object-cover object-top" />
         ) : (
           <div className="grid size-full place-items-center text-4xl font-semibold text-[#D0EA50]">{initials(instructor.name)}</div>
         )}

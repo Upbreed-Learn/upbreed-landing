@@ -106,8 +106,9 @@ const CourseBundles = () => {
     }
   };
 
-  const currentColor = courses?.[0]?.isBookmark ? '#F2F2F2' : '#305B43';
-  const otherColor = currentColor === '#F2F2F2' ? '#305B43' : '#F2F2F2';
+  // Saved shows filled red, not saved shows an outline.
+  const currentColor = courses?.[0]?.isBookmark ? '#E5484D' : 'transparent';
+  const otherColor = currentColor === '#E5484D' ? 'transparent' : '#E5484D';
 
   const handleRetry = () => {
     queryClient.invalidateQueries({
@@ -187,7 +188,7 @@ const CourseBundles = () => {
                 className="z-10 size-max cursor-pointer p-1 transition-transform active:scale-95"
               >
                 <Bookmark
-                  className="text-white"
+                  className={courses[0].isBookmark ? 'text-[#E5484D]' : 'text-white'}
                   fill={
                     isPendingBookmark || isPendingRemoveBookmark
                       ? otherColor

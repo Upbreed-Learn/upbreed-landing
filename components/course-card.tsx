@@ -104,7 +104,7 @@ const CourseCard = (props: {
           aria-label={marked ? 'Remove bookmark' : 'Bookmark this course'}
           className="absolute top-4 right-4 z-10 cursor-pointer p-1 transition-transform active:scale-95"
         >
-          <Bookmark size={22} className={marked ? 'text-[#A855F7]' : 'text-white'} fill={marked ? '#A855F7' : 'transparent'} />
+          <Bookmark size={22} className={marked ? 'text-[#E5484D]' : 'text-white'} fill={marked ? '#E5484D' : 'transparent'} />
         </button>
       )}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 px-5 pb-4">

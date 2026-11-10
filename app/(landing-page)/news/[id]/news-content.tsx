@@ -7,7 +7,7 @@ import { queryKeys } from '@/lib/queries/query-keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import DOMPurify from 'dompurify';
+import BlogBody from '@/components/blog-body';
 import ErrorCard from '@/components/error-card';
 
 const NewsContent = (props: { id: string }) => {
@@ -33,9 +33,7 @@ const NewsContent = (props: { id: string }) => {
 
   return (
     <div className="flex flex-col gap-9">
-      <div
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
-      ></div>
+      <BlogBody html={blog.content} />
       <div className="flex items-center justify-between text-[#305B43] [&_p]:text-xs/[100%] [&_p]:font-medium">
         <Link
           href={`/news/${blog.previousId}`}

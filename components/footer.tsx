@@ -172,7 +172,7 @@ const Footer = () => {
             </div>
           </div>
           <div className="flex w-full max-w-[460px] flex-col gap-7 pt-5">
-            <div className="flex items-center gap-[28px]">
+            <div className="flex items-center gap-5 [&_svg]:h-5 [&_svg]:w-auto">
               <Link
                 target="_blank"
                 href="https://www.linkedin.com/company/upbreedlearn/about/?viewAsMember=true"
