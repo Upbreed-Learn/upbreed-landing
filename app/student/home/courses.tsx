@@ -118,24 +118,24 @@ const CourseBundles = () => {
 
   return (
     <div className="flex max-lg:flex-col md:gap-12 lg:items-center lg:gap-10">
-      <aside className="flex flex-col gap-2 text-sm/6 font-semibold text-[#949494] lg:flex-1/6 lg:gap-6">
+      <aside className="flex flex-col gap-2 text-sm/6 font-normal text-black/50 lg:flex-1/6 lg:gap-5">
         <button
           onClick={() => setCourse('all')}
-          className="w-max cursor-pointer text-[#34A853]"
+          className="w-max cursor-pointer text-left font-medium text-[#34A853]"
         >
-          Course Bundles
+          Course bundles
         </button>
-        <ul className="flex gap-1 text-xs/[30px] md:gap-2 lg:flex-col">
+        <ul className="flex gap-1 text-sm/6 md:gap-2 lg:flex-col lg:gap-1">
           {COURSE_BUNDLES.map(bundle => (
             <li key={bundle.id}>
               <button
                 className={cn(
-                  'cursor-pointer capitalize',
-                  course === bundle.name.trim() && 'font-bold text-black',
+                  'cursor-pointer text-left transition-colors hover:text-black',
+                  course === bundle.name.trim() && 'font-medium text-black',
                 )}
                 onClick={() => setCourse(bundle.name.trim())}
               >
-                {bundle.name} <span className="lg:hidden">.</span>
+                {bundle.name.charAt(0) + bundle.name.slice(1).toLowerCase()} <span className="lg:hidden">.</span>
               </button>
             </li>
           ))}
@@ -249,18 +249,18 @@ const AllCourses = () => {
 
   return (
     <div className="flex gap-10 max-md:flex-col">
-      <aside className="flex flex-col gap-6 text-sm/4 font-semibold text-[#6F6F6F] md:flex-1/6">
+      <aside className="flex flex-col gap-6 text-[15px]/5 font-normal text-black/70 md:flex-1/6">
         <button
           onClick={() => setCourse('all')}
-          className="flex cursor-pointer items-center gap-1"
+          className={cn('flex w-max cursor-pointer items-center gap-2 text-left transition-colors hover:text-black', course === 'all' && 'text-black')}
         >
-          All Courses <ChevronRight />
+          All courses <ChevronRight className="size-4" />
         </button>
         <div className={cn(categories?.length < 1 && 'hidden')}>
           {isError ? (
             <ErrorCard handleRetry={handleRetry} />
           ) : (
-            <ul className="flex gap-3 max-md:flex-wrap max-md:text-xs md:flex-col [&>li]:border-[#6F6F6F] [&>li]:last:border-none [&>li]:last:pr-0 max-md:[&>li]:border-r max-md:[&>li]:pr-3">
+            <ul className="flex gap-3 max-md:flex-wrap max-md:text-xs md:flex-col md:gap-4 [&>li]:border-[#6F6F6F] [&>li]:last:border-none [&>li]:last:pr-0 max-md:[&>li]:border-r max-md:[&>li]:pr-3">
               {isPending ? (
                 <CoursesLoading />
               ) : (
@@ -268,9 +268,8 @@ const AllCourses = () => {
                   <li key={category.id}>
                     <button
                       className={cn(
-                        'cursor-pointer capitalize',
-                        course === category.id.toString() &&
-                          'font-bold text-black',
+                        'cursor-pointer text-left transition-colors hover:text-black',
+                        course === category.id.toString() && 'font-medium text-black',
                       )}
                       onClick={() => setCourse(category.id.toString())}
                     >
