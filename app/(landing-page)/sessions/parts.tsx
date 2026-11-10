@@ -10,14 +10,13 @@ import {
   SessionTypeView,
   apiError,
   availableSoon,
-  dayLabel,
   initials,
   priceLabel,
   timeLabel,
 } from '@/lib/sessions';
 import { cn } from '@/lib/utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
@@ -117,16 +116,19 @@ export function InstructorCard({ instructor, onBook }: { instructor: SessionInst
   );
 }
 
-/** Select Date & Time → Confirm your booking → request sent. */
+/** One screen, no scrolling on a laptop: who and what on the left, a calendar in the middle, times and send on the right. */
 export function BookingDialog({ instructor, onClose }: { instructor: SessionInstructor | null; onClose: () => void }) {
   return (
     <Dialog open={Boolean(instructor)} onOpenChange={o => !o && onClose()}>
-      <DialogContent className="custom-font max-h-[calc(100dvh/var(--site-zoom,1)-2rem)] overflow-auto text-[#00230F] sm:max-w-lg">
+      <DialogContent className="custom-font max-h-[calc(100dvh/var(--site-zoom,1)-2rem)] w-[calc(100vw-2rem)] max-w-[1040px] gap-0 overflow-y-auto p-0 text-[#00230F] sm:max-w-[1040px] lg:overflow-hidden">
         {instructor && <BookingSteps key={instructor.id} instructor={instructor} onClose={onClose} />}
       </DialogContent>
     </Dialog>
   );
 }
+
+const WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
 function BookingSteps({ instructor, onClose }: { instructor: SessionInstructor; onClose: () => void }) {
   const router = useRouter();
@@ -135,23 +137,42 @@ function BookingSteps({ instructor, onClose }: { instructor: SessionInstructor; 
   const token = tokenData?.data.token;
   const [type, setType] = useState<SessionTypeView>(instructor.sessionTypes[0]!);
   const [slot, setSlot] = useState<string | null>(null);
-  const [day, setDay] = useState(0);
-  const [step, setStep] = useState<'time' | 'confirm'>('time');
+  const [picked, setPicked] = useState<string | null>(null);
+  const [month, setMonth] = useState<Date | null>(null);
   const [note, setNote] = useState('');
 
   const slots = useQuery({
     queryKey: ['session-slots', type.id],
     queryFn: () => https.get(`/sessions/types/${type.id}/slots`).then(r => r.data.data as string[]),
   });
+  // Open times grouped by the visitor's local day.
   const byDay = useMemo(() => {
     const m = new Map<string, Date[]>();
     for (const s of slots.data ?? []) {
       const d = new Date(s);
-      const k = dayLabel(d);
-      m.set(k, [...(m.get(k) ?? []), d]);
+      m.set(dayKey(d), [...(m.get(dayKey(d)) ?? []), d]);
     }
-    return [...m.entries()];
+    return m;
   }, [slots.data]);
+  const first = slots.data?.[0] ? new Date(slots.data[0]) : null;
+  const last = slots.data?.length ? new Date(slots.data[slots.data.length - 1]) : null;
+  const dayOn = picked ?? (first ? dayKey(first) : null);
+  const shownMonth = month ?? (first ? new Date(first.getFullYear(), first.getMonth(), 1) : new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const times = dayOn ? byDay.get(dayOn) ?? [] : [];
+
+  // The month grid (weeks start on Monday).
+  const monthStart = shownMonth.getTime();
+  const cells = useMemo(() => {
+    const m0 = new Date(monthStart);
+    const y = m0.getFullYear();
+    const mo = m0.getMonth();
+    const lead = (new Date(y, mo, 1).getDay() + 6) % 7;
+    const days = new Date(y, mo + 1, 0).getDate();
+    return [...Array.from({ length: lead }, () => null), ...Array.from({ length: days }, (_, i) => new Date(y, mo, i + 1))];
+  }, [monthStart]);
+  const canPrev = first ? shownMonth > new Date(first.getFullYear(), first.getMonth(), 1) : false;
+  const canNext = last ? shownMonth < new Date(last.getFullYear(), last.getMonth(), 1) : false;
+  const moveMonth = (n: number) => setMonth(new Date(shownMonth.getFullYear(), shownMonth.getMonth() + n, 1));
 
   const book = useMutation({
     mutationFn: () => https.post('/sessions/book', { sessionTypeId: type.id, startsAt: slot, note: note || undefined }),
@@ -162,161 +183,215 @@ function BookingSteps({ instructor, onClose }: { instructor: SessionInstructor; 
     },
     onError: e => {
       toast.error('Could not send request', { description: apiError(e) });
-      setStep('time');
       setSlot(null);
       slots.refetch();
     },
   });
 
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const head = (
-    <div className="flex items-center gap-3">
-      <Avatar name={instructor.name} src={instructor.profilePictureUrl} className="size-11 text-sm" />
-      <div className="flex-1">
-        <p className="text-base font-semibold">{instructor.name}</p>
-        <SubjectTag className="bg-[#305B43]/10 text-[#305B43]">{subjectOf(instructor)}</SubjectTag>
-      </div>
-      <p className="text-lg font-semibold">{formatPrice(type.price)}</p>
-    </div>
-  );
+  const chosen = slot ? new Date(slot) : null;
+  const firstName = instructor.name.split(' ')[0];
 
-  if (step === 'confirm' && slot) {
-    const d = new Date(slot);
-    return (
-      <div className="flex flex-col gap-5">
-        <DialogHeader>
-          <button onClick={() => setStep('time')} className="w-max cursor-pointer text-sm text-[#305B43]">
-            ← Back
-          </button>
-          <DialogTitle>Confirm your booking</DialogTitle>
-          <DialogDescription>Review your booking summary before sending your request.</DialogDescription>
-        </DialogHeader>
-        {head}
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-xl bg-[#F4F7F4] p-4 text-sm">
-          <dt className="text-[#737373]">Session:</dt>
-          <dd className="font-medium">{type.name}</dd>
-          <dt className="text-[#737373]">Date:</dt>
-          <dd className="font-medium">{new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(d)}</dd>
-          <dt className="text-[#737373]">Time:</dt>
-          <dd className="font-medium">
-            {timeLabel(d)} <span className="text-[#737373]">({zone})</span>
-          </dd>
-          <dt className="text-[#737373]">Duration:</dt>
-          <dd className="font-medium">{type.durationMinutes} Mins</dd>
-          <dt className="text-[#737373]">Price:</dt>
-          <dd className="font-medium">{formatPrice(type.price)}</dd>
+  return (
+    <div className="grid lg:h-[min(620px,calc(100dvh/var(--site-zoom,1)-2rem))] lg:grid-cols-[290px_minmax(0,1fr)_300px]">
+      <DialogHeader className="sr-only">
+        <DialogTitle>Book a 1-on-1 with {instructor.name}</DialogTitle>
+        <DialogDescription>Pick a day and a time, then send your request.</DialogDescription>
+      </DialogHeader>
+
+      {/* Who and what */}
+      <aside className="flex flex-col gap-4 bg-[#00230F] p-6 text-white">
+        <div className="flex items-center gap-3.5">
+          {instructor.profilePictureUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={instructor.profilePictureUrl} alt="" className="h-20 w-16 shrink-0 rounded-xl object-cover object-top" />
+          ) : (
+            <span className="grid h-20 w-16 shrink-0 place-items-center rounded-xl bg-[#305B43] text-lg font-bold text-[#D0EA50]">{initials(instructor.name)}</span>
+          )}
+          <div className="flex min-w-0 flex-col gap-1">
+            <p className="text-lg/tight font-bold">{instructor.name}</p>
+            {(instructor.title || subjectOf(instructor)) && <p className="line-clamp-2 text-xs text-[#B9C7BE]">{instructor.title || subjectOf(instructor)}</p>}
+            {instructor.rating ? (
+              <p className="flex items-center gap-1 text-xs text-[#E8F0E4]">
+                <Star className="size-3.5 fill-[#FFC700] text-[#FFC700]" /> {instructor.rating.toFixed(1)} · {instructor.reviews} review{instructor.reviews === 1 ? '' : 's'}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        {instructor.sessionTypes.length > 1 ? (
+          <div role="radiogroup" aria-label="Session" className="flex flex-col gap-2">
+            {instructor.sessionTypes.slice(0, 3).map(t => (
+              <button
+                key={t.id}
+                role="radio"
+                aria-checked={t.id === type.id}
+                onClick={() => {
+                  setType(t);
+                  setSlot(null);
+                  setPicked(null);
+                  setMonth(null);
+                }}
+                className={cn(
+                  'flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-left text-xs',
+                  t.id === type.id ? 'border-[#D0EA50] bg-[#D0EA50]/10' : 'border-white/15 hover:border-white/40',
+                )}
+              >
+                <span>
+                  <span className="block font-semibold text-white">{t.name}</span>
+                  <span className="text-[#B9C7BE]">{t.durationMinutes} min</span>
+                </span>
+                <span className="font-bold text-[#D0EA50]">{formatPrice(t.price)}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-xl bg-white/[0.06] p-3.5 text-[13px]">
+          <dt className="text-[#B9C7BE]">Session</dt>
+          <dd className="text-right font-semibold">{type.name}</dd>
+          <dt className="text-[#B9C7BE]">Length</dt>
+          <dd className="text-right font-semibold">{type.durationMinutes} minutes</dd>
+          <dt className="text-[#B9C7BE]">Price</dt>
+          <dd className="text-right text-base font-bold text-[#D0EA50]">{formatPrice(type.price)}</dd>
+          <dt className="text-[#B9C7BE]">Where</dt>
+          <dd className="text-right font-semibold">Google Meet</dd>
         </dl>
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
-          Additional Notes
+        {type.description && <p className="line-clamp-3 text-xs/relaxed text-[#E8F0E4]">{type.description}</p>}
+
+        <ol className="mt-auto flex flex-col gap-2 text-xs text-[#E8F0E4]">
+          {[`Send your request (no charge yet)`, `${firstName} accepts within 48 hours`, 'Pay to confirm and get your Meet link'].map((t, i) => (
+            <li key={t} className="flex items-center gap-2.5">
+              <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#D0EA50] text-[10px] font-bold text-[#00230F]">{i + 1}</span>
+              {t}
+            </li>
+          ))}
+        </ol>
+      </aside>
+
+      {/* Calendar */}
+      <section className="flex flex-col gap-4 border-[#EEF2EC] p-6 lg:border-r">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-bold">Pick a day</h3>
+            <p className="text-xs text-[#5E6B63]">Times are in your time zone ({zone})</p>
+          </div>
+          <div className="flex items-center gap-1">
+            <button type="button" aria-label="Previous month" disabled={!canPrev} onClick={() => moveMonth(-1)} className="grid size-9 cursor-pointer place-items-center rounded-lg hover:bg-[#F0F4EE] disabled:cursor-default disabled:opacity-30">
+              <ChevronLeft className="size-4" />
+            </button>
+            <span className="w-28 text-center text-sm font-semibold">{shownMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</span>
+            <button type="button" aria-label="Next month" disabled={!canNext} onClick={() => moveMonth(1)} className="grid size-9 cursor-pointer place-items-center rounded-lg hover:bg-[#F0F4EE] disabled:cursor-default disabled:opacity-30">
+              <ChevronRight className="size-4" />
+            </button>
+          </div>
+        </div>
+        {slots.isPending ? (
+          <div className="flex-1 animate-pulse rounded-xl bg-[#F4F7F4]" />
+        ) : !byDay.size ? (
+          <p className="grid flex-1 place-items-center rounded-xl bg-[#F4F7F4] p-6 text-center text-sm text-[#5E6B63]">
+            {firstName} has no open times right now. Please check back soon.
+          </p>
+        ) : (
+          <div className="grid flex-1 grid-cols-7 content-start gap-1.5">
+            {WEEK.map(w => (
+              <span key={w} className="pb-1 text-center text-[11px] font-semibold text-[#5E6B63]">
+                {w}
+              </span>
+            ))}
+            {cells.map((d, i) => {
+              if (!d) return <span key={i} />;
+              const k = dayKey(d);
+              const open = byDay.has(k);
+              const on = k === dayOn;
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  disabled={!open}
+                  aria-pressed={on}
+                  aria-label={`${d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}${open ? `, ${byDay.get(k)!.length} times` : ', not available'}`}
+                  onClick={() => {
+                    setPicked(k);
+                    setSlot(null);
+                  }}
+                  className={cn(
+                    'relative grid aspect-square max-h-14 place-items-center rounded-xl text-sm font-semibold tabular-nums transition-colors',
+                    on ? 'bg-[#00230F] text-[#D0EA50]' : open ? 'cursor-pointer bg-[#E8F0E4] text-[#00230F] hover:bg-[#D0EA50]' : 'text-[#B5BDB8]',
+                  )}
+                >
+                  {d.getDate()}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <p className="flex items-center gap-3 text-[11px] text-[#5E6B63]">
+          <span className="flex items-center gap-1.5">
+            <span className="size-3 rounded bg-[#E8F0E4]" /> Open
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="size-3 rounded bg-[#00230F]" /> Chosen
+          </span>
+        </p>
+      </section>
+
+      {/* Times + send */}
+      <section className="flex flex-col gap-4 p-6">
+        <div>
+          <h3 className="text-lg font-bold">Pick a time</h3>
+          <p className="text-xs text-[#5E6B63]">{dayOn && times[0] ? times[0].toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) : 'Choose a day first'}</p>
+        </div>
+        <div className="grid grid-cols-3 content-start gap-2">
+          {times.slice(0, 15).map(d => (
+            <button
+              key={d.toISOString()}
+              type="button"
+              aria-pressed={slot === d.toISOString()}
+              onClick={() => setSlot(d.toISOString())}
+              className={cn(
+                'cursor-pointer rounded-lg border py-2 text-xs font-semibold tabular-nums',
+                slot === d.toISOString() ? 'border-[#34A853] bg-[#34A853] text-white' : 'border-[#DDE5DB] hover:border-[#305B43]',
+              )}
+            >
+              {timeLabel(d)}
+            </button>
+          ))}
+        </div>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold">
+          What would you like to cover? (optional)
           <textarea
             value={note}
             onChange={e => setNote(e.target.value)}
             maxLength={1000}
-            placeholder="What would you like to cover? (optional)"
-            className="h-24 rounded-xl border border-[#D4D4D4] p-3 text-sm font-normal outline-none focus:border-[#34A853]"
+            rows={2}
+            placeholder={`Tell ${firstName} what you need help with`}
+            className="resize-none rounded-xl border border-[#DDE5DB] p-2.5 text-[13px] font-normal outline-none focus:border-[#34A853]"
           />
         </label>
-        <div className="flex gap-3">
-          <Button variant="outline" className="flex-1" onClick={() => setStep('time')}>
-            Modify
-          </Button>
+        <div className="mt-auto flex flex-col gap-2.5">
+          <p className="rounded-xl bg-[#F4F7F4] px-3.5 py-2.5 text-[13px]">
+            {chosen ? (
+              <>
+                <b>{chosen.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}</b> at <b>{timeLabel(chosen)}</b> · {type.durationMinutes} min · <b>{formatPrice(type.price)}</b>
+              </>
+            ) : (
+              <span className="text-[#5E6B63]">No time chosen yet</span>
+            )}
+          </p>
           <Button
-            className="flex-1"
-            disabled={book.isPending}
+            className="h-12 w-full text-sm font-bold"
+            disabled={!slot || book.isPending}
             onClick={() => {
               if (!token) return setAuth('login');
               book.mutate();
             }}
           >
-            {book.isPending ? 'Sending…' : 'Send Request'}
+            {book.isPending ? 'Sending…' : token ? 'Send request' : 'Log in to send request'}
           </Button>
+          <p className="text-center text-[11px] text-[#5E6B63]">You won&apos;t be charged until {firstName} accepts.</p>
         </div>
-        <p className="text-center text-xs text-[#737373]">
-          You won&apos;t be charged now. Once {instructor.name.split(' ')[0]} accepts, you&apos;ll pay to confirm and get the Google Meet link.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-5">
-      <DialogHeader>
-        <DialogTitle>Select Date &amp; Time</DialogTitle>
-        <DialogDescription>Times are shown in your time zone ({zone}).</DialogDescription>
-      </DialogHeader>
-      {head}
-      {instructor.sessionTypes.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {instructor.sessionTypes.map(t => (
-            <button
-              key={t.id}
-              onClick={() => {
-                setType(t);
-                setSlot(null);
-                setDay(0);
-              }}
-              className={cn(
-                'cursor-pointer rounded-lg border px-3 py-2 text-left text-xs',
-                t.id === type.id ? 'border-[#34A853] bg-[#34A853]/10' : 'border-[#D4D4D4]',
-              )}
-            >
-              <span className="block font-semibold">{t.name}</span>
-              {t.durationMinutes} min · {formatPrice(t.price)}
-            </button>
-          ))}
-        </div>
-      )}
-      {type.description && <p className="text-sm text-[#474747]">{type.description}</p>}
-      {slots.isPending ? (
-        <div className="h-32 animate-pulse rounded-xl bg-[#F4F7F4]" />
-      ) : !byDay.length ? (
-        <p className="rounded-xl bg-[#F4F7F4] p-4 text-sm text-[#737373]">No open times right now. Please check back later.</p>
-      ) : (
-        <>
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Date</p>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {byDay.map(([label], i) => (
-                <button
-                  key={label}
-                  onClick={() => {
-                    setDay(i);
-                    setSlot(null);
-                  }}
-                  className={cn('shrink-0 cursor-pointer rounded-lg border px-3 py-2 text-xs', day === i ? 'border-[#00230F] bg-[#00230F] text-white' : 'border-[#D4D4D4]')}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Time</p>
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-              {byDay[day]?.[1].map(d => (
-                <button
-                  key={d.toISOString()}
-                  onClick={() => setSlot(d.toISOString())}
-                  className={cn(
-                    'cursor-pointer rounded-lg border px-2 py-2 text-xs',
-                    slot === d.toISOString() ? 'border-[#34A853] bg-[#34A853] text-white' : 'border-[#D4D4D4]',
-                  )}
-                >
-                  {timeLabel(d)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-      <div className="flex gap-3">
-        <Button variant="outline" className="flex-1" onClick={onClose}>
-          ← Back
-        </Button>
-        <Button className="flex-1" disabled={!slot} onClick={() => setStep('confirm')}>
-          Continue
-        </Button>
-      </div>
+      </section>
     </div>
   );
 }

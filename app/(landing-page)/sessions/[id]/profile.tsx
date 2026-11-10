@@ -81,7 +81,7 @@ const InstructorProfile = ({ id }: { id: number }) => {
                 {ins.about && (
                   <div className="flex flex-col gap-2 pt-2">
                     <h2 className="text-base font-semibold">About the Instructor</h2>
-                    <p className="text-sm/relaxed whitespace-pre-line text-white/80">{ins.about}</p>
+                    <p className="text-sm/relaxed break-words whitespace-pre-line text-white/80 [overflow-wrap:anywhere]">{ins.about}</p>
                   </div>
                 )}
               </div>
